@@ -18,7 +18,7 @@ public class GenericInstruction {
     }
 
     public void setOpCode(String str) {
-        setInstruction(str, 6, 0);
+        setInstruction(str, 31, 26);
     }
 
     public void setRS(String str) {

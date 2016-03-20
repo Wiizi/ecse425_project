@@ -5,6 +5,12 @@ package assembler_main.binary_instructions.instruction_types;
  */
 public class RInstruction extends GenericInstruction {
 
+//    R INSTRUCTION FORMAT:
+//      B31-26	    B25-21	    B20-16	    B15-11	    B10-6	        B5-0
+//      opcode  	register s	register t	register d	shift amount	function
+//    EXAMPLE:
+//      add $rd, $rs, $rt
+
     public RInstruction() {
         init();
         setOpCode("000000");

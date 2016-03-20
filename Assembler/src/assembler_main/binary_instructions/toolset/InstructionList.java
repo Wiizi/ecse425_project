@@ -13,12 +13,9 @@ public class InstructionList {
     private static Map<String, String> instr = null;
     private static final String R = "R", I = "I", J = "J";
 
-    public InstructionList() {
+    public static String get(String key){
         if (instr == null)
             init();
-    }
-
-    public String get(String key){
         return instr.get(key);
     }
 

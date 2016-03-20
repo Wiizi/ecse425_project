@@ -31,7 +31,7 @@ Bitwise:        addi $1, $0, 3
 				mflo $12				# assume small numbers
 				add  $13, $11, $12 		# Make data pointer [2000+($10)*4]
 				add $2,$0,$4 
-				sw	 $2, 0($13)
+				sw	 $2, 0($13)asdasdasdas   asdasdas dsad asd asd 123213213 !@&!*^!*@!^@
 				
                 j Continue
 False:          addi $4, $0, 0          # x and/or y are 0, so w = 0

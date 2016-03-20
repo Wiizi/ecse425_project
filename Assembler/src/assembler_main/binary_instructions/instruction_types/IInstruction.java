@@ -5,6 +5,12 @@ package assembler_main.binary_instructions.instruction_types;
  */
 public class IInstruction extends GenericInstruction {
 
+//    I INSTRUCTION FORMAT:
+//      B31-26	    B25-21	    B20-16	        B15-0
+//      opcode  	register s	register t      immediate
+//    EXAMPLE:
+//      addi $rt, $rs, immediate
+
     public IInstruction() {
         init();
     }

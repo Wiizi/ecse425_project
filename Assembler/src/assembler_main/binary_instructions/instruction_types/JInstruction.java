@@ -5,11 +5,17 @@ package assembler_main.binary_instructions.instruction_types;
  */
 public class JInstruction extends GenericInstruction {
 
+//    I INSTRUCTION FORMAT:
+//      B31-26	B25-0
+//      opcode  target
+//    EXAMPLE:
+//      j target
+
     public JInstruction() {
         init();
     }
 
-    public JInstruction(String str){
+    public JInstruction(String str) {
         init();
         setInstruction(str);
     }

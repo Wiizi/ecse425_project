@@ -9,7 +9,7 @@ public class Driver {
     static final String path = "./resources/" + filename;
 
     public static void main(String[] args) {
-        Assembler assembler = new Assembler(path);
+        Assembler.assemble(path);
     }
 
 }
