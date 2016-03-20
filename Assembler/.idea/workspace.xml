@@ -2,17 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4580a006-fdd0-4b07-b52d-0c579d6a2b2f" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/Assembler/assembler_main/Assembler.class" afterPath="$PROJECT_DIR$/out/production/Assembler/assembler_main/Assembler.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/resources/bitwise.asm" afterPath="$PROJECT_DIR$/resources/bitwise.asm" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Driver.java" afterPath="$PROJECT_DIR$/src/Driver.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/assembler_main/Assembler.java" afterPath="$PROJECT_DIR$/src/assembler_main/Assembler.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/assembler_main/binary_instructions/SpecificInstruction.java" afterPath="$PROJECT_DIR$/src/assembler_main/binary_instructions/SpecificInstruction.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/assembler_main/binary_instructions/instruction_types/GenericInstruction.java" afterPath="$PROJECT_DIR$/src/assembler_main/binary_instructions/instruction_types/GenericInstruction.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/assembler_main/binary_instructions/instruction_types/IInstruction.java" afterPath="$PROJECT_DIR$/src/assembler_main/binary_instructions/instruction_types/IInstruction.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/assembler_main/binary_instructions/instruction_types/JInstruction.java" afterPath="$PROJECT_DIR$/src/assembler_main/binary_instructions/instruction_types/JInstruction.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/assembler_main/binary_instructions/instruction_types/RInstruction.java" afterPath="$PROJECT_DIR$/src/assembler_main/binary_instructions/instruction_types/RInstruction.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/assembler_main/binary_instructions/toolset/InstructionList.java" afterPath="$PROJECT_DIR$/src/assembler_main/binary_instructions/toolset/InstructionList.java" />
     </list>
     <ignored path="Assembler.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -38,9 +31,10 @@
         <entry file="file://$PROJECT_DIR$/src/Driver.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="11" column="0" selection-start-line="11" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
+              <caret line="5" column="21" selection-start-line="5" selection-start-column="21" selection-end-line="5" selection-end-column="21" />
               <folding>
-                <element signature="e#296#297#0" expanded="true" />
+                <element signature="e#334#335#0" expanded="true" />
+                <element signature="e#374#375#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -49,12 +43,10 @@
       <file leaf-file-name="Assembler.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/assembler_main/Assembler.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.8730159">
-              <caret line="116" column="0" selection-start-line="116" selection-start-column="0" selection-end-line="116" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.19905214">
+              <caret line="97" column="20" selection-start-line="97" selection-start-column="20" selection-end-line="97" selection-end-column="20" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#6559#6560#0" expanded="true" />
-                <element signature="e#6596#6597#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -64,11 +56,9 @@
         <entry file="file://$PROJECT_DIR$/src/assembler_main/binary_instructions/SpecificInstruction.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="15" column="52" selection-start-line="15" selection-start-column="52" selection-end-line="15" selection-end-column="52" />
+              <caret line="11" column="34" selection-start-line="11" selection-start-column="34" selection-end-line="11" selection-end-column="34" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#1175#1176#0" expanded="true" />
-                <element signature="e#1209#1210#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -78,10 +68,10 @@
         <entry file="file://$PROJECT_DIR$/src/assembler_main/binary_instructions/instruction_types/GenericInstruction.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="41" column="21" selection-start-line="41" selection-start-column="21" selection-end-line="41" selection-end-column="21" />
+              <caret line="39" column="58" selection-start-line="39" selection-start-column="58" selection-end-line="39" selection-end-column="58" />
               <folding>
-                <element signature="e#480#481#0" expanded="true" />
-                <element signature="e#523#524#0" expanded="true" />
+                <element signature="e#560#561#0" expanded="true" />
+                <element signature="e#608#609#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -91,7 +81,7 @@
         <entry file="file://$PROJECT_DIR$/src/assembler_main/binary_instructions/instruction_types/RInstruction.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="34" column="16" selection-start-line="34" selection-start-column="16" selection-end-line="34" selection-end-column="16" />
+              <caret line="58" column="0" selection-start-line="58" selection-start-column="0" selection-end-line="58" selection-end-column="0" />
               <folding>
                 <element signature="e#829#830#0" expanded="true" />
                 <element signature="e#875#876#0" expanded="true" />
@@ -104,36 +94,10 @@
         <entry file="file://$PROJECT_DIR$/src/assembler_main/binary_instructions/instruction_types/IInstruction.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="52" column="5" selection-start-line="52" selection-start-column="5" selection-end-line="52" selection-end-column="5" />
+              <caret line="19" column="21" selection-start-line="19" selection-start-column="21" selection-end-line="19" selection-end-column="21" />
               <folding>
-                <element signature="e#374#375#0" expanded="true" />
-                <element signature="e#396#397#0" expanded="true" />
-                <element signature="e#530#531#0" expanded="true" />
-                <element signature="e#577#578#0" expanded="true" />
-                <element signature="e#603#604#0" expanded="true" />
-                <element signature="e#638#639#0" expanded="true" />
-                <element signature="e#664#665#0" expanded="true" />
-                <element signature="e#699#700#0" expanded="true" />
-                <element signature="e#724#725#0" expanded="true" />
-                <element signature="e#759#760#0" expanded="true" />
-                <element signature="e#783#784#0" expanded="true" />
-                <element signature="e#818#819#0" expanded="true" />
-                <element signature="e#843#844#0" expanded="true" />
-                <element signature="e#878#879#0" expanded="true" />
-                <element signature="e#902#903#0" expanded="true" />
-                <element signature="e#937#938#0" expanded="true" />
                 <element signature="e#961#962#0" expanded="true" />
                 <element signature="e#996#997#0" expanded="true" />
-                <element signature="e#1020#1021#0" expanded="true" />
-                <element signature="e#1055#1056#0" expanded="true" />
-                <element signature="e#1080#1081#0" expanded="true" />
-                <element signature="e#1115#1116#0" expanded="true" />
-                <element signature="e#1141#1142#0" expanded="true" />
-                <element signature="e#1176#1177#0" expanded="true" />
-                <element signature="e#1201#1202#0" expanded="true" />
-                <element signature="e#1236#1237#0" expanded="true" />
-                <element signature="e#1262#1263#0" expanded="true" />
-                <element signature="e#1297#1298#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -143,7 +107,7 @@
         <entry file="file://$PROJECT_DIR$/src/assembler_main/binary_instructions/instruction_types/JInstruction.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="32" column="35" selection-start-line="32" selection-start-column="35" selection-end-line="32" selection-end-column="35" />
+              <caret line="34" column="5" selection-start-line="34" selection-start-column="5" selection-end-line="34" selection-end-column="5" />
               <folding />
             </state>
           </provider>
@@ -201,13 +165,13 @@
         <option value="$PROJECT_DIR$/src/Assembler.java" />
         <option value="$PROJECT_DIR$/src/assembler_main/instruction_types/GenericInstruction.java" />
         <option value="$PROJECT_DIR$/src/binary_instructions/instruction_types/GenericInstruction.java" />
-        <option value="$PROJECT_DIR$/src/Driver.java" />
         <option value="$PROJECT_DIR$/src/assembler_main/binary_instructions/instruction_types/RInstruction.java" />
         <option value="$PROJECT_DIR$/src/assembler_main/binary_instructions/instruction_types/IInstruction.java" />
         <option value="$PROJECT_DIR$/src/assembler_main/binary_instructions/instruction_types/JInstruction.java" />
         <option value="$PROJECT_DIR$/src/assembler_main/binary_instructions/toolset/InstructionList.java" />
         <option value="$PROJECT_DIR$/src/assembler_main/binary_instructions/instruction_types/GenericInstruction.java" />
         <option value="$PROJECT_DIR$/src/assembler_main/binary_instructions/SpecificInstruction.java" />
+        <option value="$PROJECT_DIR$/src/Driver.java" />
         <option value="$PROJECT_DIR$/src/assembler_main/Assembler.java" />
       </list>
     </option>
@@ -243,6 +207,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
+      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -370,8 +336,6 @@
         </subPane>
       </pane>
       <pane id="PackagesPane" />
-      <pane id="Scratches" />
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -681,7 +645,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -690,7 +654,7 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33667782" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.26309922" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.13859275" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -727,14 +691,94 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/src/Driver.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="11" column="0" selection-start-line="11" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
+          <folding>
+            <element signature="e#334#335#0" expanded="true" />
+            <element signature="e#374#375#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/assembler_main/Assembler.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#6559#6560#0" expanded="true" />
-            <element signature="e#6596#6597#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assembler_main/binary_instructions/SpecificInstruction.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="15" column="52" selection-start-line="15" selection-start-column="52" selection-end-line="15" selection-end-column="52" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assembler_main/binary_instructions/instruction_types/GenericInstruction.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="41" column="21" selection-start-line="41" selection-start-column="21" selection-end-line="41" selection-end-column="21" />
+          <folding>
+            <element signature="e#560#561#0" expanded="true" />
+            <element signature="e#608#609#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assembler_main/binary_instructions/instruction_types/RInstruction.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="34" column="16" selection-start-line="34" selection-start-column="16" selection-end-line="34" selection-end-column="16" />
+          <folding>
+            <element signature="e#829#830#0" expanded="true" />
+            <element signature="e#875#876#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assembler_main/binary_instructions/instruction_types/IInstruction.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="52" column="5" selection-start-line="52" selection-start-column="5" selection-end-line="52" selection-end-column="5" />
+          <folding>
+            <element signature="e#961#962#0" expanded="true" />
+            <element signature="e#996#997#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assembler_main/binary_instructions/instruction_types/JInstruction.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="32" column="35" selection-start-line="32" selection-start-column="35" selection-end-line="32" selection-end-column="35" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assembler_main/binary_instructions/toolset/InstructionList.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="10" column="13" selection-start-line="10" selection-start-column="13" selection-end-line="10" selection-end-column="13" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assembler_main/Assembler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -744,7 +788,8 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="11" column="39" selection-start-line="11" selection-start-column="39" selection-end-line="11" selection-end-column="39" />
           <folding>
-            <element signature="e#296#297#0" expanded="true" />
+            <element signature="e#334#335#0" expanded="true" />
+            <element signature="e#374#375#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -755,8 +800,6 @@
           <caret line="16" column="0" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#1175#1176#0" expanded="true" />
-            <element signature="e#1209#1210#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -766,8 +809,8 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="47" column="16" selection-start-line="47" selection-start-column="16" selection-end-line="47" selection-end-column="16" />
           <folding>
-            <element signature="e#480#481#0" expanded="true" />
-            <element signature="e#523#524#0" expanded="true" />
+            <element signature="e#560#561#0" expanded="true" />
+            <element signature="e#608#609#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -788,34 +831,8 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="23" column="0" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
           <folding>
-            <element signature="e#374#375#0" expanded="true" />
-            <element signature="e#396#397#0" expanded="true" />
-            <element signature="e#530#531#0" expanded="true" />
-            <element signature="e#577#578#0" expanded="true" />
-            <element signature="e#603#604#0" expanded="true" />
-            <element signature="e#638#639#0" expanded="true" />
-            <element signature="e#664#665#0" expanded="true" />
-            <element signature="e#699#700#0" expanded="true" />
-            <element signature="e#724#725#0" expanded="true" />
-            <element signature="e#759#760#0" expanded="true" />
-            <element signature="e#783#784#0" expanded="true" />
-            <element signature="e#818#819#0" expanded="true" />
-            <element signature="e#843#844#0" expanded="true" />
-            <element signature="e#878#879#0" expanded="true" />
-            <element signature="e#902#903#0" expanded="true" />
-            <element signature="e#937#938#0" expanded="true" />
             <element signature="e#961#962#0" expanded="true" />
             <element signature="e#996#997#0" expanded="true" />
-            <element signature="e#1020#1021#0" expanded="true" />
-            <element signature="e#1055#1056#0" expanded="true" />
-            <element signature="e#1080#1081#0" expanded="true" />
-            <element signature="e#1115#1116#0" expanded="true" />
-            <element signature="e#1141#1142#0" expanded="true" />
-            <element signature="e#1176#1177#0" expanded="true" />
-            <element signature="e#1201#1202#0" expanded="true" />
-            <element signature="e#1236#1237#0" expanded="true" />
-            <element signature="e#1262#1263#0" expanded="true" />
-            <element signature="e#1297#1298#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -844,8 +861,6 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#6559#6560#0" expanded="true" />
-            <element signature="e#6596#6597#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -855,8 +870,8 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="14" column="58" selection-start-line="14" selection-start-column="58" selection-end-line="14" selection-end-column="58" />
           <folding>
-            <element signature="e#480#481#0" expanded="true" />
-            <element signature="e#523#524#0" expanded="true" />
+            <element signature="e#560#561#0" expanded="true" />
+            <element signature="e#608#609#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -877,34 +892,8 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="7" column="5" selection-start-line="7" selection-start-column="5" selection-end-line="7" selection-end-column="5" />
           <folding>
-            <element signature="e#374#375#0" expanded="true" />
-            <element signature="e#396#397#0" expanded="true" />
-            <element signature="e#530#531#0" expanded="true" />
-            <element signature="e#577#578#0" expanded="true" />
-            <element signature="e#603#604#0" expanded="true" />
-            <element signature="e#638#639#0" expanded="true" />
-            <element signature="e#664#665#0" expanded="true" />
-            <element signature="e#699#700#0" expanded="true" />
-            <element signature="e#724#725#0" expanded="true" />
-            <element signature="e#759#760#0" expanded="true" />
-            <element signature="e#783#784#0" expanded="true" />
-            <element signature="e#818#819#0" expanded="true" />
-            <element signature="e#843#844#0" expanded="true" />
-            <element signature="e#878#879#0" expanded="true" />
-            <element signature="e#902#903#0" expanded="true" />
-            <element signature="e#937#938#0" expanded="true" />
             <element signature="e#961#962#0" expanded="true" />
             <element signature="e#996#997#0" expanded="true" />
-            <element signature="e#1020#1021#0" expanded="true" />
-            <element signature="e#1055#1056#0" expanded="true" />
-            <element signature="e#1080#1081#0" expanded="true" />
-            <element signature="e#1115#1116#0" expanded="true" />
-            <element signature="e#1141#1142#0" expanded="true" />
-            <element signature="e#1176#1177#0" expanded="true" />
-            <element signature="e#1201#1202#0" expanded="true" />
-            <element signature="e#1236#1237#0" expanded="true" />
-            <element signature="e#1262#1263#0" expanded="true" />
-            <element signature="e#1297#1298#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -923,8 +912,6 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#6559#6560#0" expanded="true" />
-            <element signature="e#6596#6597#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -935,8 +922,6 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#6559#6560#0" expanded="true" />
-            <element signature="e#6596#6597#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -953,7 +938,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.4920635">
           <caret line="53" column="50" selection-start-line="53" selection-start-column="50" selection-end-line="53" selection-end-column="50" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -973,13 +957,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Driver.java">
+    <entry file="file://$PROJECT_DIR$/src/assembler_main/binary_instructions/instruction_types/JInstruction.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="11" column="0" selection-start-line="11" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
-          <folding>
-            <element signature="e#296#297#0" expanded="true" />
-          </folding>
+          <caret line="34" column="5" selection-start-line="34" selection-start-column="5" selection-end-line="34" selection-end-column="5" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -993,78 +975,31 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/assembler_main/binary_instructions/instruction_types/JInstruction.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="32" column="35" selection-start-line="32" selection-start-column="35" selection-end-line="32" selection-end-column="35" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/assembler_main/binary_instructions/instruction_types/RInstruction.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="34" column="16" selection-start-line="34" selection-start-column="16" selection-end-line="34" selection-end-column="16" />
-          <folding>
-            <element signature="e#829#830#0" expanded="true" />
-            <element signature="e#875#876#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/assembler_main/binary_instructions/instruction_types/IInstruction.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="52" column="5" selection-start-line="52" selection-start-column="5" selection-end-line="52" selection-end-column="5" />
-          <folding>
-            <element signature="e#374#375#0" expanded="true" />
-            <element signature="e#396#397#0" expanded="true" />
-            <element signature="e#530#531#0" expanded="true" />
-            <element signature="e#577#578#0" expanded="true" />
-            <element signature="e#603#604#0" expanded="true" />
-            <element signature="e#638#639#0" expanded="true" />
-            <element signature="e#664#665#0" expanded="true" />
-            <element signature="e#699#700#0" expanded="true" />
-            <element signature="e#724#725#0" expanded="true" />
-            <element signature="e#759#760#0" expanded="true" />
-            <element signature="e#783#784#0" expanded="true" />
-            <element signature="e#818#819#0" expanded="true" />
-            <element signature="e#843#844#0" expanded="true" />
-            <element signature="e#878#879#0" expanded="true" />
-            <element signature="e#902#903#0" expanded="true" />
-            <element signature="e#937#938#0" expanded="true" />
-            <element signature="e#961#962#0" expanded="true" />
-            <element signature="e#996#997#0" expanded="true" />
-            <element signature="e#1020#1021#0" expanded="true" />
-            <element signature="e#1055#1056#0" expanded="true" />
-            <element signature="e#1080#1081#0" expanded="true" />
-            <element signature="e#1115#1116#0" expanded="true" />
-            <element signature="e#1141#1142#0" expanded="true" />
-            <element signature="e#1176#1177#0" expanded="true" />
-            <element signature="e#1201#1202#0" expanded="true" />
-            <element signature="e#1236#1237#0" expanded="true" />
-            <element signature="e#1262#1263#0" expanded="true" />
-            <element signature="e#1297#1298#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://C:/Program Files (x86)/Java/jdk1.8.0_20/src.zip!/java/lang/String.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.33333334">
-          <caret line="645" column="0" selection-start-line="645" selection-start-column="0" selection-end-line="645" selection-end-column="0" />
+          <caret line="1944" column="18" selection-start-line="1944" selection-start-column="18" selection-end-line="1944" selection-end-column="18" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Driver.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="5" column="21" selection-start-line="5" selection-start-column="21" selection-end-line="5" selection-end-column="21" />
+          <folding>
+            <element signature="e#334#335#0" expanded="true" />
+            <element signature="e#374#375#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/assembler_main/binary_instructions/SpecificInstruction.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="15" column="52" selection-start-line="15" selection-start-column="52" selection-end-line="15" selection-end-column="52" />
+          <caret line="11" column="34" selection-start-line="11" selection-start-column="34" selection-end-line="11" selection-end-column="34" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#1175#1176#0" expanded="true" />
-            <element signature="e#1209#1210#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1072,22 +1007,42 @@
     <entry file="file://$PROJECT_DIR$/src/assembler_main/binary_instructions/instruction_types/GenericInstruction.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="41" column="21" selection-start-line="41" selection-start-column="21" selection-end-line="41" selection-end-column="21" />
+          <caret line="39" column="58" selection-start-line="39" selection-start-column="58" selection-end-line="39" selection-end-column="58" />
           <folding>
-            <element signature="e#480#481#0" expanded="true" />
-            <element signature="e#523#524#0" expanded="true" />
+            <element signature="e#560#561#0" expanded="true" />
+            <element signature="e#608#609#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assembler_main/binary_instructions/instruction_types/IInstruction.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="19" column="21" selection-start-line="19" selection-start-column="21" selection-end-line="19" selection-end-column="21" />
+          <folding>
+            <element signature="e#961#962#0" expanded="true" />
+            <element signature="e#996#997#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assembler_main/binary_instructions/instruction_types/RInstruction.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="58" column="0" selection-start-line="58" selection-start-column="0" selection-end-line="58" selection-end-column="0" />
+          <folding>
+            <element signature="e#829#830#0" expanded="true" />
+            <element signature="e#875#876#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/assembler_main/Assembler.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.8730159">
-          <caret line="116" column="0" selection-start-line="116" selection-start-column="0" selection-end-line="116" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.19905214">
+          <caret line="97" column="20" selection-start-line="97" selection-start-column="20" selection-end-line="97" selection-end-column="20" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#6559#6560#0" expanded="true" />
-            <element signature="e#6596#6597#0" expanded="true" />
           </folding>
         </state>
       </provider>

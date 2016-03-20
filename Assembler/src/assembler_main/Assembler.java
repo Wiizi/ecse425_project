@@ -28,12 +28,12 @@ public class Assembler {
      * @param path
      */
     public static void assemble(String path) {
-        original = readFile(path);
-        original = trimInstructions(original);
-        original_no_labels = parseForAndRemoveLabels(original);
-        code = removeSpaces(original);
-        code = parseForAndRemoveLabels(code);
+        // assemble
+        original = trimInstructions(readFile(path));
+        original_no_labels = removeSpaces(parseForAndRemoveLabels(original), false);
+        code = removeSpaces(original_no_labels, true);
         List<SpecificInstruction> binary = buildInstructions(code);
+        // done
         binary.forEach(Assembler::print);
     }
 
@@ -89,34 +89,36 @@ public class Assembler {
                 op = op.substring(0, space_index);
             }
             try {
+                print("Making instruction with op " + op);
                 SpecificInstruction instruction = new SpecificInstruction(op);
                 if (instruction.getInstruction() instanceof RInstruction) {
-                    // need: rs, rt, rd, shamt
                     String rs, rt, rd, shamt;
-
                     // TODO get rs, rt, rd, shamt
 
-                    (instruction.getInstruction()).setRS(" ");
-                    (instruction.getInstruction()).setRT(" ");
-                    ((RInstruction)instruction.getInstruction()).setRD(" ");
-                    ((RInstruction)instruction.getInstruction()).setShamt(" ");
+                    
+
+//                    (instruction.getInstruction()).setRS(" ");
+//                    (instruction.getInstruction()).setRT(" ");
+//                    ((RInstruction) instruction.getInstruction()).setRD(" ");
+//                    ((RInstruction) instruction.getInstruction()).setShamt(" ");
 
 
                 } else if (instruction.getInstruction() instanceof IInstruction) {
                     String rs, rt, immediate;
-
                     // TODO get rs, rt, immedate
 
-                    (instruction.getInstruction()).setRS(" ");
-                    (instruction.getInstruction()).setRT(" ");
-                    ((IInstruction)instruction.getInstruction()).setImmediate(" ");
+//                    (instruction.getInstruction()).setRS(" ");
+//                    (instruction.getInstruction()).setRT(" ");
+//                    ((IInstruction) instruction.getInstruction()).setImmediate(" ");
+
                 } else if (instruction.getInstruction() instanceof JInstruction) {
                     String address;
-
-                    // TODO get address
-
-                    ((JInstruction)instruction.getInstruction()).setAddress(" ");
+                    address = original_no_labels.get(line_index).substring(2, original_no_labels.get(line_index).length());
+                    address = address.replaceAll("\\s+", "");
+                    address = formatToBinary(labels.get(address), 26);
+                    ((JInstruction) instruction.getInstruction()).setAddress(address);
                 }
+                // add instruction to instruction list
                 out.add(instruction);
             } catch (Exception e) {
                 print("Compilation error at line: " + original.get(line_index));
@@ -128,6 +130,21 @@ public class Assembler {
         }
 
         return out;
+    }
+
+    public static String formatToBinary(int number, int binary_length) {
+        String address = Integer.toBinaryString(number);
+        address = (new String(new char[binary_length - address.length()]).replace('\0', '0')) + address;
+        return address;
+    }
+
+    public static int getIndexOfFirstNonEmptyChar(String str) {
+        for (int i = 0; i < str.length(); i++) {
+            if (str.charAt(i) != ' ' && str.charAt(i) != '\t') {
+                return i;
+            }
+        }
+        return -1;
     }
 
     /**
@@ -151,11 +168,16 @@ public class Assembler {
         return out;
     }
 
-    public static List<String> removeSpaces(List<String> in) {
+    public static List<String> removeSpaces(List<String> in, boolean all_spaces) {
         List<String> out = new ArrayList<>();
         for (String line : in) {
             // remove spaces
-            line = line.replaceAll("\\s+", "");
+            if (all_spaces)
+                line = line.replaceAll("\\s+", "");
+            else {
+                int index = getIndexOfFirstNonEmptyChar(line);
+                line = line.substring(index, line.length());
+            }
             out.add(line);
         }
         return out;
