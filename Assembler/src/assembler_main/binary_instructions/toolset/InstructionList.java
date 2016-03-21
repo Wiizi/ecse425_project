@@ -39,7 +39,7 @@ public class InstructionList {
             add("nor");
             add("xor");
             add("sra");
-            add("srsl");
+            add("srl");
             add("sll");
         }};
         for (String i : Rlist) instr.put(i, R);

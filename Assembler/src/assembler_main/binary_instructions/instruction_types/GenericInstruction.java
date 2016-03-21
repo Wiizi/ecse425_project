@@ -40,7 +40,7 @@ public class GenericInstruction {
     public void setInstruction(String str, int i, int j) {
         i = remap(i);
         j = remap(j);
-        for (int k = i; k < j; k++) {
+        for (int k = i; k <= j; k++) {
             this.instruction[k] = str.charAt(k - i);
         }
     }
@@ -56,6 +56,16 @@ public class GenericInstruction {
     }
 
     public String toString() {
+        String str = String.valueOf(instruction);
+        return str.substring(0,6) + " " + str.substring(6,11) +
+                " " + str.substring(11,16) +
+                " " + str.substring(16,21) +
+                " " + str.substring(21,24) +
+                " " + str.substring(24,28) +
+                " " + str.substring(28,32);
+    }
+
+    public String noSpaceString(){
         return String.valueOf(instruction);
     }
 }

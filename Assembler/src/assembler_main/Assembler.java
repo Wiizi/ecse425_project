@@ -4,15 +4,8 @@ import assembler_main.binary_instructions.SpecificInstruction;
 import assembler_main.binary_instructions.instruction_types.IInstruction;
 import assembler_main.binary_instructions.instruction_types.JInstruction;
 import assembler_main.binary_instructions.instruction_types.RInstruction;
-
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import assembler_main.binary_instructions.toolset.Tools;
+import java.util.*;
 
 /**
  * Created by Andrei-ch on 2016-03-16.
@@ -24,127 +17,39 @@ public class Assembler {
 
     /**
      * builds binary assembly from MIPS code
-     *
-     * @param path
+     * @param path_in
+     * @param path_out
      */
-    public static void assemble(String path) {
+    public static void assemble(String path_in, String path_out) {
         // assemble
-        original = trimInstructions(readFile(path));
-        original_no_labels = removeSpaces(parseForAndRemoveLabels(original), false);
-        code = removeSpaces(original_no_labels, true);
-        List<SpecificInstruction> binary = buildInstructions(code);
-        // done
-        binary.forEach(Assembler::print);
+        List<SpecificInstruction> binary = buildBinaryInstructions(path_in);
+        // write to file
+        writeBinaryFile(path_out, binary);
     }
 
     /**
-     * reads text from a file and returns it as a list of strings
-     *
-     * @param filename
+     * builds a list of binary instructions from MIPS code
+     * @param path_in
      * @return
      */
-    public static List<String> readFile(String filename) {
-        BufferedReader br;
-        List<String> str = new ArrayList<>();
-        try {
-            br = new BufferedReader(new FileReader(filename));
-            try {
-                String x;
-                while ((x = br.readLine()) != null) {
-                    // add every line to a list
-                    str.add(x);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                System.exit(-1);
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
-        return str;
+    private static List<SpecificInstruction> buildBinaryInstructions(String path_in){
+        original = trimInstructions(Tools.readFile(path_in));
+        original_no_labels = Tools.removeSpaces(parseForAndRemoveLabels(original), false);
+        code = Tools.removeSpaces(original_no_labels, true);
+        return buildInstructions(code);
     }
 
     /**
-     * @param code
-     * @return
+     * writes binary code to a file
+     * @param path_out
+     * @param binary
      */
-    public static List<SpecificInstruction> buildInstructions(List<String> code) {
-        List<SpecificInstruction> out = new ArrayList<>();
-        int line_index = 0;
-        String op, original_op;
-        for (String line : code) {
-            op = line.substring(0, 4);
-            original_op = original_no_labels.get(line_index);
-            // remove all non alpha characters
-            op = op.replaceAll("[^a-zA-Z\\\\s]", "");
-            if (original_op.contains(op)) {
-                // do nothing
-            } else {
-                // fix
-                int index = original_op.indexOf(op.charAt(0));
-                String sub = original_op.substring(index, original_op.length());
-                int space_index = sub.indexOf(' ');
-                space_index = (space_index > 0) ? space_index : op.length();
-                op = op.substring(0, space_index);
-            }
-            try {
-                print("Making instruction with op " + op);
-                SpecificInstruction instruction = new SpecificInstruction(op);
-                if (instruction.getInstruction() instanceof RInstruction) {
-                    String rs, rt, rd, shamt;
-                    // TODO get rs, rt, rd, shamt
-
-                    
-
-//                    (instruction.getInstruction()).setRS(" ");
-//                    (instruction.getInstruction()).setRT(" ");
-//                    ((RInstruction) instruction.getInstruction()).setRD(" ");
-//                    ((RInstruction) instruction.getInstruction()).setShamt(" ");
-
-
-                } else if (instruction.getInstruction() instanceof IInstruction) {
-                    String rs, rt, immediate;
-                    // TODO get rs, rt, immedate
-
-//                    (instruction.getInstruction()).setRS(" ");
-//                    (instruction.getInstruction()).setRT(" ");
-//                    ((IInstruction) instruction.getInstruction()).setImmediate(" ");
-
-                } else if (instruction.getInstruction() instanceof JInstruction) {
-                    String address;
-                    address = original_no_labels.get(line_index).substring(2, original_no_labels.get(line_index).length());
-                    address = address.replaceAll("\\s+", "");
-                    address = formatToBinary(labels.get(address), 26);
-                    ((JInstruction) instruction.getInstruction()).setAddress(address);
-                }
-                // add instruction to instruction list
-                out.add(instruction);
-            } catch (Exception e) {
-                print("Compilation error at line: " + original.get(line_index));
-                e.printStackTrace();
-                System.exit(-1);
-            }
-
-            line_index++;
+    private static void writeBinaryFile(String path_out, List<SpecificInstruction> binary){
+        List<String> out = new ArrayList<>();
+        for (int i = 0; i < binary.size(); i++) {
+            out.add(binary.get(i).noSpaceString());
         }
-
-        return out;
-    }
-
-    public static String formatToBinary(int number, int binary_length) {
-        String address = Integer.toBinaryString(number);
-        address = (new String(new char[binary_length - address.length()]).replace('\0', '0')) + address;
-        return address;
-    }
-
-    public static int getIndexOfFirstNonEmptyChar(String str) {
-        for (int i = 0; i < str.length(); i++) {
-            if (str.charAt(i) != ' ' && str.charAt(i) != '\t') {
-                return i;
-            }
-        }
-        return -1;
+        Tools.writeToFile(out, path_out);
     }
 
     /**
@@ -153,7 +58,7 @@ public class Assembler {
      * @param in
      * @return
      */
-    public static List<String> trimInstructions(List<String> in) {
+    private static List<String> trimInstructions(List<String> in) {
         List<String> out = new ArrayList<>();
         int index;
         for (String s : in) {
@@ -168,22 +73,13 @@ public class Assembler {
         return out;
     }
 
-    public static List<String> removeSpaces(List<String> in, boolean all_spaces) {
-        List<String> out = new ArrayList<>();
-        for (String line : in) {
-            // remove spaces
-            if (all_spaces)
-                line = line.replaceAll("\\s+", "");
-            else {
-                int index = getIndexOfFirstNonEmptyChar(line);
-                line = line.substring(index, line.length());
-            }
-            out.add(line);
-        }
-        return out;
-    }
-
-    public static List<String> parseForAndRemoveLabels(List<String> in) {
+    /**
+     * removes labels from code and stores these in a separate static list. code without labels is returned
+     *
+     * @param in
+     * @return
+     */
+    private static List<String> parseForAndRemoveLabels(List<String> in) {
         List<String> out = new ArrayList<>();
         labels = new HashMap<String, Integer>();
         int line_index = 0;
@@ -206,16 +102,157 @@ public class Assembler {
         }
         return out;
     }
-
-    public static void printCode(List<String> code) {
-        int index = 0;
-        for (String str : code) {
-            print(index + ".\t\t" + str);
-            index++;
+    /**
+     * builds a list of binary instructions
+     * @param code
+     * @return
+     */
+    private static List<SpecificInstruction> buildInstructions(List<String> code) {
+        List<SpecificInstruction> out = new ArrayList<>();
+        int line_index = 0;
+        String op, original_op;
+        for (String line : code) {
+            op = line.substring(0, 4);
+            original_op = original_no_labels.get(line_index);
+            // remove all non alpha characters
+            op = op.replaceAll("[^a-zA-Z\\\\s]", "");
+            if (original_op.contains(op)) {
+                // do nothing
+            } else {
+                // fix
+                int index = original_op.indexOf(op.charAt(0));
+                String sub = original_op.substring(index, original_op.length());
+                int space_index = sub.indexOf(' ');
+                space_index = (space_index > 0) ? space_index : op.length();
+                op = op.substring(0, space_index);
+            }
+            try {
+                SpecificInstruction instruction = new SpecificInstruction(op);
+                String rs, rt, rd, shamt, address, immediate;
+                // remove operation from line string
+                line = line.substring(op.length(), line.length());
+                List<String> parsed = Tools.parseString(line);
+                if (parsed.size() <= 0)
+                    throw new Exception("Custom exception -> Invalid instruction syntax: Extra parameters.");
+                if (instruction.getInstruction() instanceof RInstruction) {
+                    if (op.equals("add") ||
+                            op.equals("sub") ||
+                            op.equals("and") ||
+                            op.equals("slt") ||
+                            op.equals("or") ||
+                            op.equals("nor") ||
+                            op.equals("xor")
+                            ) {
+                        rd = Tools.formatToBinary(Tools.remove$(parsed.get(0)), 5);
+                        rs = Tools.formatToBinary(Tools.remove$(parsed.get(1)), 5);
+                        rt = Tools.formatToBinary(Tools.remove$(parsed.get(2)), 5);
+                        shamt = "00000";
+                        if (parsed.size() > 3)
+                            throw new Exception("Custom exception -> Invalid instruction syntax.");
+                    } else if (op.equals("sra") ||
+                            op.equals("srl") ||
+                            op.equals("sll")
+                            ) {
+                        rd = Tools.formatToBinary(Tools.remove$(parsed.get(0)), 5);
+                        rs = "00000";
+                        rt = Tools.formatToBinary(Tools.remove$(parsed.get(1)), 5);
+                        shamt = Tools.formatToBinary(Tools.remove$(parsed.get(2)), 5);
+                        if (parsed.size() > 3)
+                            throw new Exception("Custom exception -> Invalid instruction syntax.");
+                    } else if (op.equals("mult") ||
+                            op.equals("div")
+                            ) {
+                        rd = "00000";
+                        rs = Tools.formatToBinary(Tools.remove$(parsed.get(0)), 5);
+                        rt = Tools.formatToBinary(Tools.remove$(parsed.get(1)), 5);
+                        shamt = "00000";
+                        if (parsed.size() > 2)
+                            throw new Exception("Custom exception -> Invalid instruction syntax.");
+                    } else if (op.equals("mflo") ||
+                            op.equals("mfhi")
+                            ) {
+                        rd = Tools.formatToBinary(Tools.remove$(parsed.get(0)), 5);
+                        rs = "00000";
+                        rt = "00000";
+                        shamt = "00000";
+                        if (parsed.size() > 1)
+                            throw new Exception("Custom exception -> Invalid instruction syntax.");
+                    } else if (op.equals("jr")
+                            ) {
+                        rs = Tools.formatToBinary(Tools.remove$(parsed.get(0)), 5);
+                        rt = "00000";
+                        rd = "00000";
+                        shamt = "00000";
+                        if (parsed.size() > 1)
+                            throw new Exception("Custom exception -> Invalid instruction syntax.");
+                    } else {
+                        throw new Exception("Custom exception -> Invalid instruction syntax.");
+                    }
+                    (instruction.getInstruction()).setRS(rs);
+                    (instruction.getInstruction()).setRT(rt);
+                    ((RInstruction) instruction.getInstruction()).setRD(rd);
+                    ((RInstruction) instruction.getInstruction()).setShamt(shamt);
+                } else if (instruction.getInstruction() instanceof IInstruction) {
+                    if (op.equals("addi") ||
+                            op.equals("slti") ||
+                            op.equals("andi") ||
+                            op.equals("xori") ||
+                            op.equals("ori")
+                            ) {
+                        rt = Tools.formatToBinary(Tools.remove$(parsed.get(0)), 5);
+                        rs = Tools.formatToBinary(Tools.remove$(parsed.get(1)), 5);
+                        immediate = Tools.formatToBinary(Tools.remove$(parsed.get(2)), 16);
+                        if (parsed.size() > 3)
+                            throw new Exception("Custom exception -> Invalid instruction syntax.");
+                    } else if (op.equals("bne") ||
+                            op.equals("beq")
+                            ) {
+                        rt = Tools.formatToBinary(Tools.remove$(parsed.get(0)), 5);
+                        rs = Tools.formatToBinary(Tools.remove$(parsed.get(1)), 5);
+                        immediate = parsed.get(2);
+                        immediate = Tools.formatToBinary(labels.get(immediate), 16);
+                        if (parsed.size() > 3)
+                            throw new Exception("Custom exception -> Invalid instruction syntax.");
+                    } else if (op.equals("sw") ||
+                            op.equals("lw") ||
+                            op.equals("lb") ||
+                            op.equals("sb")
+                            ) {
+                        rt = Tools.formatToBinary(Tools.remove$(parsed.get(0)), 5);
+                        immediate = parsed.get(1);
+                        String[] split = immediate.split("\\(");
+                        rs = Tools.formatToBinary((Tools.remove$(split[1])).replaceAll("\\)", ""), 5);
+                        immediate = Tools.formatToBinary(split[0], 16);
+                        if (parsed.size() > 2)
+                            throw new Exception("Custom exception -> Invalid instruction syntax.");
+                    } else if (op.equals("lui")
+                            ) {
+                        rt = Tools.formatToBinary(Tools.remove$(parsed.get(0)), 5);
+                        rs = "00000";
+                        immediate = Tools.formatToBinary(Tools.remove$(parsed.get(1)), 16);
+                        if (parsed.size() > 2)
+                            throw new Exception("Custom exception -> Invalid instruction syntax.");
+                    } else {
+                        throw new Exception("Custom exception -> Invalid instruction syntax.");
+                    }
+                    (instruction.getInstruction()).setRS(rs);
+                    (instruction.getInstruction()).setRT(rt);
+                    ((IInstruction) instruction.getInstruction()).setImmediate(immediate);
+                } else if (instruction.getInstruction() instanceof JInstruction) {
+                    address = original_no_labels.get(line_index).substring(2, original_no_labels.get(line_index).length());
+                    address = address.replaceAll("\\s+", "");
+                    address = Tools.formatToBinary(labels.get(address), 26);
+                    ((JInstruction) instruction.getInstruction()).setAddress(address);
+                }
+                // add instruction to instruction list
+                out.add(instruction);
+            } catch (Exception e) {
+                Tools.print("Compilation error at line: " + original.get(line_index));
+                e.printStackTrace();
+                System.exit(-1);
+            }
+            line_index++;
         }
-    }
-
-    public static void print(Object o) {
-        System.out.println(o);
+        return out;
     }
 }

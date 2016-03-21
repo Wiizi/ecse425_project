@@ -36,4 +36,8 @@ public class SpecificInstruction {
     public String toString(){
         return instruction.toString();
     }
+
+    public String noSpaceString(){
+        return instruction.noSpaceString();
+    }
 }
