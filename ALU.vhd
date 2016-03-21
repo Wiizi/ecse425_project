@@ -6,6 +6,7 @@
 
 --TODO: not sure if needs to cast signals to integers when adding or substracting. Implemented it for I-type instructions
 -- Not sure if LUI operation logic must be in here or outside as the example.
+-- Not sure if overflow and carryout logic detection needs to be implemented.
 
 LIBRARY ieee;
 USE IEEE.std_logic_1164.all;
@@ -18,9 +19,9 @@ ENTITY ALU IS
 		data_out: out std_logic_vector(31 downto 0); 
 		HI 	: out std_logic_vector (31 downto 0);
 		LO 	: out std_logic_vector (31 downto 0);
-		zero	: out std_logic;
-		overflow: out std_logic;
-		carryout: out std_logic
+		zero	: out std_logic
+		--overflow: out std_logic;
+		--carryout: out std_logic
 	);
 END ENTITY;
 
@@ -74,6 +75,15 @@ begin
 		when others =>
 			temp_data_out <= (others => 'X');
 	end case;
+
+		if(to_integer(signed(temp_data_out)) = 0)then
+			zero <= '1';
+		else
+			zero <= '0';
+		end if;
+
+data_out <= temp_data_out(31 downto 0);
+
 end process alu;
 
 END BEHAVIOR;
