@@ -12,7 +12,7 @@ ENTITY IF_ID IS
 	PORT(	clk : in std_logic;
 		inst_in : in std_logic_vector(31 downto 0);
 		addr_in : in std_logic_vector(31 downto 0);
-		IF_ID_write : in std_logic; --For hazard dectection
+		IF_ID_write : in std_logic :='1'; --For hazard dectection. Always 1 unless hazard detecttion unit changes it.
 		inst_out : out std_logic_vector(31 downto 0);
 		addr_out : out std_logic_vector(31 downto 0)
 	);
@@ -27,15 +27,14 @@ fetch: process(addr_in, inst_in)
 begin
 	temp_inst_in <= inst_in;
 	temp_addr_in <= addr_in;
-end process;
+end process fetch;
 
 latch: process(clk)
 begin
-	if(rising_edge(clk))then
-		if(IF_ID_write = '1')then
-			inst_out <= temp_inst_in;
-			addr_out <= temp_addr_in;
-		end if;
+	if(rising_edge(clk) AND IF_ID_write = '1' )then
+		inst_out <= temp_inst_in;
+		addr_out <= temp_addr_in;
 	end if;
-end process;
+end process latch;
+
 END BEHAVIOR;
