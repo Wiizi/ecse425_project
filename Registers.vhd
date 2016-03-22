@@ -1,8 +1,3 @@
--- ECSE 425 - Comp Organization & Architecture - Final Project
--- Group 5: Andrei Chubarau, Luis Gallet Zambrano, Aidan Petit, Wei Wang
---
--- Registers.vhd
-
 LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 USE ieee.numeric_std.all;
@@ -36,6 +31,9 @@ begin
 		addr_w := TO_INTEGER(UNSIGNED(writeReg));
 		--wait for active clock edge
 		if (clk'event and clk = '1') then
+			--register 0 is hardwires to 0
+			regArray(0) <= x"00000000";
+
 			readData_1 <= regArray(addr_1);
 			readData_2 <= regArray(addr_2);
 			--check whether write signal is active
