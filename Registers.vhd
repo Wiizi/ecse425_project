@@ -1,3 +1,9 @@
+--ECSE 425 - Computer Organization and Architecture
+--File: Register.vhd
+--Author: Wei Wang
+--Date: 2016-03-18
+--Version 1.0
+
 LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 USE ieee.numeric_std.all;
