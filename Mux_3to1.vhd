@@ -3,7 +3,7 @@
 -- Author: Aidan Petit
 --
 -- Mux_3to1.vhd
--- Generic 3 to 1 multipler. Select between in1 or in2 becased on sel. If 
+-- Generic 3 to 1 multipler. Select between in1, in 2, or in3 becased on select line. 
 
 library ieee;
 use ieee.std_logic_1164.all;
