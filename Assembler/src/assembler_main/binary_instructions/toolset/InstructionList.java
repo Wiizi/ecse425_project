@@ -57,6 +57,9 @@ public class InstructionList {
             add("andi");
             add("ori");
             add("xori");
+            add("asrt");
+            add("asrti");
+            add("halt");
         }};
         for (String i : Ilist) instr.put(i, I);
 

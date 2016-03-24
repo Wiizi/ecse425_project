@@ -5,6 +5,7 @@ import assembler_main.binary_instructions.instruction_types.IInstruction;
 import assembler_main.binary_instructions.instruction_types.JInstruction;
 import assembler_main.binary_instructions.instruction_types.RInstruction;
 import assembler_main.binary_instructions.toolset.Tools;
+
 import java.util.*;
 
 /**
@@ -17,6 +18,7 @@ public class Assembler {
 
     /**
      * builds binary assembly from MIPS code
+     *
      * @param path_in
      * @param path_out
      */
@@ -29,10 +31,11 @@ public class Assembler {
 
     /**
      * builds a list of binary instructions from MIPS code
+     *
      * @param path_in
      * @return
      */
-    private static List<SpecificInstruction> buildBinaryInstructions(String path_in){
+    private static List<SpecificInstruction> buildBinaryInstructions(String path_in) {
         original = trimInstructions(Tools.readFile(path_in));
         original_no_labels = Tools.removeSpaces(parseForAndRemoveLabels(original), false);
         code = Tools.removeSpaces(original_no_labels, true);
@@ -41,10 +44,11 @@ public class Assembler {
 
     /**
      * writes binary code to a file
+     *
      * @param path_out
      * @param binary
      */
-    private static void writeBinaryFile(String path_out, List<SpecificInstruction> binary){
+    private static void writeBinaryFile(String path_out, List<SpecificInstruction> binary) {
         List<String> out = new ArrayList<>();
         for (int i = 0; i < binary.size(); i++) {
             out.add(binary.get(i).noSpaceString());
@@ -102,8 +106,10 @@ public class Assembler {
         }
         return out;
     }
+
     /**
      * builds a list of binary instructions
+     *
      * @param code
      * @return
      */
@@ -112,7 +118,7 @@ public class Assembler {
         int line_index = 0;
         String op, original_op;
         for (String line : code) {
-            op = line.substring(0, 4);
+            op = line.substring(0, Math.min(5, line.length()));
             original_op = original_no_labels.get(line_index);
             // remove all non alpha characters
             op = op.replaceAll("[^a-zA-Z\\\\s]", "");
@@ -227,6 +233,24 @@ public class Assembler {
                             throw new Exception("Custom exception -> Invalid instruction syntax.");
                     } else if (op.equals("lui")
                             ) {
+                        rt = Tools.formatToBinary(Tools.remove$(parsed.get(0)), 5);
+                        rs = "00000";
+                        immediate = Tools.formatToBinary(Tools.remove$(parsed.get(1)), 16);
+                        if (parsed.size() > 2)
+                            throw new Exception("Custom exception -> Invalid instruction syntax.");
+                    } else if (op.equals("halt")) {
+                        rt = "00000";
+                        rs = "00000";
+                        immediate = Tools.formatToBinary("0", 16);
+                        if (parsed.size() > 1)
+                            throw new Exception("Custom exception -> Invalid instruction syntax.");
+                    } else if (op.equals("asrt")) {
+                        rt = Tools.formatToBinary(Tools.remove$(parsed.get(0)), 5);
+                        rs = Tools.formatToBinary(Tools.remove$(parsed.get(1)), 5);;
+                        immediate = Tools.formatToBinary("0", 16);
+                        if (parsed.size() > 2)
+                            throw new Exception("Custom exception -> Invalid instruction syntax.");
+                    } else if (op.equals("asrti")) {
                         rt = Tools.formatToBinary(Tools.remove$(parsed.get(0)), 5);
                         rs = "00000";
                         immediate = Tools.formatToBinary(Tools.remove$(parsed.get(1)), 16);

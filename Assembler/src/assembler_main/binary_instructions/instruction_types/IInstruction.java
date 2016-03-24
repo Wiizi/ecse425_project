@@ -72,4 +72,16 @@ public class IInstruction extends GenericInstruction {
         setOpCode("001110");
     }
 
+    public void asrt() {
+        setOpCode("010100");
+    }
+
+    public void asrti() {
+        setOpCode("010101");
+    }
+
+    public void halt() {
+        setOpCode("010110");
+    }
+
 }

@@ -52,3 +52,6 @@ Continue:		or   $5, $1, $2         # a = x | y
 				j End
 True:			addi $6, $0, 1          # x and/or y are non-zero, so b = 1
 End:			beq	 $11, $11, End 		#end of program (infinite loop)
+				asrt $1, $2
+				asrti $6, 110
+				halt
