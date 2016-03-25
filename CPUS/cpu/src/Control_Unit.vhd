@@ -24,6 +24,9 @@ entity Control_Unit is
 		Branch : out std_logic;
 		BNE : out std_logic;
 		Jump : out std_logic;
+		LUI : out std_logic;
+		ALU_LOHI_Write : out std_logic;
+		ALU_LOHI_Read : out std_logic_vector(1 downto 0);
 
 		--MEM
 		MemWrite : out std_logic;
@@ -36,7 +39,11 @@ end Control_Unit;
 
 architecture Behavioural of Control_Unit is
 
-signal temp_RegWrite, temp_Branch, temp_BNE, temp_Jump, temp_ALUSrc, temp_RegDest, temp_MemWrite, temp_MemRead, temp_MemtoReg : std_logic;
+signal temp_RegWrite, temp_Branch, temp_BNE, temp_Jump, temp_ALUSrc, temp_LUI, temp_RegDest, temp_MemWrite, temp_MemRead, temp_MemtoReg : std_logic;
+-- 0 ofr inactive, 1 for active write
+signal temp_ALU_LOHI_Write : std_logic := "0";
+-- 00 for result, 01 for low, 10 for high
+signal temp_ALU_LOHI_Read : std_logic_vector(1 downto 0) := "00";
 signal temp_ALUOpCode : std_logic_vector(4 downto 0);
 
 begin
@@ -45,6 +52,9 @@ RegWrite <= temp_RegWrite;
 Branch <= temp_Branch;
 BNE <= temp_BNE;
 Jump <= temp_Jump;
+LUI <= temp_LUI;
+ALU_LOHI_Write <= temp_ALU_LOHI_Write;
+ALU_LOHI_Read <= temp_ALU_LOHI_Read;
 MemWrite <= temp_MemWrite;
 MemRead <= temp_MemRead;
 MemtoReg <= temp_MemtoReg;
@@ -63,15 +73,20 @@ MemtoReg <= temp_MemtoReg;
 					--mult
 					when "011000" =>
 						temp_ALUOpCode <= "0011";
+						temp_ALU_LOHI_Write <= '1';
 					--mflo
 					when "010010" =>
 						temp_ALUOpCode <= "0010";
+						--low
+						temp_ALU_LOHI_Read <= "01";
 					--jr
 					when "001000" =>
 						temp_ALUOpCode <= "0010";
 					--mfhi
 					when "010000" =>
 						temp_ALUOpCode <= "0010";
+						--high
+						temp_ALU_LOHI_Read <= "10";
 					--add
 					when "100000" =>
 						temp_ALUOpCode <= "0010";
@@ -84,6 +99,7 @@ MemtoReg <= temp_MemtoReg;
 					--div
 					when "011010" =>
 						temp_ALUOpCode <= "0100";
+						temp_ALU_LOHI_Write <= '1';
 					--slt
 					when "101010" =>
 						temp_ALUOpCode <= "0111";
@@ -163,6 +179,7 @@ MemtoReg <= temp_MemtoReg;
 				temp_ALUSrc <= '1';
 				temp_ALUOpCode <= "0010";
 				temp_RegDest <= '0';
+				temp_LUI <= '1';
 				temp_MemtoReg <= '0';
 			--andi
 			when "001100" =>
