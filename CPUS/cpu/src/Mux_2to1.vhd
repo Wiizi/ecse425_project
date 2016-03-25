@@ -13,12 +13,12 @@ Entity Mux_2to1 is
 	Port 
 	(	
 		--select line
-		sel		: in std_logic;
+		sel			: in std_logic;
 		--data inputs
-		in1		: in std_logic_vector(31 downto 0);
-		in2		: in std_logic_vector(31 downto 0);
+		in1			: in std_logic_vector(31 downto 0);
+		in2			: in std_logic_vector(31 downto 0);
 		--output
-          	dataOout	: out std_logic_vector(31 downto 0)
+        dataOout	: out std_logic_vector(31 downto 0)
 	);
 End Mux_2to1;
 

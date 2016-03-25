@@ -9,22 +9,21 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 --Entity declaration
-Entity Mux_2to1 is
-	Port 
-	(	
+Entity Mux_3to1 is
+	Port(	
 		--select line
-		sel		: in std_logic_vector(1 downto 0);
+		sel			: in std_logic_vector(1 downto 0);
 		--data inputs
-		in1		: in std_logic_vector(31 downto 0);
-		in2		: in std_logic_vector(31 downto 0);
-		in3		: in std_logic_vector(31 downto 0);
+		in1			: in std_logic_vector(31 downto 0);
+		in2			: in std_logic_vector(31 downto 0);
+		in3			: in std_logic_vector(31 downto 0);
 		--output
-          	dataOout	: out std_logic_vector(31 downto 0)
+        dataOout	: out std_logic_vector(31 downto 0)
 	);
-End Mux_2to1;
+End Mux_3to1;
 
 --Architecture 
-Architecture mux of Mux_2to1 is
+Architecture mux of Mux_3to1 is
 
 signal highZ	: std_logic_vector(31 downto 0);
 
