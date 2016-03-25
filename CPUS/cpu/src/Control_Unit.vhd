@@ -19,7 +19,7 @@ entity Control_Unit is
 
 		--EX
 		ALUSrc : out std_logic;
-		ALUOpCode : out std_logic(3 downto 0);
+		ALUOpCode : out std_logic_vector(3 downto 0);
 		RegDest : out std_logic;
 		Branch : out std_logic;
 		BNE : out std_logic;
@@ -51,10 +51,10 @@ MemtoReg <= temp_MemtoReg;
 
 	process(clk)
 	begin
-	if (clock'event and clk = '1') then
+	if (clk'event and clk = '1') then
 		case opCode is
 			--R-type
-			when "00000" =>
+			when "000000" =>
 				temp_RegWrite <= '1';
 				temp_RegDest <= '1';
 				temp_MemtoReg <= '0';
