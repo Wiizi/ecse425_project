@@ -21,7 +21,7 @@ Bitwise:		addi $1, $0, 3
 				# w = x && y
 				beq  $1, $0, False      # branch to False if x = 0
 				beq  $2, $0, False      # branch to False if y = 0
-				addi $4, $0, 1          # x and y are both nonzero, so w = 1
+				addi $4, $0, 100          # x and y are both nonzero, so w = 1
 				sra $4, $0, 1
 				srl $4, $0, 12
 				addi $10, $0, 1

@@ -49,7 +49,7 @@ public class Assembler {
      * @param binary
      */
     private static void writeBinaryFile(String path_out, List<SpecificInstruction> binary) {
-        List<String> out = new ArrayList<>();
+        List<String> out = new ArrayList<String>();
         for (int i = 0; i < binary.size(); i++) {
             out.add(binary.get(i).noSpaceString());
         }
@@ -63,7 +63,7 @@ public class Assembler {
      * @return
      */
     private static List<String> trimInstructions(List<String> in) {
-        List<String> out = new ArrayList<>();
+        List<String> out = new ArrayList<String>();
         int index;
         for (String s : in) {
             index = s.indexOf('#');
@@ -84,7 +84,7 @@ public class Assembler {
      * @return
      */
     private static List<String> parseForAndRemoveLabels(List<String> in) {
-        List<String> out = new ArrayList<>();
+        List<String> out = new ArrayList<String>();
         labels = new HashMap<String, Integer>();
         int line_index = 0;
         for (String str : in) {
@@ -114,7 +114,7 @@ public class Assembler {
      * @return
      */
     private static List<SpecificInstruction> buildInstructions(List<String> code) {
-        List<SpecificInstruction> out = new ArrayList<>();
+        List<SpecificInstruction> out = new ArrayList<SpecificInstruction>();
         int line_index = 0;
         String op, original_op;
         for (String line : code) {

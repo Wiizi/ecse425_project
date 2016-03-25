@@ -19,7 +19,7 @@ public class Tools {
      */
     public static List<String> readFile(String filename) {
         BufferedReader br;
-        List<String> out = new ArrayList<>();
+        List<String> out = new ArrayList<String>();
         try {
             br = new BufferedReader(new FileReader(filename));
             try {
@@ -117,7 +117,7 @@ public class Tools {
      * @return
      */
     public static List<String> removeSpaces(List<String> in, boolean all_spaces) {
-        List<String> out = new ArrayList<>();
+        List<String> out = new ArrayList<String>();
         for (String line : in) {
             // remove spaces
             if (all_spaces)
