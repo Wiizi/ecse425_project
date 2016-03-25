@@ -231,11 +231,37 @@ ARCHITECTURE rtl OF cpu IS
          in1      : in std_logic_vector(31 downto 0);
          in2      : in std_logic_vector(31 downto 0);
          in3      : in std_logic_vector(31 downto 0);
-         
+
          --output
          dataOout : out std_logic_vector(31 downto 0)
       );
    END COMPONENT;
+
+   COMPONENT PC
+      PORT( 
+         clk         : in std_logic;
+         addr_in     : in std_logic_vector(31 downto 0);
+         PC_write    : in std_logic := '1'; --For hazard dectection, always 1 unless hazard detection    unit changes it
+         addr_out    : out std_logic_vector(31 downto 0)
+      );
+   END COMPONENT;
+
+   COMPONENT Registers 
+      PORT(
+         clk : in std_logic;
+
+         regWrite : in std_logic;
+
+         readReg_1 : in std_logic_vector(4 downto 0);
+         readReg_2 : in std_logic_vector(4 downto 0);
+         
+         writeReg :  in std_logic_vector(4 downto 0);
+         writeData : in std_logic_vector(31 downto 0);
+   
+         readData_1 : out std_logic_vector(31 downto 0);
+         readData_2 : out std_logic_vector(31 downto 0)
+      );
+end Registers;
 
 BEGIN
    

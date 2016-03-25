@@ -10,12 +10,13 @@ USE IEEE.std_logic_1164.all;
 USE IEEE.numeric_std.all;
 
 ENTITY PC IS
-	PORT(	clk : in std_logic;
-		addr_in : in std_logic_vector(31 downto 0);
-		PC_write : in std_logic := '1'; --For hazard dectection, always 1 unless hazard detection unit changes it
-		addr_out : out std_logic_vector(31 downto 0)
+	PORT(	
+		clk 		: in std_logic;
+		addr_in 	: in std_logic_vector(31 downto 0);
+		PC_write 	: in std_logic := '1'; --For hazard dectection, always 1 unless hazard detection unit changes it
+		addr_out 	: out std_logic_vector(31 downto 0)
 	);
-END ENTITY;
+END PC;
 
 ARCHITECTURE BEHAVIOR OF PC IS
 
