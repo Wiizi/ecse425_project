@@ -129,8 +129,8 @@ PC_stage: PC
 ALU_stage: ALU
 	PORT MAP( 
          opcode         	=> t_opcode,
-         data0				=> t_data0,
-		 data1   			=> t_data1,
+         data0			=> t_data0,
+	 data1   		=> t_data1,
          shamt          	=> t_shamt,
          data_out       	=> t_data_out,
          HI             	=> t_HI,
@@ -140,16 +140,22 @@ ALU_stage: ALU
 	
 Register_bank: Registers 
 	PORT MAP(
-         clk 			=> t_clk,
+	clk 			=> t_clk,
 
          regWrite 		=> t_regWrite,
+         ALU_LOHI_Writ		=> t_ALU_LOHI_Write,
 
          readReg_1 		=> t_readReg_1, 
          readReg_2 		=> t_readReg_2,
-
          writeReg 		=> t_writeReg,
          writeData 		=> t_writeData,
+		 
+	 ALU_LO_in 		=> t_ALU_LO_in,
+	 ALU_HI_in 		=> t_ALU_HI_in,
    
          readData_1 	=> t_readData_1,
-         readData_2 	=> t-readData_2
+         readData_2 	=> t-readData_2,
+		 
+	 ALU_LO_out 	=> t_ALU_LO_out,
+	 ALU_HI_out 	=> t_ALU_HI_out
 	);
