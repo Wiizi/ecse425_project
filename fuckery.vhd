@@ -137,3 +137,19 @@ ALU_stage: ALU
          LO             	=> t_LO,
          zero           	=> t_zero
 	);
+	
+Register_bank: Registers 
+	PORT MAP(
+         clk 			=> t_clk,
+
+         regWrite 		=> t_regWrite,
+
+         readReg_1 		=> t_readReg_1, 
+         readReg_2 		=> t_readReg_2,
+
+         writeReg 		=> t_writeReg,
+         writeData 		=> t_writeData,
+   
+         readData_1 	=> t_readData_1,
+         readData_2 	=> t-readData_2
+	);
