@@ -1,5 +1,4 @@
 import assembler_main.Assembler;
-import assembler_main.binary_instructions.toolset.Tools;
 
 /**
  * Created by Andrei-ch on 2016-03-19.
