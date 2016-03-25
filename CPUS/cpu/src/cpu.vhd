@@ -56,7 +56,7 @@ ARCHITECTURE rtl OF cpu IS
          File_Address_Write   : string :="MemCon.dat";
          Mem_Size_in_Word     : integer:=2048;  
          Num_Bytes_in_Word    : integer:=4;
-         Num_Bits_in_Byte     : integer := 8; 
+         Num_Bits_in_Byte     : integer:= 8; 
          Read_Delay           : integer:=0; 
          Write_Delay          : integer:=0
        );
@@ -73,6 +73,19 @@ ARCHITECTURE rtl OF cpu IS
          dump        : IN  std_logic
         );
     END COMPONENT;
+
+   COMPONENT HazardDetectionControl
+      PORT (
+         IDEX_RegRs     : in std_logic_vector(4 downto 0);
+         IFID_RegRt     : in std_logic_vector(4 downto 0);
+         IFID_RegRt     : in std_logic_vector(4 downto 0);
+         IDEX_MemRead   : in std_logic;
+
+         IFID_Write     : out std_logic;
+         PC_Update      : out std_logic;
+         CPU_Stall      : out std_logic
+      );
+   END COMPONENT;
 
    COMPONENT ALU
       PORT( 
