@@ -104,3 +104,36 @@ MEM_WB_stage: MEM_WB
          --Register
          Rd_out         	=> t_Rd_out
 	);
+	
+HazardDetectionControl_stage: HazardDetectionControl
+	PORT MAP (
+         IDEX_RegRt     	=> t_IDEX_RegRt,
+         IFID_RegRs     	=> t_IFID_RegRs,
+         IFID_RegRt     	=> t_IFID_RegRt,
+         IDEX_MemRead   	=> t_IDEX_MemRead,
+         BRANCH         	=> t_BRANCH,
+   
+         IFID_Write     	=> t_IFID_Write,
+         PC_Update      	=> t_PC_Update,
+         CPU_Stall      	=> t_CPU_Stall
+	);
+	
+PC_stage: PC
+	PORT MAP( 
+         clk         		=> t_clk,
+         addr_in     		=> t_addr_in,
+         PC_write    		=> t_PC_write, 
+         addr_out    		=> t_addr_out
+	);
+	
+ALU_stage: ALU
+	PORT MAP( 
+         opcode         	=> t_opcode,
+         data0				=> t_data0,
+		 data1   			=> t_data1,
+         shamt          	=> t_shamt,
+         data_out       	=> t_data_out,
+         HI             	=> t_HI,
+         LO             	=> t_LO,
+         zero           	=> t_zero
+	);
