@@ -18,8 +18,8 @@ ENTITY cpu IS
       File_Address_Read    : STRING    := "Init.dat";
       File_Address_Write   : STRING    := "MemCon.dat";
       Mem_Size_in_Word     : INTEGER   := 256;
-      Read_Delay           : INTEGER   := 0; 
-      Write_Delay          : INTEGER   := 0
+      Read_Delay           : INTEGER   := 1; 
+      Write_Delay          : INTEGER   := 1
    );
    PORT (
       clk:      	      IN    STD_LOGIC;
@@ -254,7 +254,7 @@ ARCHITECTURE rtl OF cpu IS
 
          readReg_1 : in std_logic_vector(4 downto 0);
          readReg_2 : in std_logic_vector(4 downto 0);
-         
+
          writeReg :  in std_logic_vector(4 downto 0);
          writeData : in std_logic_vector(31 downto 0);
    
