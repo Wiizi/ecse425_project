@@ -18,7 +18,7 @@ entity Control_Unit is
 		RegWrite : out std_logic;
 
 		--EX
-		ALUSrc : out std_logic;
+		--ALUSrc : out std_logic;
 		ALUOpCode : out std_logic_vector(3 downto 0);
 		RegDest : out std_logic;
 		Branch : out std_logic;
@@ -39,7 +39,8 @@ end Control_Unit;
 
 architecture Behavioural of Control_Unit is
 
-signal temp_RegWrite, temp_Branch, temp_BNE, temp_Jump, temp_ALUSrc, temp_LUI, temp_RegDest, temp_MemWrite, temp_MemRead, temp_MemtoReg : std_logic;
+signal temp_RegWrite, temp_Branch, temp_BNE, temp_Jump, temp_LUI, temp_RegDest, temp_MemWrite, temp_MemRead, temp_MemtoReg : std_logic;
+--signal temp_ALUSrc : std_logic;
 -- 0 ofr inactive, 1 for active write
 signal temp_ALU_LOHI_Write : std_logic := '0';
 -- 00 for result, 01 for low, 10 for high
@@ -49,6 +50,9 @@ signal temp_ALUOpCode : std_logic_vector(4 downto 0);
 begin
 
 RegWrite <= temp_RegWrite;
+--ALUSrc <= temp_ALUSrc;
+ALUOpCode <= temp_ALUOpCode;
+RegDest <= temp_RegDest;
 Branch <= temp_Branch;
 BNE <= temp_BNE;
 Jump <= temp_Jump;
@@ -77,7 +81,6 @@ MemtoReg <= temp_MemtoReg;
 					--mflo
 					when "010010" =>
 						temp_ALUOpCode <= "0010";
-						--low
 						temp_ALU_LOHI_Read <= "01";
 					--jr
 					when "001000" =>
@@ -85,7 +88,6 @@ MemtoReg <= temp_MemtoReg;
 					--mfhi
 					when "010000" =>
 						temp_ALUOpCode <= "0010";
-						--high
 						temp_ALU_LOHI_Read <= "10";
 					--add
 					when "100000" =>
@@ -127,14 +129,14 @@ MemtoReg <= temp_MemtoReg;
 			--addi
 			when "001000" =>
 				temp_RegWrite <= '1';
-				temp_ALUSrc <= '1';
+				--temp_ALUSrc <= '1';
 				temp_ALUOpCode <= "0010";
 				temp_RegDest <= '0';
 				temp_MemtoReg <= '0';
 			--slti
 			when "001010" =>
 				temp_RegWrite <= '1';
-				temp_ALUSrc <= '1';
+				--temp_ALUSrc <= '1';
 				temp_ALUOpCode <= "0111";
 				temp_RegDest <= '0';
 				temp_MemtoReg <= '0';
@@ -145,7 +147,7 @@ MemtoReg <= temp_MemtoReg;
 				temp_BNE <= '1';
 			--sw
 			when "101011" =>
-				temp_ALUSrc <= '1';
+				--temp_ALUSrc <= '1';
 				temp_ALUOpCode <= "0010";
 				temp_MemWrite <= '1';
 			--beq
@@ -155,7 +157,7 @@ MemtoReg <= temp_MemtoReg;
 			--lw
 			when "100011" =>
 				temp_RegWrite <= '1';
-				temp_ALUSrc <= '1';
+				--temp_ALUSrc <= '1';
 				temp_ALUOpCode <= "0010";
 				temp_RegDest <= '0';
 				temp_MemRead <= '1';
@@ -163,20 +165,20 @@ MemtoReg <= temp_MemtoReg;
 			--lb
 			when "100000" =>
 				temp_RegWrite <= '1';
-				temp_ALUSrc <= '1';
+				--temp_ALUSrc <= '1';
 				temp_ALUOpCode <= "0010";
 				temp_RegDest <= '0';
 				temp_MemRead <= '1';
 				temp_MemtoReg <= '1';
 			--sb
 			when "101000" =>
-				temp_ALUSrc <= '1';
+				--temp_ALUSrc <= '1';
 				temp_ALUOpCode <= "0010";
 				temp_MemWrite <= '1';
 			--lui
 			when "001111" =>
 				temp_RegWrite <= '1';
-				temp_ALUSrc <= '1';
+				--temp_ALUSrc <= '1';
 				temp_ALUOpCode <= "0010";
 				temp_RegDest <= '0';
 				temp_LUI <= '1';
@@ -184,21 +186,21 @@ MemtoReg <= temp_MemtoReg;
 			--andi
 			when "001100" =>
 				temp_RegWrite <= '1';
-				temp_ALUSrc <= '1';
+				--temp_ALUSrc <= '1';
 				temp_ALUOpCode <= "0000";
 				temp_RegDest <= '0';
 				temp_MemtoReg <= '0';
 			--ori
 			when "001101" =>
 				temp_RegWrite <= '1';
-				temp_ALUSrc <= '1';
+				--temp_ALUSrc <= '1';
 				temp_ALUOpCode <= "0001";
 				temp_RegDest <= '0';
 				temp_MemtoReg <= '0';
 			--xori
 			when "001110" =>
 				temp_RegWrite <= '1';
-				temp_ALUSrc <= '1';
+				--temp_ALUSrc <= '1';
 				temp_ALUOpCode <= "1101";
 				temp_RegDest <= '0';
 				temp_MemtoReg <= '0';
@@ -211,6 +213,15 @@ MemtoReg <= temp_MemtoReg;
 			when "000010" =>
 				temp_ALUOpCode <= "0010";
 				temp_Jump <= '1';
+			--asrt
+			when "010100" =>
+				temp_ALUOpCode <= "0110";
+			--asrti
+			when "010101" =>
+				temp_ALUOpCode <= "0110";
+			--halt
+			when "010110" =>
+				temp_ALUOpCode <= "ZZZZ";
 			when others => null;
 		end case;
 	end if;
