@@ -41,9 +41,9 @@ begin
 		when "0001" =>
 			temp_data_out <= data0 OR data1;
 		when "0110" =>
-			temp_data_out <= std_logic_vector(to_signed(to_integer(signed(data0)) - to_integer(signed(data1)),32));
+			temp_data_out <= std_logic_vector(signed(data0) - signed(data1));
 		when "0010" =>
-			temp_data_out <= std_logic_vector(to_signed(to_integer(signed(data0)) + to_integer(signed(data1)),32));
+			temp_data_out <= std_logic_vector(signed(data0) + signed(data1));
 		when "0111" => --set less than
 			if(to_integer(signed(data0)) < to_integer(signed(data1)))then
 				temp_data_out <= (31 downto 1 => '0') & '1';
