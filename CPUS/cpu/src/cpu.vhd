@@ -90,7 +90,7 @@ ARCHITECTURE rtl OF cpu IS
 
    COMPONENT ALU
       PORT( 
-         opcode         : in std_logic_vector(3 downto 0); --Specified the ALU which operation to perform
+         opcode         : in std_logic_vector(3 downto 0);
          data0, data1   : in std_logic_vector(31 downto 0);
          shamt          : in std_logic_vector (4 downto 0);
          data_out       : out std_logic_vector(31 downto 0); 
@@ -102,7 +102,7 @@ ARCHITECTURE rtl OF cpu IS
 
    COMPONENT EX_MEM
       port(
-         clk : in std_logic;
+clk : in std_logic;
 
          Addr_in        : in std_logic_vector(31 downto 0);
          --ALU
@@ -113,8 +113,7 @@ ARCHITECTURE rtl OF cpu IS
          --Read Data
          Data_in        : in std_logic_vector(31 downto 0);
          --Register
-         Rd_in          : in std_logic(4 downto 0);
-
+         Rd_in          : in std_logic_vector(4 downto 0);
 
          Addr_out       : out std_logic_vector(31 downto 0);
          --ALU
@@ -125,24 +124,24 @@ ARCHITECTURE rtl OF cpu IS
          --Read Data
          Data_out       : out std_logic_vector(31 downto 0);
          --Register
-         Rd_out         : out std_logic(4 downto 0)
+         Rd_out         : out std_logic_vector(4 downto 0)
       );
    END COMPONENT;
 
    COMPONENT ID_EX
       PORT(
-         clk            : in std_logic;
+         clk               : in std_logic;
    
          --Data inputs
-         Addr_in        : in std_logic_vector(31 downto 0);
-         RegData1_in    : in std_logic_vector(31 downto 0);
-         RedData2_in    : in std_logic_vector(31 downto 0);
-         SignExtended_in      : in std_logic_vector(31 downto 0);
+         Addr_in           : in std_logic_vector(31 downto 0);
+         RegData1_in       : in std_logic_vector(31 downto 0);
+         RegData2_in       : in std_logic_vector(31 downto 0);
+         SignExtended_in   : in std_logic_vector(31 downto 0);
    
          --Register inputs (5 bits each)
-         Rs_in          : in std_logic_vector(4 downto 0);
-         Rt_in          : in std_logic_vector(4 downto 0);
-         Rd_in          : in std_logic_vector(4 downto 0);
+         Rs_in             : in std_logic_vector(4 downto 0);
+         Rt_in             : in std_logic_vector(4 downto 0);
+         Rd_in             : in std_logic_vector(4 downto 0);
    
          --Control inputs (8 of them?)
          RegWrite_in       : in std_logic;
@@ -157,23 +156,23 @@ ARCHITECTURE rtl OF cpu IS
          --Data Outputs
          Addr_out          : out std_logic_vector(31 downto 0);
          RegData1_out      : out std_logic_vector(31 downto 0);
-         RedData2_out      : out std_logic_vector(31 downto 0);
+         RegData2_out      : out std_logic_vector(31 downto 0);
          SignExtended_out  : out std_logic_vector(31 downto 0);
    
          --Register outputs
-         Rs_out         : out std_logic_vector(4 downto 0);
-         Rt_out         : out std_logic_vector(4 downto 0);
-         Rd_out         : out std_logic_vector(4 downto 0);
+         Rs_out            : out std_logic_vector(4 downto 0);
+         Rt_out            : out std_logic_vector(4 downto 0);
+         Rd_out            : out std_logic_vector(4 downto 0);
    
          --Control outputs
-         RegWrite_out   : out std_logic;
-         MemToReg_out   : out std_logic;
-         MemWrite_out   : out std_logic;
-         MemRead_out    : out std_logic;
-         Branch_out     : out std_logic;  
-         ALU_op_out     : out std_logic_vector(2 downto 0);
-         ALU_src_out    : out std_logic;
-         Reg_dest_out
+         RegWrite_out      : out std_logic;
+         MemToReg_out      : out std_logic;
+         MemWrite_out      : out std_logic;
+         MemRead_out       : out std_logic;
+         Branch_out        : out std_logic;  
+         ALU_op_out        : out std_logic_vector(2 downto 0);
+         ALU_src_out       : out std_logic;
+         Reg_dest_out      : out std_logic
       );
    END COMPONENT;
 
@@ -188,7 +187,7 @@ ARCHITECTURE rtl OF cpu IS
       );
    END COMPONENT;
 
-   COMPONENTS MEM_WB
+   COMPONENT MEM_WB
       port(
          clk            : in std_logic;
 
@@ -275,12 +274,12 @@ ARCHITECTURE rtl OF cpu IS
          readData_1 : out std_logic_vector(31 downto 0);
          readData_2 : out std_logic_vector(31 downto 0)
       );
-end Registers;
+   END COMPONENT;
 
 BEGIN
    
    --Instantiation of the main memory component
-   main_memory : ENTITY work.Main_Memory
+   MAIN_MEM : ENTITY work.Main_Memory
       GENERIC MAP (
          File_Address_Read   => File_Address_Read,
          File_Address_Write  => File_Address_Write,

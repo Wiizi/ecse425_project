@@ -23,7 +23,6 @@ entity EX_MEM is
 			--Register
 			Rd_in 			: in std_logic_vector(4 downto 0);
 
-
 			Addr_out		: out std_logic_vector(31 downto 0);
 			--ALU
 			ALU_Result_out	: out std_logic_vector(31 downto 0);
