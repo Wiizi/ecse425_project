@@ -5,13 +5,13 @@
 --Version 1.0
 
 
-LIBRARY ieee;
-USE ieee.std_logic_1164.all;
-USE ieee.numberic_std.all;
+library ieee;
+use ieee.std_logic_1164.all; -- allows use of the std_logic_vector type
+use ieee.numeric_std.all; -- allows use of the unsigned type
 
 entity MEM_WB is
 	port(
-			clk : in std_logic;
+			clk 			: in std_logic;
 
 			--Data Memory
 			wr_done_in		: in std_logic;
@@ -42,7 +42,7 @@ end MEM_WB;
 architecture Behavioural of MEM_WB is
 
 signal temp_wr_done, temp_rd_ready, temp_ALU_zero, temp_Rd : std_logic;
-signal temp_Data, temp_ALUResult, temp_ALU_HI, temp_ALU_LO : std_logic(31 downto 0);
+signal temp_Data, temp_ALUResult, temp_ALU_HI, temp_ALU_LO : std_logic_vector (31 downto 0);
 
 begin
 

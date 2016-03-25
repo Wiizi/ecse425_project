@@ -6,7 +6,7 @@
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.all;
-USE ieee.numberic_std.all;
+USE ieee.numeric_std.all;
 
 entity EX_MEM is
 	port(
@@ -21,7 +21,7 @@ entity EX_MEM is
 			--Read Data
 			Data_in			: in std_logic_vector(31 downto 0);
 			--Register
-			Rd_in 			: in std_logic(4 downto 0);
+			Rd_in 			: in std_logic_vector(4 downto 0);
 
 
 			Addr_out		: out std_logic_vector(31 downto 0);
@@ -33,15 +33,15 @@ entity EX_MEM is
 			--Read Data
 			Data_out		: out std_logic_vector(31 downto 0);
 			--Register
-			Rd_out			: out std_logic(4 downto 0)
+			Rd_out			: out std_logic_vector(4 downto 0)
 		);
 end EX_MEM;
 
 architecture Behavioural of EX_MEM is
 
-signal temp_ALU_zero : std_logic;
-signal temp_Addr, temp_ALU_Result, temp_ALU_HI, temp_ALU_LO, temp_Data : std_logic_vector(31 downto 0);
-signal temp_Rd : std_logic_vector(4 downto 0);
+signal temp_ALU_zero 														: std_logic;
+signal temp_Addr, temp_ALU_Result, temp_ALU_HI, temp_ALU_LO, temp_Data 		: std_logic_vector(31 downto 0);
+signal temp_Rd 																: std_logic_vector(4 downto 0);
 
 begin
 

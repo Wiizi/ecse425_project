@@ -18,16 +18,17 @@ Entity Mux_2to1 is
 		in1			: in std_logic_vector(31 downto 0);
 		in2			: in std_logic_vector(31 downto 0);
 		--output
-        dataOout	: out std_logic_vector(31 downto 0)
+        dataOut		: out std_logic_vector(31 downto 0)
 	);
 End Mux_2to1;
 
 --Architecture 
 Architecture mux of Mux_2to1 is
-    begin
-	case sel is
-  		when "0" =>	dataOut	<= in1;
-  		when "1" =>	dataOut <= in2;
-	end case;
-    end;
+	signal highZ	: std_logic_vector(31 downto 0) := (others => 'Z');
+begin
+	--indicates sel was set to '11' which shouldn't happen
+	with sel select dataOut <=
+  		in1 when '0',
+  		in2 when '1',
+  		highZ when others;
 END mux;

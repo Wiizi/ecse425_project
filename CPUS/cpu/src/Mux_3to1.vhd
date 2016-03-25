@@ -18,7 +18,7 @@ Entity Mux_3to1 is
 		in2			: in std_logic_vector(31 downto 0);
 		in3			: in std_logic_vector(31 downto 0);
 		--output
-        dataOout	: out std_logic_vector(31 downto 0)
+        dataOut		: out std_logic_vector(31 downto 0)
 	);
 End Mux_3to1;
 
@@ -29,13 +29,13 @@ signal highZ	: std_logic_vector(31 downto 0);
 
 BEGIN
 
-	highZ	<= "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";	--indicates sel was set to '11' which shouldn't happen
+	highZ	<= "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";	
+	--indicates sel was set to '11' which shouldn't happen
 
-	case sel is
-  		when "00" =>	dataOut	<= in1;
-		when "01" =>	dataOut <= in2;
-		when "10" =>	dataOut <= in3;
-  		when "11" =>	dataOut <= highZ;
-	end case;
-    end;
+	with sel select dataOut <=
+  		in1	when "00",
+		in2	when "01",
+		in3	when "10",
+  		highZ when others;
+
 END mux;

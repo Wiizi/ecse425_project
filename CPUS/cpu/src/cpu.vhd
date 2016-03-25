@@ -22,13 +22,13 @@ ENTITY cpu IS
       Write_Delay          : INTEGER   := 1
    );
    PORT (
-      clk:      	      IN    STD_LOGIC;
-      reset:            IN    STD_LOGIC := '0';
+      clk                  : IN    STD_LOGIC;
+      reset                : IN    STD_LOGIC := '0';
       
       --Signals required by the MIKA testing suite
-      finished_prog:    OUT   STD_LOGIC; --Set this to '1' when program execution is over
-      assertion:        OUT   STD_LOGIC; --Set this to '1' when an assertion occurs 
-      assertion_pc:     OUT   NATURAL;   --Set the assertion's program counter location
+      finished_prog        : OUT   STD_LOGIC; --Set this to '1' when program execution is over
+      assertion            : OUT   STD_LOGIC; --Set this to '1' when an assertion occurs 
+      assertion_pc         : OUT   NATURAL;   --Set the assertion's program counter location
       
       mem_dump:         IN    STD_LOGIC := '0'
    );
@@ -61,26 +61,27 @@ ARCHITECTURE rtl OF cpu IS
          Write_Delay          : integer:=0
        );
       PORT(
-         clk         : IN  std_logic;
-         address     : IN  integer;
-         Word_Byte   : in std_logic;
-         we          : IN  std_logic;
-         wr_done     : OUT  std_logic;
-         re          : IN  std_logic;
-         rd_ready    : OUT  std_logic;
-         data        : INOUT  std_logic_vector(Num_Bytes_in_Word*Num_Bits_in_Byte-1 downto 0);
-         initialize  : IN  std_logic;
-         dump        : IN  std_logic
+         clk            : IN  std_logic;
+         address        : IN  integer;
+         Word_Byte      : in std_logic;
+         we             : IN  std_logic;
+         wr_done        : OUT  std_logic;
+         re             : IN  std_logic;
+         rd_ready       : OUT  std_logic;
+         data           : INOUT  std_logic_vector(Num_Bytes_in_Word*Num_Bits_in_Byte-1 downto 0);
+         initialize     : IN  std_logic;
+         dump           : IN  std_logic
         );
     END COMPONENT;
 
    COMPONENT HazardDetectionControl
       PORT (
-         IDEX_RegRs     : in std_logic_vector(4 downto 0);
-         IFID_RegRt     : in std_logic_vector(4 downto 0);
+         IDEX_RegRt     : in std_logic_vector(4 downto 0);
+         IFID_RegRs     : in std_logic_vector(4 downto 0);
          IFID_RegRt     : in std_logic_vector(4 downto 0);
          IDEX_MemRead   : in std_logic;
-
+         BRANCH         : in std_logic;
+   
          IFID_Write     : out std_logic;
          PC_Update      : out std_logic;
          CPU_Stall      : out std_logic
@@ -89,13 +90,13 @@ ARCHITECTURE rtl OF cpu IS
 
    COMPONENT ALU
       PORT( 
-         opcode      : in std_logic_vector(3 downto 0); --Specified the ALU which operation to perform
-         data0, data1: in std_logic_vector(31 downto 0);
-         shamt       : in std_logic_vector (4 downto 0);
-         data_out: out std_logic_vector(31 downto 0); 
-         HI          : out std_logic_vector (31 downto 0);
-         LO          : out std_logic_vector (31 downto 0);
-         zero        : out std_logic
+         opcode         : in std_logic_vector(3 downto 0); --Specified the ALU which operation to perform
+         data0, data1   : in std_logic_vector(31 downto 0);
+         shamt          : in std_logic_vector (4 downto 0);
+         data_out       : out std_logic_vector(31 downto 0); 
+         HI             : out std_logic_vector (31 downto 0);
+         LO             : out std_logic_vector (31 downto 0);
+         zero           : out std_logic
       );
    END COMPONENT;
 
@@ -115,14 +116,14 @@ ARCHITECTURE rtl OF cpu IS
          Rd_in          : in std_logic(4 downto 0);
 
 
-         Addr_out    : out std_logic_vector(31 downto 0);
+         Addr_out       : out std_logic_vector(31 downto 0);
          --ALU
          ALU_Result_out : out std_logic_vector(31 downto 0);
          ALU_HI_out     : out std_logic_vector (31 downto 0);
          ALU_LO_out     : out std_logic_vector (31 downto 0);
          ALU_zero_out   : out std_logic;
          --Read Data
-         Data_out    : out std_logic_vector(31 downto 0);
+         Data_out       : out std_logic_vector(31 downto 0);
          --Register
          Rd_out         : out std_logic(4 downto 0)
       );
@@ -130,7 +131,7 @@ ARCHITECTURE rtl OF cpu IS
 
    COMPONENT ID_EX
       PORT(
-         clk      : in std_logic;
+         clk            : in std_logic;
    
          --Data inputs
          Addr_in        : in std_logic_vector(31 downto 0);
