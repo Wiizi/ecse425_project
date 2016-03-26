@@ -1,6 +1,6 @@
 
 ;# This function is responsible for adding to the Waves window 
-;# the signals that are relevant to the memory arbiter. This
+;# the signals that are relevant to the memory module. This
 ;# allows the developers to inspect the behavior of the memory  
 ;# arbiter component as it is being simulated.
 proc AddWaves {} {
@@ -32,7 +32,7 @@ proc GenerateCPUClock {} {
 ;#selected port. However, they do not start the operations right away. This is 
 ;#because the user might want to place another read or write operation on the
 ;#other port at the same time. Once all operations have been set, use the
-;#WaitForPort or WaitForPort functions to move time forward until any or
+;#WaitForPort function to move time forward until any or
 ;#all the operations complete.
 proc PlaceRead {addr} {
   force -deposit /memory/addr 16#$addr 0 0
@@ -50,7 +50,7 @@ proc PlaceWrite {addr data} {
   run 0 ;#Force signals to update right away
 }
 
-;#Moves time forward until either the operation on Port 1 or Port 2 is complete.
+;#Moves time forward until the operation is complete.
 ;#An operation is considered complete on a port when the port's busy signal goes low.
 proc WaitForPort {} {
   ;# Only wait if there is a transaction pending
@@ -80,30 +80,30 @@ proc ResetEnableSignalsIfReady {} {
   }
 }
 
-;#Function used to reset the read enable and write enable signals to low
-;#once a read or write operation is complete.
+;#Function used to reset the data signal
+;#if the memory is not busy.
 proc ResetDataIfReady {} {
-  ;# Reset the re and we signals for the ports that just finished their transaction
+  ;# Reset the data signal for the port 
   if {[exa /memory/busy] == 0} {
     force -deposit /memory/data "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" 0
   }
 }
 
-;#This function compiles the memory arbiter and its submodules.
-;#It initializes a memory arbiter simulation session, and
+;#This function compiles the memory unit and its submodules.
+;#It initializes a memory unit simulation session, and
 ;#sets up the Waves window to contain useful input/output signals
 ;#for debugging.
 proc InitMemory {} {
   ;#Create the work library, which is the default library used by ModelSim
   vlib work
   
-  ;#Compile the memory arbiter and its subcomponents
+  ;#Compile the memory unit and its subcomponents
   vcom Memory_in_Byte.vhd
   vcom Main_Memory.vhd
   vcom memory_arbiter_lib.vhd
   vcom memory.vhd
   
-  ;#Start a simulation session with the memory_arbiter component
+  ;#Start a simulation session with the memory component
   vsim -t ps memory
 	
   ;#Add the memory_arbiter's input and ouput signals to the waves window
