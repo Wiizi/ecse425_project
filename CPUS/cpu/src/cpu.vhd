@@ -2,7 +2,10 @@
 --
 -- entity name: cpu
 
-
+--Last edited: 25/03/2016
+--TODO: Finish conecting the signals to ID_EX stage. Create ALUsrc output for HazardControl mux. This signal needs to be an output from the 
+-- Control module because it is use for I-type signals. Check sandobx.vhd on github line 732. Also, ID_EX stage contains signals 
+-- that are meant to be used for fowarding and early branch resolution. 
 library ieee;
 
 use ieee.std_logic_1164.all; -- allows use of the std_logic_vector type
@@ -36,19 +39,7 @@ ENTITY cpu IS
 END cpu;
 
 ARCHITECTURE rtl OF cpu IS
-   
-   --Main memory signals
-   
-   SIGNAL mm_address       : NATURAL                                       := 0;
-   SIGNAL mm_word_byte     : std_logic                                     := '0';
-   SIGNAL mm_we            : STD_LOGIC                                     := '0';
-   SIGNAL mm_wr_done       : STD_LOGIC                                     := '0';
-   SIGNAL mm_re            : STD_LOGIC                                     := '0';
-   SIGNAL mm_rd_ready      : STD_LOGIC                                     := '0';
-   SIGNAL mm_data          : STD_LOGIC_VECTOR(31 downto 0)   := (others => 'Z');
-   SIGNAL mm_initialize    : STD_LOGIC                                     := '0';
-
-   -- COMPONENTS 
+     -- COMPONENTS 
    
    COMPONENT Main_Memory
       generic (
@@ -102,7 +93,7 @@ ARCHITECTURE rtl OF cpu IS
 
    COMPONENT EX_MEM
       port(
-clk : in std_logic;
+	clk 		: in std_logic;
 
          Addr_in        : in std_logic_vector(31 downto 0);
          --ALU
@@ -262,42 +253,267 @@ clk : in std_logic;
    COMPONENT Registers 
       PORT(
          clk : in std_logic;
+	--control
+	regWrite : in std_logic;
+	ALU_LOHI_Write : in std_logic;
 
-         regWrite : in std_logic;
-
-         readReg_1 : in std_logic_vector(4 downto 0);
-         readReg_2 : in std_logic_vector(4 downto 0);
-
-         writeReg :  in std_logic_vector(4 downto 0);
-         writeData : in std_logic_vector(31 downto 0);
-   
-         readData_1 : out std_logic_vector(31 downto 0);
-         readData_2 : out std_logic_vector(31 downto 0)
-      );
+	readReg_1 : in std_logic_vector(4 downto 0);
+	readReg_2 : in std_logic_vector(4 downto 0);
+	writeReg :  in std_logic_vector(4 downto 0);
+	writeData : in std_logic_vector(31 downto 0);
+	ALU_LO_in : in std_logic_vector(31 downto 0);
+	ALU_HI_in : in std_logic_vector(31 downto 0);
+	
+	readData_1 : out std_logic_vector(31 downto 0);
+	readData_2 : out std_logic_vector(31 downto 0);
+	ALU_LO_out : out std_logic_vector(31 downto 0);
+	ALU_HI_out : out std_logic_vector(31 downto 0)
+	);
    END COMPONENT;
+
+COMPONENT Control_Unit is
+	PORT(
+		clk : in std_logic;
+		opCode : in std_logic_vector(5 downto 0);
+		funct : in std_logic_vector(5 downto 0);
+
+		--ID
+		RegWrite : out std_logic;
+
+		--EX
+		--ALUSrc : out std_logic;
+		ALUOpCode : out std_logic_vector(3 downto 0);
+		RegDest : out std_logic;
+		Branch : out std_logic;
+		BNE : out std_logic;
+		Jump : out std_logic;
+		LUI : out std_logic;
+		ALU_LOHI_Write : out std_logic;
+		ALU_LOHI_Read : out std_logic_vector(1 downto 0);
+
+		--MEM
+		MemWrite : out std_logic;
+		MemRead : out std_logic;
+
+		--WB
+		MemtoReg : out std_logic
+		);
+END COMPONENT;
+
+
+----------Memory module default signals----------------
+signal InstMem_address		: integer       := 0;
+signal InstMem_word_byte 	: std_logic	:= '1';
+signal InstMem_re 		: std_logic 	:= '0';
+signal InstMem_rd_ready 	: std_logic	:= '0';
+signal InstMem_init 		: std_logic	:= '0';
+signal InstMem_dump 		: std_logic	:= '0';
+-------------------------------------------------------
+
+signal PC_addr_out : std_logic_vector(31 downto 0);
+
+signal Imem_inst_in, Imem_addr_in : std_logic_vector(31 downto 0);
+  
+signal IFID_inst_out, IFID_addr_out : std_logic_vector(31 downto 0); 
+signal haz_IF_ID_write, haz_PC_write : std_logic;
+
+signal regWrite: std_logic;
+signal ALUOpcode: std_logic_vector(3 downto 0);
+signal RegDest, Branch, BNE, Jump, LUI, ALU_LOHI_Write : std_logic;
+signal ALU_LOHI_Read: std_logic_vector(1 downto 0);
+signal MemWrite, MemRead, MemtoReg: std_logic;
+
+--signals from last pipeline stage   
+signal temp_MEM/WB_RD : std_logic_vector (4 downto 0);
+signal temp_WB_data : std_logic_vector(31 downto 0);
+
+signal ALU_LO, ALU_HI : std_logic_vector(31 downto 0) :=(others => '0');
+signal data0, data1 : std_logic_vector(31 downto 0);
+signal ALU_LO_out, ALU_HI_out : std_logic_vector(31 downto 0);
+
+signal IDEX_RegRt : std_logic_vector(4 downto 0);
+signal IDEX_MemRead : std_logic
+
+--hazard detection signal
+signal CPU_stall : std_logic;
 
 BEGIN
    
-   --Instantiation of the main memory component
-   MAIN_MEM : ENTITY work.Main_Memory
-      GENERIC MAP (
-         File_Address_Read   => File_Address_Read,
-         File_Address_Write  => File_Address_Write,
-         Mem_Size_in_Word    => Mem_Size_in_Word,
-         Read_Delay          => Read_Delay, 
-         Write_Delay         => Write_Delay
-      )
-      PORT MAP (
-         clk         => clk,
-         address     => mm_address,
-         Word_Byte   => mm_word_byte,
-         we          => mm_we,
-         wr_done     => mm_wr_done,
-         re          => mm_re,
-         rd_ready    => mm_rd_ready,
-         data        => mm_data,
-         initialize  => mm_initialize,
-         dump        => mem_dump
+Program_counter: PC
+	PORT MAP( 
+         	clk         => clk,
+         	addr_in     => Imem_addr_in,
+         	PC_write    => haz_PC_write,-- from hazard detection
+         	addr_out    => PC_addr_out
       );
+
+InstMem_address <= to_integer(unsigned(PC_addr_out));
+
+--Instantiation of the main memory component
+Instruction_Memory: Main_Memory 
+	GENERIC MAP (
+		File_Address_Read 	=>"Init.dat",
+		File_Address_Write 	=>"MemCon.dat",
+		Mem_Size_in_Word 	=>2048,
+		Num_Bytes_in_Word	=>4,
+		Num_Bits_in_Byte	=>8,
+		Read_Delay		=>0,
+		Write_Delay		=>0
+		 )
+	PORT MAP (
+		clk 		=> clk, --probably clk_mem
+		address 	=> InstMem_address,
+		Word_Byte 	=> InstMem_word_byte,
+		we 		=> '0',
+		re 		=> InstMem_re,
+		rd_ready 	=> InstMem_rd_ready,
+		data 		=> Imem_inst_in,--instruction          
+		initialize 	=> InstMem_init,
+		dump 		=> InstMem_dump
+        	);
+
+IF_ID_stage: IF_ID
+	PORT MAP(
+		clk 		=> clk,
+         	inst_in 	=> Imem_inst_in,
+         	addr_in 	=> PC_addr_out,
+         	IF_ID_write 	=> haz_IF_ID_write,
+         	inst_out 	=> IFID_inst_out,
+         	addr_out 	=> IFID_addr_out
+		);
+
+Control: Control_Unit
+	PORT MAP(
+		clk 		=> clk;
+		opCode 		=> IFID_inst_out(31 downto 26);
+		funct 		=> IFID_inst_out(5 downto 0);
+
+		--ID (Registers)
+		RegWrite	=> regWrite;
+
+		--EX
+		--ALUSrc =>
+		ALUOpCode 	=> ALUOpcode, --goes to alu
+		RegDest 	=> RegDest, --todo
+		Branch 		=> Branch, --if theres a branch, signal
+		BNE 		=> BNE,--signal
+		Jump 		=> Jump,--signal
+		LUI 		=> LUI, --signal
+		ALU_LOHI_Write 	=> ALU_LOHI_Write, --input for register
+		ALU_LOHI_Read 	=> ALU_LOHI_Read, --mux somewhere, signal
+
+		--MEM (data mem)
+		MemWrite 	=> MemWrite, --signal
+		MemRead 	=> MemRead,--signal
+
+		--WB
+		MemtoReg 	=> MemtoReg --signal, for mux
+		);
+
+Register_bank: Registers 
+	PORT MAP(
+		clk 		=> clk,
+
+         	regWrite 	=> regWrite,
+         	ALU_LOHI_Write	=> ALU_LOHI_Write, --control
+
+         	readReg_1 	=> IFID_inst_out(25 downto 21),--rs 
+         	readReg_2 	=> IFID_inst_out(20 downto 16),--rt
+         	writeReg 	=> temp_MEM/WB_RD, --mem/wb rd
+         	writeData 	=> temp_WB_data,--wb(mux) rd
+			 
+	 	ALU_LO_in 	=> ALU_LO, --from alu
+	 	ALU_HI_in 	=> ALU_HI, --from alu
    
+         	readData_1 	=> data0, --data0 for alu
+         	readData_2 	=> data1, --data1 for alu
+			 
+	 	ALU_LO_out 	=> ALU_LO_out, --simple signal
+	 	ALU_HI_out 	=> ALU_HI_out --simple signal
+		);
+----------------------------------
+--add mux for mflo and mfhi logic
+----------------------------------
+
+HazardDetectionControl: HazardDetectionControl
+	PORT MAP (
+         IDEX_RegRt     	=> IDEX_RegRt, 
+         IFID_RegRs     	=> IFID_inst_out(25 downto 21),
+         IFID_RegRt     	=> IFID_inst_out(20 downto 16),
+         IDEX_MemRead   	=> IDEX_MemRead, --create
+         BRANCH         	=> Branch,
+   
+         IFID_Write     	=> haz_IFID_write,
+         PC_Update      	=> haz_PC_write,
+         CPU_Stall      	=> CPU_stall
+	);
+
+Hazard_Control: Mux_2to1
+	GENERIC MAP(WIDTH_IN <= 10)
+	PORT MAP(
+		sel => stall,
+		in1 => (RegWrite & MemtoReg & Branch & MemRead & MemWrite & ALUOpcode & RegDest & AluSrc),
+		in2 => (others => '0'),
+		dataOut => haz_output
+		);
+
+ID_EX_stage: ID_EX
+	PORT MAP(
+         clk               => clk,
+   
+         --Data inputs
+         Addr_in           => IDID_addr_out,
+         RegData1_in       => t_RegData1_in, --
+         RegData2_in       => t_RegData2_in,
+         SignExtended_in   => t_SignExtended_in,
+   
+         --Register inputs (5 bits each)
+         Rs_in             => t_Rs_in,
+         Rt_in             => t_Rt_in,
+         Rd_in             => t_Rd_in,
+   
+         --Control inputs (8 of them?)
+         RegWrite_in       => t_RegWrite_in,
+         MemToReg_in       => t_MemToReg_in,
+         MemWrite_in       => t_MemWrite_in,
+         MemRead_in        => t_MemRead_in
+         Branch_in         => t_Branch_in,
+         ALU_op_in         => t_ALU_op_in,
+         ALU_src_in        => t_ALU_src_in,
+         Reg_dest_in       => t_Reg_dest_in,
+   
+         --Data Outputs
+         Addr_out          => t_Addr_out,
+         RegData1_out      => t_RegData1_out,
+         RegData2_out      => t_RegData2_out,
+         SignExtended_out  => t_SignExtended_out,
+   
+         --Register outputs
+         Rs_out            => t_Rs_out,
+         Rt_out            => t_Rt_out,
+         Rd_out            => t_Rd_out,
+   
+         --Control outputs
+         RegWrite_out      => t_RegWrite_out,
+         MemToReg_out      => t_MemToReg_out,
+         MemWrite_out      => t_MemWrite_out,
+         MemRead_out       => t_MemRead_out,
+         Branch_out        => t_Branch_out,
+         ALU_op_out        => t_ALU_op_out,
+         ALU_src_out       => t_ALU_src_out,
+         Reg_dest_out      => t_Reg_dest_out
+	);
+   
+ALU: ALU
+	PORT MAP( 
+         opcode         	=> t_opcode, --from control
+         data0			=> t_data0, --from reg
+	 data1   		=> t_data1, --from reg
+         shamt          	=> t_shamt, --from insttruction
+         data_out       	=> t_data_out, --signal
+         HI             	=> t_HI, --signal
+         LO             	=> t_LO, --signal
+         zero           	=> t_zero --signal
+	);
+
 END rtl;
