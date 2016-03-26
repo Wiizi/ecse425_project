@@ -4,7 +4,7 @@ use IEEE.numeric_std.all;
 
 use work.memory_arbiter_lib.all;
 
-entity memory is
+ENTITY memory IS
 GENERIC 
 (
     File_Address_Read   : string    := "Init.dat";
@@ -15,7 +15,7 @@ GENERIC
     Read_Delay          : integer   := 0;
     Write_Delay         : integer   := 0
 );
-port 
+PORT
 (
     clk       : in STD_LOGIC;
     addr      : in NATURAL;
@@ -26,9 +26,9 @@ port
     data      : inout STD_LOGIC_VECTOR(MEM_DATA_WIDTH-1 downto 0);
     busy      : out STD_LOGIC
 );
-end memory;
+END memory;
 
-architecture behavioral of memory is
+ARCHITECTURE behavioral OF memory IS
 
   --Main memory signals
   --Use these internal signals to interact with the main memory

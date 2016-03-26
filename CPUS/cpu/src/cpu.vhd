@@ -26,6 +26,8 @@ ENTITY cpu IS
    );
    PORT (
       clk                  : IN    STD_LOGIC;
+      clk_mem              : IN    STD_LOGIC;
+
       reset                : IN    STD_LOGIC := '0';
       
       --Signals required by the MIKA testing suite
@@ -41,29 +43,29 @@ END cpu;
 ARCHITECTURE rtl OF cpu IS
      -- COMPONENTS 
    
-   COMPONENT Main_Memory
-      generic (
-         File_Address_Read    : string :="Init.dat";
-         File_Address_Write   : string :="MemCon.dat";
-         Mem_Size_in_Word     : integer:=2048;  
-         Num_Bytes_in_Word    : integer:=4;
-         Num_Bits_in_Byte     : integer:= 8; 
-         Read_Delay           : integer:=0; 
-         Write_Delay          : integer:=0
-       );
-      PORT(
-         clk            : IN  std_logic;
-         address        : IN  integer;
-         Word_Byte      : in std_logic;
-         we             : IN  std_logic;
-         wr_done        : OUT  std_logic;
-         re             : IN  std_logic;
-         rd_ready       : OUT  std_logic;
-         data           : INOUT  std_logic_vector(Num_Bytes_in_Word*Num_Bits_in_Byte-1 downto 0);
-         initialize     : IN  std_logic;
-         dump           : IN  std_logic
-        );
-    END COMPONENT;
+   COMPONENT memory IS
+   GENERIC 
+   (
+      File_Address_Read   : string    := "Init.dat";
+      File_Address_Write  : string    := "MemCon.dat";
+      Mem_Size_in_Word    : integer   := 2048;
+      Num_Bytes_in_Word   : integer   := NUM_BYTES_IN_WORD;
+      Num_Bits_in_Byte    : integer   := NUM_BITS_IN_BYTE;
+      Read_Delay          : integer   := 0;
+      Write_Delay         : integer   := 0
+   );
+   PORT
+   (
+      clk       : in STD_LOGIC;
+      addr      : in NATURAL;
+      wordbyte  : in STD_LOGIC               := '1';
+      re        : in STD_LOGIC;
+      we        : in STD_LOGIC;
+      dump      : in STD_LOGIC               := '0';
+      data      : inout STD_LOGIC_VECTOR(MEM_DATA_WIDTH-1 downto 0);
+      busy      : out STD_LOGIC
+   );
+   END COMPONENT;
 
    COMPONENT HazardDetectionControl
       PORT (
@@ -93,29 +95,29 @@ ARCHITECTURE rtl OF cpu IS
 
    COMPONENT EX_MEM
       port(
-	clk 		: in std_logic;
+            clk 		: in std_logic;
 
-         Addr_in        : in std_logic_vector(31 downto 0);
-         --ALU
-         ALU_Result_in  : in std_logic_vector(31 downto 0);
-         ALU_HI_in      : in std_logic_vector (31 downto 0);
-         ALU_LO_in      : in std_logic_vector (31 downto 0);
-         ALU_zero_in    : in std_logic;
-         --Read Data
-         Data_in        : in std_logic_vector(31 downto 0);
-         --Register
-         Rd_in          : in std_logic_vector(4 downto 0);
+            Addr_in        : in std_logic_vector(31 downto 0);
+            --ALU
+            ALU_Result_in  : in std_logic_vector(31 downto 0);
+            ALU_HI_in      : in std_logic_vector (31 downto 0);
+            ALU_LO_in      : in std_logic_vector (31 downto 0);
+            ALU_zero_in    : in std_logic;
+            --Read Data
+            Data_in        : in std_logic_vector(31 downto 0);
+            --Register
+            Rd_in          : in std_logic_vector(4 downto 0);
 
-         Addr_out       : out std_logic_vector(31 downto 0);
-         --ALU
-         ALU_Result_out : out std_logic_vector(31 downto 0);
-         ALU_HI_out     : out std_logic_vector (31 downto 0);
-         ALU_LO_out     : out std_logic_vector (31 downto 0);
-         ALU_zero_out   : out std_logic;
-         --Read Data
-         Data_out       : out std_logic_vector(31 downto 0);
-         --Register
-         Rd_out         : out std_logic_vector(4 downto 0)
+            Addr_out       : out std_logic_vector(31 downto 0);
+            --ALU
+            ALU_Result_out : out std_logic_vector(31 downto 0);
+            ALU_HI_out     : out std_logic_vector (31 downto 0);
+            ALU_LO_out     : out std_logic_vector (31 downto 0);
+            ALU_zero_out   : out std_logic;
+            --Read Data
+            Data_out       : out std_logic_vector(31 downto 0);
+            --Register
+            Rd_out         : out std_logic_vector(4 downto 0)
       );
    END COMPONENT;
 
@@ -302,12 +304,19 @@ END COMPONENT;
 
 
 ----------Memory module default signals----------------
-signal InstMem_address		: integer       := 0;
-signal InstMem_word_byte 	: std_logic	:= '1';
-signal InstMem_re 		: std_logic 	:= '0';
-signal InstMem_rd_ready 	: std_logic	:= '0';
-signal InstMem_init 		: std_logic	:= '0';
-signal InstMem_dump 		: std_logic	:= '0';
+SIGNAL InstMem_address	  : integer    := 0;
+SIGNAL InstMem_re 		  : std_logic 	:= '0';
+SIGNAL InstMem_init 		  : std_logic	:= '0';
+SIGNAL InstMem_dump 		  : std_logic	:= '0';
+
+SIGNAL DataMem_addr       : integer    := 0;
+SIGNAL DataMem_re         : std_logic  := '1';
+SIGNAL DataMem_we         : std_logic  := '0';
+SIGNAL DataMem_dump       : std_logic  := '0';
+SIGNAL DataMem_data       : std_logic  := '0';
+ 
+SIGNAL InstMem_busy       : std_logic  := '0';
+SIGNAL DataMem_busy       : std_logic  := '0';
 -------------------------------------------------------
 
 signal PC_addr_out : std_logic_vector(31 downto 0);
@@ -350,27 +359,51 @@ Program_counter: PC
 InstMem_address <= to_integer(unsigned(PC_addr_out));
 
 --Instantiation of the main memory component
-Instruction_Memory: Main_Memory 
-	GENERIC MAP (
-		File_Address_Read 	=>"Init.dat",
-		File_Address_Write 	=>"MemCon.dat",
-		Mem_Size_in_Word 	=>2048,
-		Num_Bytes_in_Word	=>4,
-		Num_Bits_in_Byte	=>8,
-		Read_Delay		=>0,
-		Write_Delay		=>0
-		 )
-	PORT MAP (
-		clk 		=> clk, --probably clk_mem
-		address 	=> InstMem_address,
-		Word_Byte 	=> InstMem_word_byte,
-		we 		=> '0',
-		re 		=> InstMem_re,
-		rd_ready 	=> InstMem_rd_ready,
-		data 		=> Imem_inst_in,--instruction          
-		initialize 	=> InstMem_init,
-		dump 		=> InstMem_dump
-        	);
+Instruction_Memory : memory
+GENERIC MAP
+(
+    File_Address_Read   => "Init.dat";
+    File_Address_Write  => "InstDump.dat";
+    Mem_Size_in_Word    => 2048;
+    Num_Bytes_in_Word   => 4;
+    Num_Bits_in_Byte    => 8;
+    Read_Delay          => 0;
+    Write_Delay         => 0
+);
+PORT MAP
+(
+    clk           => clk_mem,
+    addr          => InstMem_address,
+    wordbyte      => '1',
+    re            => InstMem_re,
+    we            => '0', -- instMem never writes
+    dump          => InstMem_dump,
+    data          => InstMem_data,
+    busy          => InstMem_busy
+);
+
+Data_Memory : memory
+GENERIC MAP
+(
+    File_Address_Read   => "InitData.dat";
+    File_Address_Write  => "DataDump.dat";
+    Mem_Size_in_Word    => 2048;
+    Num_Bytes_in_Word   => 4;
+    Num_Bits_in_Byte    => 8;
+    Read_Delay          => 0;
+    Write_Delay         => 0
+);
+PORT MAP
+(
+    clk           => clk_mem,
+    addr          => DataMem_address,
+    wordbyte      => '1',
+    re            => DataMem_re,
+    we            => DataMem_we,
+    dump          => DataMem_dump,
+    data          => DataMem_data,
+    busy          => DataMem_busy
+);
 
 IF_ID_stage: IF_ID
 	PORT MAP(
