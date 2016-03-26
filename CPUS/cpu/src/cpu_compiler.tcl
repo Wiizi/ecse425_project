@@ -9,22 +9,10 @@ proc AddWaves {} {
 	add wave -group "CLOCKS" -position end -radix binary sim:/cpu/clk
                                           -radix binary sim:/cpu/clk_mem
   
-  ;#These signals will be contained in a group named "Port 1"
-	add wave -group "SIGNALS" -radix hex sim:/memory/addr\
-                            -radix hex sim:/memory/data\
-                            -radix binary sim:/memory/re\
-                            -radix binary sim:/memory/we\
-                            -radix binary sim:/memory/busy\
-                            -radix binary sim:/memory/mm_rd_ready\
-                            -radix binary sim:/memory/mm_wr_done
+  ;#These signals will be contained in a group
+	;# add wave -group "SIGNALS" -radix hex sim:/memory/addr\
 
-  add wave -group "REGISTERS"  -radix hex sim:/memory/addr\
-                               -radix hex sim:/memory/data\
-                               -radix binary sim:/memory/re\
-                               -radix binary sim:/memory/we\
-                               -radix binary sim:/memory/busy\
-                               -radix binary sim:/memory/mm_rd_ready\
-                               -radix binary sim:/memory/mm_wr_done
+  add wave -group "REGISTERS"  -radix hex sim:/Registers/regArray
 
   ;#Set some formating options to make the Waves window more legible
 	configure wave -namecolwidth 250
@@ -68,15 +56,11 @@ proc CompileAndSimulate {} {
   ;#to allow inspecting the module's behavior
 	AddWaves
   
-  force -deposit /memory/addr 0 0
-  force -deposit /memory/data "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" 0
-  force -deposit /memory/re 0 0
-  force -deposit /memory/we 0 0
-  
   ;#Generate a CPU clock
 	GenerateClock clk 20
   GenerateClock clk_mem 4
 
+  ;#Update all signals
   run 0;
 }
 
