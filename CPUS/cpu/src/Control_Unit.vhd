@@ -45,7 +45,7 @@ signal temp_RegWrite, temp_Branch, temp_BNE, temp_Jump, temp_LUI, temp_RegDest, 
 signal temp_ALU_LOHI_Write : std_logic := '0';
 -- 00 for result, 01 for low, 10 for high
 signal temp_ALU_LOHI_Read : std_logic_vector(1 downto 0) := "00";
-signal temp_ALUOpCode : std_logic_vector(4 downto 0);
+signal temp_ALUOpCode : std_logic_vector(3 downto 0);
 
 begin
 
