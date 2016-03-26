@@ -41,7 +41,7 @@ architecture Behavioural of Control_Unit is
 
 signal temp_RegWrite, temp_Branch, temp_BNE, temp_Jump, temp_LUI, temp_RegDest, temp_MemWrite, temp_MemRead, temp_MemtoReg : std_logic;
 --signal temp_ALUSrc : std_logic;
--- 0 ofr inactive, 1 for active write
+-- 0 for inactive, 1 for active write
 signal temp_ALU_LOHI_Write : std_logic := '0';
 -- 00 for result, 01 for low, 10 for high
 signal temp_ALU_LOHI_Read : std_logic_vector(1 downto 0) := "00";
