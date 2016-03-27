@@ -21,7 +21,7 @@ proc AddWaves {} {
 
 ;#Generates a clock of period with desired ns length on the port input pin of the cpu
 proc GenerateClock {port , period} { 
-  force -deposit /memory/$port 0 0 ns, 1 [expr $period/2] ns -repeat $period ns
+  force -deposit /cpu/$port 0 0 ns, 1 [expr $period/2] ns -repeat $period ns
 }
 
 ;#This function compiles the memory unit and its submodules.
@@ -51,10 +51,10 @@ proc CompileAndSimulate {} {
   vcom Haz_mux.vhd
   vcom cpu.vhd
   
-  ;#Start a simulation session with the memory component
-  vsim -t ps memory
+  ;#Start a simulation session with the cpu component
+  vsim -t ps cpu
 	
-  ;#Add the memory_arbiter's input and ouput signals to the waves window
+  ;#Add the cpu signals to the waves window
   ;#to allow inspecting the module's behavior
 	AddWaves
   
@@ -70,7 +70,7 @@ proc CompileOnly {} {
   ;#Create the work library, which is the default library used by ModelSim
   vlib work
   
-  ;#Compile the memory unit and its subcomponents
+  ;#Compile the cpu and its subcomponents
   vcom Memory_in_Byte.vhd
   vcom Main_Memory.vhd
   vcom memory_arbiter_lib.vhd
