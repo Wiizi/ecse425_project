@@ -29,6 +29,9 @@ begin
 	process(EX_MEM_RegWrite, MEM_WB_RegWrite, ID_EX_Rs, ID_EX_Rt, EX_MEM_Rd, MEM_WB_Rd)
 	begin
 
+	Forward0_EX <= "00";
+	Forward1_EX <= "00";
+
 	if ((EX_MEM_RegWrite = '1') and (not(EX_MEM_Rd = "00000"))) then
 		if (EX_MEM_Rd = ID_EX_Rs) then
 			Forward0_EX <= "01";
