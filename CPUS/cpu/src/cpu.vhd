@@ -356,6 +356,12 @@ signal ID_EX_Rd, EX_MEM_Rd, MEM_WB_Rd : std_logic_vector(4 downto 0);
 signal ID_EX_Data1, EX_MEM_Data1 : std_logic_vector(31 downto 0);
 signal MEM_WB_data, WB_data : std_logic_vector(31 downto 0);
 
+--ID_EX output signals
+signal ID_EX_data0_out, ID_EX_data1_out : std_logic_vector(31 downto 0);
+signal ID_EX_Rs_out, ID_EX_Rt_out : std_logic_vector(4 downto 0);
+signal ID_EX_addr_out : std_logic_vector(31 downto 0); 
+
+
 BEGIN
 
 Program_counter: PC
@@ -503,15 +509,15 @@ ID_EX_stage: ID_EX
     clk               => clk,
 
     --Data inputs
-    Addr_in           => IDID_addr_out,
-    RegData1_in       => t_RegData1_in, --
-    RegData2_in       => t_RegData2_in,
-    SignExtended_in   => t_SignExtended_in,
+    Addr_in           => IFID_addr_out,
+    RegData1_in       => data0, --from registers, forwards to ALU
+    RegData2_in       => data1,
+    SignExtended_in   => t_SignExtended_in,	--sign extended needs to be implemented
    
     --Register inputs (5 bits each)
-    Rs_in             => t_Rs_in,
-    Rt_in             => t_Rt_in,
-    Rd_in             => t_Rd_in,
+    Rs_in             => IFID_inst_out(25 downto 21),--rs 
+    Rt_in             => IFID_inst_out(20 downto 16),--rt
+    Rd_in             => IFID_inst_out(15 downto 11),
    
     --Control inputs (8 of them?)
     RegWrite_in       => t_RegWrite_in,
@@ -524,19 +530,19 @@ ID_EX_stage: ID_EX
     Reg_dest_in       => t_Reg_dest_in,
    
     --Data Outputs
-    Addr_out          => t_Addr_out,
-    RegData1_out      => t_RegData1_out,
-    RegData2_out      => t_RegData2_out,
+    Addr_out          => ID_EX_addr_out,
+    RegData1_out      => ID_EX_data0_out,
+    RegData2_out      => ID_EX_data1_out,
     SignExtended_out  => t_SignExtended_out,
     --Register outputs
-    Rs_out            => t_Rs_out,
-    Rt_out            => t_Rt_out,
-    Rd_out            => t_Rd_out,
+    Rs_out            => ID_EX_Rs_out,
+    Rt_out            => ID_EX_Rt_out,
+    Rd_out            => ID_EX_Rd,
     --Control outputs
     RegWrite_out      => t_RegWrite_out,
-    MemToReg_out      => t_MemToReg_out,
-    MemWrite_out      => t_MemWrite_out,
-    MemRead_out       => t_MemRead_out,
+    MemToReg_out      => ID_EX_MemtoReg,
+    MemWrite_out      => ID_EX_MemWrite,
+    MemRead_out       => ID_EX_MemRead,
     Branch_out        => t_Branch_out,
     ALU_op_out        => t_ALU_op_out,
     ALU_src_out       => t_ALU_src_out,
@@ -546,8 +552,8 @@ ID_EX_stage: ID_EX
 ALU: ALU
 	PORT MAP( 
     opcode      => t_opcode, --from control
-    data0			  => t_data0, --from reg
-	  data1   	  => t_data1, --from reg
+    data0	=> ID_EX_data0_out, --from ID_EX
+    data1   	=> ID_EX_data1_out, --from ID_EX
     shamt       => t_shamt, --from insttruction
     data_out    => t_data_out, --signal
     HI          => t_HI, --signal
