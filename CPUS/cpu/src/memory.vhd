@@ -23,7 +23,8 @@ PORT
     re        : in STD_LOGIC;
     we        : in STD_LOGIC;
     dump      : in STD_LOGIC := '0';
-    data      : inout STD_LOGIC_VECTOR(MEM_DATA_WIDTH-1 downto 0);
+    dataIn    : in STD_LOGIC_VECTOR(MEM_DATA_WIDTH-1 downto 0);
+    dataOut   : out STD_LOGIC_VECTOR(MEM_DATA_WIDTH-1 downto 0);
     busy      : out STD_LOGIC
 );
 END memory;
@@ -38,6 +39,7 @@ ARCHITECTURE behavioral OF memory IS
   SIGNAL mm_re            : STD_LOGIC                                     := '0';
   SIGNAL mm_rd_ready      : STD_LOGIC                                     := '0';
   SIGNAL mm_data          : STD_LOGIC_VECTOR(MEM_DATA_WIDTH-1 downto 0)   := (others => 'Z');
+
   SIGNAL mm_initialize    : STD_LOGIC                                     := '0';
   SIGNAL mm_word_byte     : STD_LOGIC                                     := '0';
   SIGNAL mm_dump          : STD_LOGIC                                     := '0';
@@ -112,7 +114,7 @@ begin
           if (mm_initialize = '0') then
             mm_initialize <= '1';
             state <= start;
-            data <= (others=>'Z');
+            dataOut <= (others=>'Z');
           end if;
         when start =>
           mm_initialize <= '0';
@@ -126,7 +128,7 @@ begin
         when write1 =>
           -- set address and data to write, and enable mm_we for memory
           mm_address <= addr;
-          mm_data <= data;
+          mm_data <= dataIn;
           mm_we <= '1';
           state <= write2;
         when write2 =>
@@ -142,7 +144,7 @@ begin
         when read2 =>
           if (mm_rd_ready = '1') then
             mm_re <= '0';
-            data <= mm_data;
+            dataOut <= mm_data;
             state <= start;
           end if;
         when others =>

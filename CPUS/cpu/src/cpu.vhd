@@ -12,6 +12,7 @@ use ieee.std_logic_1164.all; -- allows use of the std_logic_vector type
 use ieee.numeric_std.all; -- allows use of the unsigned type
 use STD.textio.all;
 
+use work.memory_arbiter_lib.all;
 
 --Basic CPU interface.
 --You may add your own signals, but do not remove the ones that are already there.
@@ -310,13 +311,11 @@ END COMPONENT;
 SIGNAL InstMem_address	  : integer   := 0;
 SIGNAL InstMem_re 		    : std_logic := '0';
 SIGNAL InstMem_init 		  : std_logic	:= '0';
-SIGNAL InstMem_dump 		  : std_logic	:= '0';
 
 SIGNAL DataMem_addr       : integer    := 0;
 SIGNAL DataMem_re         : std_logic  := '1';
 SIGNAL DataMem_we         : std_logic  := '0';
-SIGNAL DataMem_dump       : std_logic  := '0';
-SIGNAL DataMem_data       : std_logic  := '0';
+SIGNAL DataMem_data       : std_logic_vector (31 downto 0)  := (others => 'Z');
  
 SIGNAL InstMem_busy       : std_logic  := '0';
 SIGNAL DataMem_busy       : std_logic  := '0';
@@ -336,7 +335,7 @@ signal ALU_LOHI_Read: std_logic_vector(1 downto 0);
 signal MemWrite, MemRead, MemtoReg: std_logic;
 
 --signals from last pipeline stage
-signal temp_MEM/WB_RD : std_logic_vector (4 downto 0);
+signal temp_MEM_WB_RD : std_logic_vector (4 downto 0);
 signal temp_Result_W : std_logic_vector(31 downto 0);
 
 signal ALU_LO, ALU_HI : std_logic_vector(31 downto 0) :=(others => '0');
@@ -344,7 +343,7 @@ signal data0, data1 : std_logic_vector(31 downto 0);
 signal ALU_LO_out, ALU_HI_out : std_logic_vector(31 downto 0);
 
 signal IDEX_RegRt : std_logic_vector(4 downto 0);
-signal IDEX_MemRead : std_logic
+signal IDEX_MemRead : std_logic;
 
 --hazard detection signal
 signal CPU_stall : std_logic;
@@ -355,7 +354,7 @@ signal ID_EX_Rs_out, ID_EX_Rt_out : std_logic_vector(4 downto 0);
 signal ID_EX_addr_out : std_logic_vector(31 downto 0); 
 
 signal ID_EX_ALU_op_out : std_logic_vector(3 downto 0);
-signal ID_EX_ALU_src_out : 
+signal ID_EX_ALU_src_out : std_logic;
 signal ID_EX_Branch_out : std_logic;
 signal ID_EX_RegDest_out : std_logic;
 
@@ -389,14 +388,14 @@ InstMem_address <= to_integer(unsigned(PC_addr_out));
 Instruction_Memory : memory
 GENERIC MAP
 (
-    File_Address_Read   => "Init.dat";
-    File_Address_Write  => "InstDump.dat";
-    Mem_Size_in_Word    => 2048;
-    Num_Bytes_in_Word   => 4;
-    Num_Bits_in_Byte    => 8;
-    Read_Delay          => 0;
+    File_Address_Read   => "Init.dat",
+    File_Address_Write  => "InstDump.dat",
+    Mem_Size_in_Word    => 2048,
+    Num_Bytes_in_Word   => 4,
+    Num_Bits_in_Byte    => 8,
+    Read_Delay          => 0,
     Write_Delay         => 0
-);
+)
 PORT MAP
 (
     clk           => clk_mem,
@@ -404,30 +403,30 @@ PORT MAP
     wordbyte      => '1',
     re            => InstMem_re,
     we            => '0', -- instMem never writes
-    dump          => InstMem_dump,
-    data          => InstMem_data,
+    dump          => mem_dump,
+    data          => Imem_inst_in,
     busy          => InstMem_busy
 );
 
 Data_Memory : memory
 GENERIC MAP
 (
-    File_Address_Read   => "InitData.dat";
-    File_Address_Write  => "DataDump.dat";
-    Mem_Size_in_Word    => 2048;
-    Num_Bytes_in_Word   => 4;
-    Num_Bits_in_Byte    => 8;
-    Read_Delay          => 0;
+    File_Address_Read   => "InitData.dat",
+    File_Address_Write  => "DataDump.dat",
+    Mem_Size_in_Word    => 2048,
+    Num_Bytes_in_Word   => 4,
+    Num_Bits_in_Byte    => 8,
+    Read_Delay          => 0,
     Write_Delay         => 0
-);
+)
 PORT MAP
 (
     clk           => clk_mem,
-    addr          => DataMem_address,
+    addr          => DataMem_address, -- TODO: ADD CORRECT READ WRITE ADDRESS HERE
     wordbyte      => '1',
     re            => DataMem_re,
     we            => DataMem_we,
-    dump          => DataMem_dump,
+    dump          => mem_dump,
     data          => DataMem_data,
     busy          => DataMem_busy
 );
@@ -477,7 +476,7 @@ Register_bank: Registers
 
     readReg_0 	=> IFID_inst_out(25 downto 21),--rs
     readReg_1 	=> IFID_inst_out(20 downto 16),--rt
-    writeReg 	  => temp_MEM/WB_RD, --mem/wb rd
+    writeReg 	  => temp_MEM_WB_RD, --mem/wb rd
     writeData 	=> Result_W,--wb(mux) rd
 
 	 	ALU_LO_in 	=> ALU_LO, --from alu
