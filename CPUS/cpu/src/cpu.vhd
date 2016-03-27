@@ -560,7 +560,7 @@ ID_EX_stage: ID_EX
     Reg_dest_out      => ID_EX_RegDest_out
 	);
 
-ALU_data0_Mux : Mux_3to1
+ALU_data0_Forward_Mux : Mux_3to1
   PORT MAP(
     sel      => ,--Forward Unit: in std_logic_vector(1 downto 0);
     in1      => ID_EX_data0_out,
@@ -569,7 +569,7 @@ ALU_data0_Mux : Mux_3to1
     dataOout => ALU_data0
     );
 
-ALU_data1_Mux : Mux_3to1
+ALU_data1_Forward_Mux : Mux_3to1
   PORT MAP(
     sel      => ,--Forward Unit
     in1      => ID_EX_data1_out,
@@ -578,7 +578,7 @@ ALU_data1_Mux : Mux_3to1
     dataOout => t_ALU_data1
   );
 
-Mem_to_Reg_Mux : Mux_2to1
+ALU_data1_Mux : Mux_2to1
   PORT MAP(
     sel      => ALUSrc,
     in1      => t_ALU_data1,
