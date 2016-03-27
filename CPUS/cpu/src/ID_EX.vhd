@@ -15,8 +15,8 @@ ENTITY ID_EX IS
 
 		--Data inputs
 		Addr_in				: in std_logic_vector(31 downto 0);
+		RegData0_in			: in std_logic_vector(31 downto 0);
 		RegData1_in			: in std_logic_vector(31 downto 0);
-		RegData2_in			: in std_logic_vector(31 downto 0);
 		SignExtended_in		: in std_logic_vector(31 downto 0);
 
 		--Register inputs (5 bits each)
@@ -37,8 +37,8 @@ ENTITY ID_EX IS
 
 		--Data Outputs
 		Addr_out			: out std_logic_vector(31 downto 0);
+		RegData0_out		: out std_logic_vector(31 downto 0);
 		RegData1_out		: out std_logic_vector(31 downto 0);
-		RegData2_out		: out std_logic_vector(31 downto 0);
 		SignExtended_out	: out std_logic_vector(31 downto 0);
 
 		--Register outputs
@@ -64,8 +64,8 @@ ARCHITECTURE id_ex OF ID_EX IS
 --Temporary signal assignments 
 --data
 signal temp_Addr			: std_logic_vector(31 downto 0);
+signal temp_RegData0		: std_logic_vector(31 downto 0);
 signal temp_RegData1		: std_logic_vector(31 downto 0);
-signal temp_RegData2		: std_logic_vector(31 downto 0);
 signal temp_SignExtended	: std_logic_vector(31 downto 0);
 
 --registers		
@@ -87,8 +87,8 @@ BEGIN
 
 --forward inputs to temp signals
 	temp_Addr 				<= Addr_in;
+	temp_RegData0			<= RegData0_in;
 	temp_RegData1			<= RegData1_in;
-	temp_RegData2			<= RegData2_in;
 	temp_SignExtended		<= SignExtended_in;
 	temp_Rs					<= Rs_in;
 	temp_Rt					<= Rt_in;
@@ -110,8 +110,8 @@ process (clk)
 	if rising_edge(clk) then
 		--data		
 		Addr_out			<= temp_Addr;
+		RegData0_out		<= temp_RegData0;
 		RegData1_out		<= temp_RegData1;
-		RegData2_out		<= temp_RegData2;
 		SignExtended_out	<= temp_SignExtended;
 
 		--registers

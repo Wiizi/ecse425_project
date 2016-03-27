@@ -134,8 +134,8 @@ ARCHITECTURE rtl OF cpu IS
 
         --Data inputs
         Addr_in           : in std_logic_vector(31 downto 0);
+        RegData0_in       : in std_logic_vector(31 downto 0);
         RegData1_in       : in std_logic_vector(31 downto 0);
-        RegData2_in       : in std_logic_vector(31 downto 0);
         SignExtended_in   : in std_logic_vector(31 downto 0);
         --Register inputs (5 bits each)
         Rs_in             : in std_logic_vector(4 downto 0);
@@ -153,8 +153,8 @@ ARCHITECTURE rtl OF cpu IS
 
         --Data Outputs
         Addr_out          : out std_logic_vector(31 downto 0);
+        RegData0_out      : out std_logic_vector(31 downto 0);
         RegData1_out      : out std_logic_vector(31 downto 0);
-        RegData2_out      : out std_logic_vector(31 downto 0);
         SignExtended_out  : out std_logic_vector(31 downto 0);
         --Register outputs
         Rs_out            : out std_logic_vector(4 downto 0);
@@ -260,16 +260,16 @@ ARCHITECTURE rtl OF cpu IS
 	      regWrite       : in std_logic;
 	      ALU_LOHI_Write : in std_logic;
         --Register file inputs
+	      readReg_0      : in std_logic_vector(4 downto 0);
 	      readReg_1      : in std_logic_vector(4 downto 0);
-	      readReg_2      : in std_logic_vector(4 downto 0);
 	      writeReg       :  in std_logic_vector(4 downto 0);
 	      writeData      : in std_logic_vector(31 downto 0);
 	      ALU_LO_in      : in std_logic_vector(31 downto 0);
 	      ALU_HI_in      : in std_logic_vector(31 downto 0);
 
         --Register file outputs
+	      readData_0     : out std_logic_vector(31 downto 0);
 	      readData_1     : out std_logic_vector(31 downto 0);
-	      readData_2     : out std_logic_vector(31 downto 0);
 	      ALU_LO_out     : out std_logic_vector(31 downto 0);
 	      ALU_HI_out     : out std_logic_vector(31 downto 0)
       );
@@ -468,16 +468,16 @@ Register_bank: Registers
     regWrite 	=> regWrite,
     ALU_LOHI_Write	=> ALU_LOHI_Write, --control
 
-    readReg_1 	=> IFID_inst_out(25 downto 21),--rs 
-    readReg_2 	=> IFID_inst_out(20 downto 16),--rt
+    readReg_0 	=> IFID_inst_out(25 downto 21),--rs 
+    readReg_1 	=> IFID_inst_out(20 downto 16),--rt
     writeReg 	  => temp_MEM/WB_RD, --mem/wb rd
     writeData 	=> WB_data,--wb(mux) rd
 
 	 	ALU_LO_in 	=> ALU_LO, --from alu
 	 	ALU_HI_in 	=> ALU_HI, --from alu
 
-    readData_1 	=> data0, --data0 for alu
-    readData_2 	=> data1, --data1 for alu
+    readData_0 	=> data0, --data0 for alu
+    readData_1 	=> data1, --data1 for alu
 
 	 	ALU_LO_out 	=> ALU_LO_out, --simple signal
 	 	ALU_HI_out 	=> ALU_HI_out --simple signal
@@ -514,8 +514,8 @@ ID_EX_stage: ID_EX
 
     --Data inputs
     Addr_in           => IFID_addr_out,
-    RegData1_in       => data0, --from registers, forwards to ALU
-    RegData2_in       => data1,
+    RegData0_in       => data0, --from registers, forwards to ALU
+    RegData1_in       => data1,
     SignExtended_in   => t_SignExtended_in,	--sign extended needs to be implemented
    
     --Register inputs (5 bits each)
@@ -535,8 +535,8 @@ ID_EX_stage: ID_EX
    
     --Data Outputs
     Addr_out          => ID_EX_addr_out,
-    RegData1_out      => ID_EX_data0_out,
-    RegData2_out      => ID_EX_data1_out,
+    RegData0_out      => ID_EX_data0_out,
+    RegData1_out      => ID_EX_data1_out,
     SignExtended_out  => t_SignExtended_out,
     --Register outputs
     Rs_out            => ID_EX_Rs_out,
