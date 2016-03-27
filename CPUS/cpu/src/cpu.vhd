@@ -592,36 +592,45 @@ EX_MEM_stage: EX_MEM
     ALU_zero_out   => EX_MEM_ALU_zero,
 
     --Read Data
-    Data1_out      => EX_MEM_Da
+    Data1_out      => EX_MEM_Data1,
     --Register
     Rd_out         => EX_MEM_Rd
   );
+
+  --Link to Data Memory
+  ---------------------------------------
+  -- Need to be fix
+  ---------------------------------------
+  if (EX_MEM_MemWrite = '1') then
+    DataMem_data <= EX_MEM_Data1;
+  end if;
+
 
 MEM_WB_stage: MEM_WB
   PORT MAP(
     clk            => clk,
     --Control Unit
-    MemtoReg_in    => EX_MEM_Memto
+    MemtoReg_in    => EX_MEM_MemtoReg,
     --Data Memory
     busy_in        => DataMem_busy,
-    Data_in        => DataMem_d
+    Data_in        => DataMem_data,
     --ALU
     ALU_Result_in  => EX_MEM_ALU_result,
     ALU_HI_in      => EX_MEM_ALU_HI,
     ALU_LO_in      => EX_MEM_ALU_LO,
-    ALU_zero_in    => EX_MEM_ALU_z
+    ALU_zero_in    => EX_MEM_ALU_zero,
     --Register
-    Rd_in          => EX_MEM
+    Rd_in          => EX_MEM_Rd,
     --Control Unit
-    MemtoReg_in    => MEM_WB_Memto
+    MemtoReg_in    => MEM_WB_MemtoReg,
     --Data Memory
     busy_out       => MEM_WB_busy,
-    Data_out       => MEM_WB_d
+    Data_out       => MEM_WB_data,
     --ALU
     ALU_Result_out => MEM_WB_ALU_result,
     ALU_HI_out     => MEM_WB_ALU_HI,
     ALU_LO_out     => MEM_WB_ALU_LO,
-    ALU_zero_out   => MEM_WB_ALU_z
+    ALU_zero_out   => MEM_WB_ALU_zero,
     --Register
     Rd_out         => MEM_WB_Rd
   );
