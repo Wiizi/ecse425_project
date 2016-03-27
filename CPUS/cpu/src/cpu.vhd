@@ -331,7 +331,7 @@ signal haz_IF_ID_write, haz_PC_write : std_logic;
 
 signal regWrite: std_logic;
 signal ALUOpcode: std_logic_vector(3 downto 0);
-signal RegDest, Branch, BNE, Jump, LUI, ALU_LOHI_Write : std_logic;
+signal RegDest, Branch, BNE, Jump, LUI, ALU_LOHI_Write, ALUSrc : std_logic;
 signal ALU_LOHI_Read: std_logic_vector(1 downto 0);
 signal MemWrite, MemRead, MemtoReg: std_logic;
 
@@ -369,8 +369,8 @@ signal ID_EX_MemtoReg, EX_MEM_MemtoReg, MEM_WB_MemtoReg : std_logic;
 signal EX_MEM_ALU_result, EX_MEM_ALU_HI, EX_MEM_ALU_LO, EX_MEM_ALU_zero : std_logic;
 signal MEM_WB_ALU_result, MEM_WB_ALU_HI, MEM_WB_ALU_LO, MEM_WB_ALU_zero : std_logic;
 signal ID_EX_Rd, EX_MEM_Rd, MEM_WB_Rd : std_logic_vector(4 downto 0);
-signal ID_EX_Data1, EX_MEM_Data1 : std_logic_vector(31 downto 0);
-signal MEM_WB_data, Result_W : std_logic_vector(31 downto 0);
+signal ID_EX_Data, EX_MEM_Data, EX_MEM_data: std_logic_vector(31 downto 0);
+signal MEM_WB_data, Result_W: std_logic_vector(31 downto 0);
 
 
 BEGIN
@@ -424,15 +424,17 @@ GENERIC MAP
 PORT MAP
 (
     clk           => clk_mem,
-    addr          => DataMem_address, -- TODO: ADD CORRECT READ WRITE ADDRESS HERE
+    addr          => DataMem_addr, 
     wordbyte      => '1',
     re            => DataMem_re,
     we            => DataMem_we,
     dump          => mem_dump,
-    dataIn        => EX_MEM_data,
+    dataIn        => EX_MEM_Data, -- TODO: ADD CORRECT DATAIN HERE
     dataOut       => DataMem_data,
     busy          => DataMem_busy
 );
+
+DataMem_addr <= to_integer(unsigned(EX_MEM_data));
 
 IF_ID_stage: IF_ID
 	PORT MAP(
@@ -446,18 +448,18 @@ IF_ID_stage: IF_ID
 
 Control: Control_Unit
 	PORT MAP(
-		clk 		  => clk;
-		opCode 		=> IFID_inst_out(31 downto 26);
-		funct 		=> IFID_inst_out(5 downto 0);
+		clk 		  => clk,
+		opCode 		=> IFID_inst_out(31 downto 26),
+		funct 		=> IFID_inst_out(5 downto 0),
 
 		--ID (Registers)
-		RegWrite	=> regWrite;
+		RegWrite	=> regWrite,
 
 		--EX
-		--ALUSrc =>
 		ALUOpCode       => ALUOpcode, --goes to alu
 		RegDest 	      => RegDest, --todo
 		Branch 		      => Branch, --if theres a branch, signal
+    ALUSrc          => ALUSrc,
 		BNE 		        => BNE,--signal
 		Jump            => Jump,--signal
 		LUI 		        => LUI, --signal
@@ -495,7 +497,7 @@ Register_bank: Registers
 --add mux for mflo and mfhi logic
 ----------------------------------
 
-HazardDetectionControl: HazardDetectionControl
+Hazard : HazardDetectionControl
 	PORT MAP (
     IDEX_RegRt     	=> IDEX_RegRt,
     IFID_RegRs     	=> IFID_inst_out(25 downto 21),
@@ -503,7 +505,7 @@ HazardDetectionControl: HazardDetectionControl
     IDEX_MemRead   	=> IDEX_MemRead, --create
     BRANCH         	=> Branch,
 
-    IFID_Write     	=> haz_IFID_write,
+    IFID_Write     	=> haz_IF_ID_write,
     PC_Update      	=> haz_PC_write,
     CPU_Stall      	=> CPU_stall
 	);
@@ -618,7 +620,7 @@ EX_MEM_stage: EX_MEM
     ALU_LO_in      => t_LO,
     ALU_zero_in    => t_zero,
     --Read Data
-    Data1_in       => ID_EX_Data1,
+    Data1_in       => ID_EX_Data,
     --Register
     Rd_in          => ID_EX_Rd,
 
@@ -633,7 +635,7 @@ EX_MEM_stage: EX_MEM
     ALU_LO_out     => EX_MEM_ALU_LO,
     ALU_zero_out   => EX_MEM_ALU_zero,
     --Read Data
-    Data1_out      => EX_MEM_Data1,
+    Data1_out      => EX_MEM_Data,
     --Register
     Rd_out         => EX_MEM_Rd
   );
