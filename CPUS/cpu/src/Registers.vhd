@@ -10,24 +10,24 @@ USE ieee.numeric_std.all;
 
 entity Registers is
 	port(
-		clk : in std_logic;
+		clk 			: in std_logic;
 		--control
-		RegWrite : in std_logic;
-		ALU_LOHI_Write : in std_logic;
+		RegWrite 		: in std_logic;
+		ALU_LOHI_Write 	: in std_logic;
 
 		--Register file inputs
-		readReg_0 : in std_logic_vector(4 downto 0);
-		readReg_1 : in std_logic_vector(4 downto 0);
-		writeReg :  in std_logic_vector(4 downto 0);
-		writeData : in std_logic_vector(31 downto 0);
-		ALU_LO_in : in std_logic_vector(31 downto 0);
-		ALU_HI_in : in std_logic_vector(31 downto 0);
+		readReg_0 		: in std_logic_vector(4 downto 0);
+		readReg_1 		: in std_logic_vector(4 downto 0);
+		writeReg  		:  in std_logic_vector(4 downto 0);
+		writeData 		: in std_logic_vector(31 downto 0);
+		ALU_LO_in 		: in std_logic_vector(31 downto 0);
+		ALU_HI_in 		: in std_logic_vector(31 downto 0);
 
 		--Register file outputs
-		readData_0 : out std_logic_vector(31 downto 0);
-		readData_1 : out std_logic_vector(31 downto 0);
-		ALU_LO_out : out std_logic_vector(31 downto 0);
-		ALU_HI_out : out std_logic_vector(31 downto 0)
+		readData_0 		: out std_logic_vector(31 downto 0);
+		readData_1 		: out std_logic_vector(31 downto 0);
+		ALU_LO_out 		: out std_logic_vector(31 downto 0);
+		ALU_HI_out 		: out std_logic_vector(31 downto 0)
 		);
 end Registers;
 
