@@ -635,8 +635,8 @@ ID_EX_stage: ID_EX
 LUI_mux: Mux_2to1
   PORT MAP(
     sel      => LUI,
-    in1      => ID_SignExtend,
-    in2      => (ID_SignExtend(15 downto 0) & (others => '0')),
+    in1      => ID_EX_SignExtend,
+    in2      => (ID_EX_SignExtend(15 downto 0) & (others => '0')),
     dataOut  => EX_SignExtend
     );
 
