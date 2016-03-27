@@ -30,18 +30,23 @@ SIGNAL ID_EX_Rs        : std_logic_vector(4 downto 0);
 SIGNAL ID_EX_Rt        : std_logic_vector(4 downto 0);
 SIGNAL EX_MEM_Rd       : std_logic_vector(4 downto 0);
 SIGNAL MEM_WB_Rd       : std_logic_vector(4 downto 0);
+SIGNAL t_F0_EX         : std_logic_vector(1 downto 0);
+SIGNAL t_F1_EX         : std_logic_vector(1 downto 0);
 
 begin
 
 forwarding : Forwarding
   PORT MAP
   (
-    EX_MEM_RegWrite <= EX_MEM_RegWrite;
-    MEM_WB_RegWrite <= MEM_WB_RegWrite;
-    ID_EX_Rs        <= ID_EX_Rs;
-    ID_EX_Rt        <= ID_EX_Rt;
-    EX_MEM_Rd       <= EX_MEM_Rd;
-    MEM_WB_Rd       <= MEM_WB_Rd;
+    EX_MEM_RegWrite <= EX_MEM_RegWrite,
+    MEM_WB_RegWrite <= MEM_WB_RegWrite,
+    ID_EX_Rs        <= ID_EX_Rs,
+    ID_EX_Rt        <= ID_EX_Rt,
+    EX_MEM_Rd       <= EX_MEM_Rd,
+    MEM_WB_Rd       <= MEM_WB_Rd,
+
+    Forward0_EX     <= t_F0_EX,
+    Forward1_EX     <= t_F1_EX
   );
 
 clk_process : process
@@ -57,16 +62,17 @@ begin
   
   wait for 20ns;
 
-  EX_MEM_RegWrite <= ;
-  MEM_WB_RegWrite <= ;
-  ID_EX_Rs <= ;
-  ID_EX_Rt <= ;
-  EX_MEM_Rd <= ;
-  MEM_WB_Rd <= ;
+  EX_MEM_RegWrite <= '1';
+  MEM_WB_RegWrite <= '1';
+  ID_EX_Rs <= "00011";
+  ID_EX_Rt <= "00010";
+  EX_MEM_Rd <= "00011";
+  MEM_WB_Rd <= "00001";
 
   -- example assert statement
   REPORT "Testing!";
-  ASSERT (1 = 2) REPORT "OH NO ITS BAD!!!." SEVERITY ERROR;
+  ASSERT (t_F0_EX = "01") REPORT "Forward0_EX is not correct." SEVERITY ERROR;
+  ASSERT (t_F1_EX = "00") REPORT "Forward1_EX is not correct." SEVERITY ERROR;
   WAIT;
 end process;
 
