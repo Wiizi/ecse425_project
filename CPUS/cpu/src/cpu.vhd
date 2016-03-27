@@ -150,7 +150,7 @@ END COMPONENT;
         MemWrite_in       : in std_logic;
         MemRead_in        : in std_logic;
         Branch_in         : in std_logic;
-	LUI_in		  : in std_logic;
+	      LUI_in		        : in std_logic;
         ALU_op_in         : in std_logic_vector(2 downto 0);
         ALU_src_in        : in std_logic;
         Reg_dest_in       : in std_logic;
@@ -170,7 +170,7 @@ END COMPONENT;
         MemWrite_out      : out std_logic;
         MemRead_out       : out std_logic;
         Branch_out        : out std_logic;
-	LUI_out		  : out std_logic;
+	      LUI_out		        : out std_logic;
         ALU_op_out        : out std_logic_vector(2 downto 0);
         ALU_src_out       : out std_logic;
         Reg_dest_out      : out std_logic
@@ -390,6 +390,7 @@ signal ALU_LO_out, ALU_HI_out : std_logic_vector(31 downto 0);
 
 signal ID_EX_RegRt : std_logic_vector(4 downto 0);
 signal ID_EX_MemRead : std_logic;
+signal ID_SignExtend, ID_EX_SignExtend, EX_SignExtend : std_logic_vector(31 downto 0);
 
 --hazard detection signal
 signal CPU_stall : std_logic;
@@ -545,6 +546,7 @@ Register_bank: Registers
 ----------------------------------
 --add mux for mflo and mfhi logic
 ----------------------------------
+ID_SignExtend <= ((others => IF_ID_inst_out(15)) & IF_ID_inst_out(15 downto 0));
 
 Hazard : HazardDetectionControl
 	PORT MAP (
@@ -591,7 +593,7 @@ ID_EX_stage: ID_EX
     Addr_in           => IF_ID_addr_out,
     RegData0_in       => data0, --from registers, forwards to ALU
     RegData1_in       => data1,
-    SignExtended_in   => t_SignExtended_in,	--sign extended needs to be implemented
+    SignExtended_in   => ID_signExtend,	--sign extended needs to be implemented
    
     --Register inputs (5 bits each)
     Rs_in             => IF_ID_inst_out(25 downto 21),--rs 
@@ -604,7 +606,7 @@ ID_EX_stage: ID_EX
     MemWrite_in       => IF_ID_MemWrite,
     MemRead_in        => IF_ID_MemRead,
     Branch_in         => IF_ID_Branch,
-    LUI_in	      => LUI,
+    LUI_in	          => LUI,
     ALU_op_in         => ALUOpcode,
     ALU_src_in        => ALUSrc,
     Reg_dest_in       => IFID_RegDest,
@@ -613,7 +615,7 @@ ID_EX_stage: ID_EX
     Addr_out          => ID_EX_addr_out,
     RegData0_out      => ID_EX_data0_out,
     RegData1_out      => ID_EX_data1_out,
-    SignExtended_out  => t_SignExtended_out,--missing
+    SignExtended_out  => ID_EX_SignExtend,--missing
     --Register outputs
     Rs_out            => ID_EX_Rs_out,
     Rt_out            => ID_EX_Rt_out,
@@ -629,6 +631,15 @@ ID_EX_stage: ID_EX
     ALU_src_out       => ID_EX_ALU_src_out,
     Reg_dest_out      => ID_EX_RegDest_out
 	);
+
+LUI_mux: Mux_2to1
+  PORT MAP(
+    sel      => LUI,
+    in1      => ID_SignExtend,
+    in2      => (ID_SignExtend(15 downto 0) & (others => '0')),
+    dataOut  => EX_SignExtend
+    );
+
 Forwarding_unit: Forwarding
   PORT MAP(
 	EX_MEM_RegWrite => EX_MEM_RegWrite;
@@ -663,7 +674,7 @@ ALU_data1_Mux : Mux_2to1
   PORT MAP(
     sel      => ALUSrc,
     in1      => t_ALU_data1,
-    in2      => ,--SignExtend
+    in2      => EX_SignExtend,--SignExtend
     dataOut  => ALU_data1,
   );
 
