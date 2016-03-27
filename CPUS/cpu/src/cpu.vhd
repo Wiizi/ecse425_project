@@ -249,6 +249,35 @@ END COMPONENT;
       );
    END COMPONENT;
 
+COMPONENT Haz_mux is
+
+PORT( 
+	sel : in std_logic;
+
+	in1 : in std_logic;
+	in2 : in std_logic;
+	in3 : in std_logic;
+	in4 : in std_logic;
+	in5 : in std_logic;
+	in6 : in std_logic;
+	in7 : in std_logic;
+	in8 : in std_logic_vector(3 downto 0);
+
+	out1 : out std_logic;
+	out2 : out std_logic;
+	out3 : out std_logic;
+	out4 : out std_logic;
+	out5 : out std_logic;
+	out6 : out std_logic;
+	out7 : out std_logic;
+	out8 : out std_logic_vector(3 downto 0)
+	);
+
+		
+END COMPONENT;
+
+
+
    COMPONENT PC
       PORT(
         clk         : in std_logic;
@@ -348,6 +377,7 @@ signal IDEX_MemRead : std_logic;
 
 --hazard detection signal
 signal CPU_stall : std_logic;
+signal IFID_regWrite,IFID_RegDest,IFID_Branch,IFID_BNE,IFID_Jump,IFID_MemWrite,IFID_MemRead,IFID_MemtoReg : std_logic;
 
 --ID_EX output signals
 signal ID_EX_data0_out, ID_EX_data1_out : std_logic_vector(31 downto 0);
@@ -459,7 +489,7 @@ Control: Control_Unit
 		ALUOpCode       => ALUOpcode, --goes to alu
 		RegDest 	      => RegDest, --todo
 		Branch 		      => Branch, --if theres a branch, signal
-    ALUSrc          => ALUSrc,
+    		ALUSrc          => ALUSrc,
 		BNE 		        => BNE,--signal
 		Jump            => Jump,--signal
 		LUI 		        => LUI, --signal
@@ -510,13 +540,28 @@ Hazard : HazardDetectionControl
     CPU_Stall      	=> CPU_stall
 	);
 
-Hazard_Control: Mux_2to1
-	GENERIC MAP(WIDTH_IN <= 10)
+Hazard_Control: Haz_mux
 	PORT MAP(
 		sel => stall,
-		in1 => (RegWrite & MemtoReg & Branch & MemRead & MemWrite & ALUOpcode & RegDest & ALUSrc),
-		in2 => (others => '0'),
-		dataOut => haz_output
+
+		in1 => regWrite, 
+		in2 => RegDest,
+		in3 => Branch,
+		in4 => BNE,
+		in5 => Jump,
+		in6 => MemWrite,
+		in7 => MemRead,
+		in8 => MemtoReg,
+
+		out1 =>IFID_regWrite, 
+		out2 =>IFID_RegDest,
+		out3 =>IFID_Branch,
+		out4 =>IFID_BNE,
+		out5 =>IFID_Jump,
+		out6 =>IFID_MemWrite,
+		out7 =>IFID_MemRead,
+		out8 =>IFID_MemtoReg
+		
 		);
 
 ID_EX_stage: ID_EX
@@ -535,20 +580,20 @@ ID_EX_stage: ID_EX
     Rd_in             => IFID_inst_out(15 downto 11),
    
     --Control inputs (8 of them?)
-    RegWrite_in       => t_RegWrite,
-    MemToReg_in       => MemtoReg,
-    MemWrite_in       => MemWrite,
-    MemRead_in        => MemRead,
-    Branch_in         => Branch,
+    RegWrite_in       => IFID_regWrite,
+    MemToReg_in       => IFID_MemtoReg
+    MemWrite_in       => IFID_MemWrite,
+    MemRead_in        => IFID_MemRead,
+    Branch_in         => IFID_Branch,
     ALU_op_in         => ALUOpcode,
-    ALU_src_in        => t_ALU_src_in,
-    Reg_dest_in       => RegDest,
+    ALU_src_in        => ALUSrc,
+    Reg_dest_in       => IFID_RegDest,
    
     --Data Outputs
     Addr_out          => ID_EX_addr_out,
     RegData0_out      => ID_EX_data0_out,
     RegData1_out      => ID_EX_data1_out,
-    SignExtended_out  => t_SignExtended_out,
+    SignExtended_out  => t_SignExtended_out,--missing
     --Register outputs
     Rs_out            => ID_EX_Rs_out,
     Rt_out            => ID_EX_Rt_out,
@@ -592,9 +637,9 @@ ALU_data1_Mux : Mux_2to1
 
 ALU: ALU
 	PORT MAP(
-    opcode    => t_opcode, --from control
-    data0	    => ID_EX_data0_out, --from ID_EX
-    data1   	=> ID_EX_data1_out, --from ID_EX
+    opcode    => ALUOpcode, --from control
+    data0     => ID_EX_data0_out, --from ID_EX
+    data1     => ID_EX_data1_out, --from ID_EX
     shamt     => t_shamt, --from insttruction
     data_out  => t_data_out, --signal
     HI        => t_HI, --signal

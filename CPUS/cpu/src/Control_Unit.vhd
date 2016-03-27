@@ -25,8 +25,8 @@ entity Control_Unit is
 		BNE 			: out std_logic;
 		Jump 			: out std_logic;
 		LUI 			: out std_logic;
-		ALU_LOHI_Write 	: out std_logic;
-		ALU_LOHI_Read 	: out std_logic_vector(1 downto 0);
+		ALU_LOHI_Write 		: out std_logic;
+		ALU_LOHI_Read 		: out std_logic_vector(1 downto 0);
 
 		--MEM
 		MemWrite 		: out std_logic;
