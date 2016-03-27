@@ -15,6 +15,7 @@ entity MEM_WB is
 
 			--Control Unit
 			MemtoReg_in		: in std_logic;
+			RegWrite_in		: in std_logic;
 			--Data Memory
 			busy_in			: in std_logic;
 			Data_in 		: in std_logic_vector(31 downto 0);
@@ -28,6 +29,7 @@ entity MEM_WB is
 
 			--Control Unit
 			MemtoReg_out	: out std_logic;
+			RegWrite_out	: out std_logic;
 			--Data Memory
 			busy_out		: out std_logic;
 			Data_out		: out std_logic_vector(31 downto 0);
@@ -43,12 +45,13 @@ end MEM_WB;
 
 architecture Behavioural of MEM_WB is
 
-signal temp_MemtoReg, temp_busy, temp_ALU_zero, temp_Rd 	: std_logic;
-signal temp_Data, temp_ALUResult, temp_ALU_HI, temp_ALU_LO 	: std_logic_vector (31 downto 0);
+signal temp_MemtoReg, temp_RegWrite, temp_busy, temp_ALU_zero, temp_Rd 	: std_logic;
+signal temp_Data, temp_ALUResult, temp_ALU_HI, temp_ALU_LO 				: std_logic_vector (31 downto 0);
 
 begin
 
 	temp_MemtoReg 	<= MemtoReg_in;
+	temp_RegWrite	<= RegWrite_in;
 
 	temp_busy 		<= busy_in;
 	temp_Data 		<= Data_in;
@@ -64,6 +67,7 @@ begin
 	begin
 		if (clk'event and clk = '1') then
 			MemtoReg_out 	<= temp_MemtoReg;
+			RegWrite_out	<= temp_RegWrite;
 
 			busy_out		<= temp_busy;
 			Data_out 		<= temp_Data;

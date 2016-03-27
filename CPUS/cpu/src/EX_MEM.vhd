@@ -13,9 +13,10 @@ entity EX_MEM is
 			clk : in std_logic;
 
 			--Control Unit
-			MemWrite_in		: in STD_LOGIC;
-			MemRead_in		: in STD_LOGIC;
-			MemtoReg_in		: in STD_LOGIC;
+			MemWrite_in		: in std_logic;
+			MemRead_in		: in std_logic;
+			MemtoReg_in		: in std_logic;
+			RegWrite_in		: in std_logic;
 
 			--ALU
 			ALU_Result_in	: in std_logic_vector(31 downto 0);
@@ -28,9 +29,10 @@ entity EX_MEM is
 			Rd_in 			: in std_logic_vector(4 downto 0);
 
 			--Control Unitnit
-			MemWrite_out	: out STD_LOGIC;
-			MemRead_out		: out STD_LOGIC;
-			MemtoReg_out	: out STD_LOGIC;
+			MemWrite_out	: out std_logic;
+			MemRead_out		: out std_logic;
+			MemtoReg_out	: out std_logic;
+			RegWrite_out	: out std_logic;
 
 			--ALU
 			ALU_Result_out	: out std_logic_vector(31 downto 0);
@@ -46,15 +48,16 @@ end EX_MEM;
 
 architecture Behavioural of EX_MEM is
 
-signal temp_ALU_zero, temp_MemWrite, temp_MemRead, temp_MemtoReg		: std_logic;
-signal temp_ALU_Result, temp_ALU_HI, temp_ALU_LO, temp_Data1			: std_logic_vector(31 downto 0);
-signal temp_Rd 															: std_logic_vector(4 downto 0);
+signal temp_ALU_zero, temp_MemWrite, temp_MemRead, temp_MemtoReg, temp_RegWrite		: std_logic;
+signal temp_ALU_Result, temp_ALU_HI, temp_ALU_LO, temp_Data1						: std_logic_vector(31 downto 0);
+signal temp_Rd 																		: std_logic_vector(4 downto 0);
 
 begin
 
 	temp_MemWrite 	<= MemWrite_in;
 	temp_MemRead	<= MemRead_in;
 	temp_MemtoReg 	<= MemtoReg_in;
+	temp_RegWrite 	<= RegWrite_in;
 
 	temp_ALU_Result <= ALU_Result_in;
 	temp_ALU_HI 	<= ALU_HI_in;
@@ -70,6 +73,7 @@ begin
 			MemWrite_out 	<= temp_MemWrite;
 			MemRead_out 	<= temp_MemRead;
 			MemtoReg_out 	<= temp_MemtoReg;
+			RegWrite_out 	<= temp_RegWrite;
 
 			ALU_Result_out 	<= temp_ALU_Result;
 			ALU_HI_out 		<= temp_ALU_HI;
