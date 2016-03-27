@@ -569,7 +569,7 @@ ALU_data0_Forward_Mux : Mux_3to1
     sel      => ,--Forward Unit: in std_logic_vector(1 downto 0);
     in1      => ID_EX_data0_out,
     in2      => Result_W,
-    in3      => DataMem_data,
+    in3      => EX_MEM_data,
     dataOout => ALU_data0
     );
 
@@ -578,7 +578,7 @@ ALU_data1_Forward_Mux : Mux_3to1
     sel      => ,--Forward Unit
     in1      => ID_EX_data1_out,
     in2      => Result_W,
-    in3      => DataMem_data,
+    in3      => EX_MEM_data,
     dataOout => t_ALU_data1
   );
 
