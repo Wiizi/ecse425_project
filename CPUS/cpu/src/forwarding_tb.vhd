@@ -2,11 +2,11 @@ library ieee;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 
-Entity memory_arbiter_tb is
+Entity forwarding_tb is
 
-end memory_arbiter_tb;
+end forwarding_tb;
 
-architecture behavioral of memory_arbiter_tb is
+architecture behavioral of forwarding_tb is
 
 COMPONENT Forwarding
   port(
