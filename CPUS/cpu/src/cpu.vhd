@@ -44,29 +44,30 @@ END cpu;
 ARCHITECTURE rtl OF cpu IS
      -- COMPONENTS 
    
-   COMPONENT memory IS
-   GENERIC 
-   (
-      File_Address_Read   : string    := "Init.dat";
-      File_Address_Write  : string    := "MemCon.dat";
-      Mem_Size_in_Word    : integer   := 2048;
-      Num_Bytes_in_Word   : integer   := NUM_BYTES_IN_WORD;
-      Num_Bits_in_Byte    : integer   := NUM_BITS_IN_BYTE;
-      Read_Delay          : integer   := 0;
-      Write_Delay         : integer   := 0
-   );
-   PORT
-   (
-      clk       : in STD_LOGIC;
-      addr      : in NATURAL;
-      wordbyte  : in STD_LOGIC               := '1';
-      re        : in STD_LOGIC;
-      we        : in STD_LOGIC;
-      dump      : in STD_LOGIC               := '0';
-      data      : inout STD_LOGIC_VECTOR(MEM_DATA_WIDTH-1 downto 0);
-      busy      : out STD_LOGIC
-   );
-   END COMPONENT;
+COMPONENT memory IS
+GENERIC 
+(
+    File_Address_Read   : string    := "Init.dat";
+    File_Address_Write  : string    := "MemCon.dat";
+    Mem_Size_in_Word    : integer   := 2048;
+    Num_Bytes_in_Word   : integer   := NUM_BYTES_IN_WORD;
+    Num_Bits_in_Byte    : integer   := NUM_BITS_IN_BYTE;
+    Read_Delay          : integer   := 0;
+    Write_Delay         : integer   := 0
+);
+PORT 
+(
+    clk         : in STD_LOGIC;
+    addr        : in NATURAL;
+    wordbyte    : in STD_LOGIC;
+    re          : in STD_LOGIC;
+    we          : in STD_LOGIC;
+    dump        : in STD_LOGIC;
+    dataIn      : in STD_LOGIC_VECTOR(MEM_DATA_WIDTH-1 downto 0);
+    dataOut     : out STD_LOGIC_VECTOR(MEM_DATA_WIDTH-1 downto 0);
+    busy        : out STD_LOGIC
+);
+END COMPONENT;
 
    COMPONENT HazardDetectionControl
       PORT (
@@ -404,7 +405,8 @@ PORT MAP
     re            => InstMem_re,
     we            => '0', -- instMem never writes
     dump          => mem_dump,
-    data          => Imem_inst_in,
+    dataIn        => (others => '0'),
+    dataOut       => Imem_inst_in,
     busy          => InstMem_busy
 );
 
@@ -427,7 +429,8 @@ PORT MAP
     re            => DataMem_re,
     we            => DataMem_we,
     dump          => mem_dump,
-    data          => DataMem_data,
+    dataIn        => EX_MEM_data,
+    dataOut       => DataMem_data,
     busy          => DataMem_busy
 );
 
@@ -625,7 +628,7 @@ EX_MEM_stage: EX_MEM
     MemtoReg_out   => EX_MEM_MemtoReg,
     RegWrite_out   => EX_MEM_RegWrite,
     --ALU
-    ALU_Result_out => DataMem_data,--from ALU t_data_out
+    ALU_Result_out => EX_MEM_data,--from ALU t_data_out
     ALU_HI_out     => EX_MEM_ALU_HI,
     ALU_LO_out     => EX_MEM_ALU_LO,
     ALU_zero_out   => EX_MEM_ALU_zero,
