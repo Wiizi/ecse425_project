@@ -40,11 +40,11 @@ begin
 			Forward1_EX <= "01";
 		end if;
 
-	elsif ((MEM_WB_RegWrite = '1') and (not(MEM_WB_Rd = "00000"))) then
-		if (not(EX_MEM_Rd = ID_EX_Rs)) and (MEM_WB_Rd = ID_EX_Rs) then
+	elsif ((MEM_WB_RegWrite = '1') and (not(MEM_WB_Rd = "00000"))) then --and (not((EX_MEM_RegWrite = '1') and (not(EX_MEM_Rd = "00000"))))) then
+		if ((EX_MEM_Rd = ID_EX_Rs) and (MEM_WB_Rd = ID_EX_Rs)) then
 			Forward0_EX <= "10";
 		end if;
-		if (not(EX_MEM_Rd = ID_EX_Rt)) and (MEM_WB_Rd = ID_EX_Rt) then
+		if ((EX_MEM_Rd = ID_EX_Rt) and (MEM_WB_Rd = ID_EX_Rt)) then
 			Forward1_EX <= "10";
 		end if;
 	end if;
