@@ -37,17 +37,19 @@ proc CompileAndSimulate {} {
   vcom Main_Memory.vhd
   vcom memory_arbiter_lib.vhd
   vcom memory.vhd
-  vcom ALU
-  vcom Control_Unit
-  vcom EX_MEM
-  vcom HazardDetectionControl
-  vcom IF_EX
-  vcom IF_ID
-  vcom Mux_2to1
-  vcom Mux_3to1
-  vcom PC
-  vcom Registers
-  vcom cpu
+  vcom ALU.vhd
+  vcom Control_Unit.vhd
+  vcom EX_MEM.vhd
+  vcom HazardDetectionControl.vhd
+  vcom IF_EX.vhd
+  vcom IF_ID.vhd
+  vcom Mux_2to1.vhd
+  vcom Mux_3to1.vhd
+  vcom PC.vhd
+  vcom Registers.vhd
+  vcom Forwarding.vhd
+  vcom Haz_mux.vhd
+  vcom cpu.vhd
   
   ;#Start a simulation session with the memory component
   vsim -t ps memory
@@ -84,4 +86,5 @@ proc CompileOnly {} {
   vcom PC.vhd
   vcom Registers.vhd
   vcom cpu.vhd
+  vcom Haz_mux.vhd
 }
