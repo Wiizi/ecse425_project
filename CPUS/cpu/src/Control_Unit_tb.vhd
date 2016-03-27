@@ -1,3 +1,9 @@
+-- ECSE 425 - Comp Organization & Architecture - Final Project
+-- Group 5: Andrei Chubarau, Luis Gallet Zambrano, Aidan Petit, Wei Wang
+-- Author: Aidan Petit
+-- Control_Unit_tb.vhd
+-- Contains 33 tests for all input possibilities to Control_Unit
+
 library ieee;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
