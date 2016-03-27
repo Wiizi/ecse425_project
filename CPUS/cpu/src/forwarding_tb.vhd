@@ -137,7 +137,7 @@ begin
   -- example assert statement
   REPORT "Testing - 6";
   ASSERT (t_F0_EX = "00") REPORT "Forward0_EX is not correct." SEVERITY ERROR;
-  ASSERT (t_F1_EX = "00") REPORT "Forward1_EX is not correct." SEVERITY ERROR;
+  ASSERT (t_F1_EX = "10") REPORT "Forward1_EX is not correct." SEVERITY ERROR;
 
   t_EX_MEM_RegWrite <= '1';
   t_MEM_WB_RegWrite <= '0';
