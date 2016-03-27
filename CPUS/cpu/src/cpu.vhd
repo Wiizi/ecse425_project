@@ -95,34 +95,35 @@ ARCHITECTURE rtl OF cpu IS
 
    COMPONENT EX_MEM
       PORT(
-        clk 		: in std_logic;
+        clk 		       : in std_logic;
 
         --Control Unit
-        MemWrite_in   : in STD_LOGIC;
-        MemRead_in    : in STD_LOGIC;
-        MemtoReg_in   : in STD_LOGIC;
+        MemWrite_in    : in STD_LOGIC;
+        MemRead_in     : in STD_LOGIC;
+        MemtoReg_in    : in STD_LOGIC;
+        RegWrite_in    : in std_logic;
         --ALU
         ALU_Result_in  : in std_logic_vector(31 downto 0);
         ALU_HI_in      : in std_logic_vector (31 downto 0);
         ALU_LO_in      : in std_logic_vector (31 downto 0);
         ALU_zero_in    : in std_logic;
         --Read Data
-        Data1_in        : in std_logic_vector(31 downto 0);
+        Data1_in       : in std_logic_vector(31 downto 0);
         --Register
         Rd_in          : in std_logic_vector(4 downto 0);
 
         --Control Unit
-        MemWrite_out  : out STD_LOGIC;
-        MemRead_out   : out STD_LOGIC;
-        MemtoReg_out  : out STD_LOGIC;
-
+        MemWrite_out   : out STD_LOGIC;
+        MemRead_out    : out STD_LOGIC;
+        MemtoReg_out   : out STD_LOGIC;
+        RegWrite_out   : out std_logic;
         --ALU
         ALU_Result_out : out std_logic_vector(31 downto 0);
         ALU_HI_out     : out std_logic_vector (31 downto 0);
         ALU_LO_out     : out std_logic_vector (31 downto 0);
         ALU_zero_out   : out std_logic;
         --Read Data
-        Data1_out       : out std_logic_vector(31 downto 0);
+        Data1_out      : out std_logic_vector(31 downto 0);
         --Register
         Rd_out         : out std_logic_vector(4 downto 0)
       );
@@ -165,7 +166,7 @@ ARCHITECTURE rtl OF cpu IS
         MemToReg_out      : out std_logic;
         MemWrite_out      : out std_logic;
         MemRead_out       : out std_logic;
-        Branch_out        : out std_logic;  
+        Branch_out        : out std_logic;
         ALU_op_out        : out std_logic_vector(2 downto 0);
         ALU_src_out       : out std_logic;
         Reg_dest_out      : out std_logic
@@ -188,7 +189,8 @@ ARCHITECTURE rtl OF cpu IS
         clk            : in std_logic;
 
         --Control Unit
-        MemtoReg_in   : in std_logic;
+        MemtoReg_in    : in std_logic;
+        RegWrite_in    : in std_logic;
         --Data Memory
         busy_in        : in std_logic;
         Data_in        : in std_logic_vector(31 downto 0);
@@ -201,7 +203,8 @@ ARCHITECTURE rtl OF cpu IS
         Rd_in          : in std_logic;
 
         --Control Unit
-        MemtoReg_out  : out std_logic;
+        MemtoReg_out   : out std_logic;
+        RegWrite_out   : out std_logic;
         --Data Memory
         busy_out       : out std_logic;
         Data_out       : out std_logic_vector(31 downto 0);
@@ -257,7 +260,7 @@ ARCHITECTURE rtl OF cpu IS
       PORT(
         clk            : in std_logic;
 	      --control
-	      regWrite       : in std_logic;
+	      RegWrite       : in std_logic;
 	      ALU_LOHI_Write : in std_logic;
         --Register file inputs
 	      readReg_0      : in std_logic_vector(4 downto 0);
@@ -299,7 +302,7 @@ ARCHITECTURE rtl OF cpu IS
 		    MemRead         : out std_logic;
 		    --WB
 		    MemtoReg        : out std_logic
-		);
+		  );
 END COMPONENT;
 
 
@@ -334,7 +337,7 @@ signal MemWrite, MemRead, MemtoReg: std_logic;
 
 --signals from last pipeline stage
 signal temp_MEM/WB_RD : std_logic_vector (4 downto 0);
-signal temp_WB_data : std_logic_vector(31 downto 0);
+signal temp_Result_W : std_logic_vector(31 downto 0);
 
 signal ALU_LO, ALU_HI : std_logic_vector(31 downto 0) :=(others => '0');
 signal data0, data1 : std_logic_vector(31 downto 0);
@@ -346,16 +349,6 @@ signal IDEX_MemRead : std_logic
 --hazard detection signal
 signal CPU_stall : std_logic;
 
---for EX_MEM stage to MEM_WB stage
-signal ID_EX_MemWrite, EX_MEM_MemWrite : std_logic;
-signal ID_EX_MemRead, EX_MEM_MemRead : std_logic;
-signal ID_EX_MemtoReg, EX_MEM_MemtoReg, MEM_WB_MemtoReg : std_logic;
-signal EX_MEM_ALU_result, EX_MEM_ALU_HI, EX_MEM_ALU_LO, EX_MEM_ALU_zero : std_logic;
-signal MEM_WB_ALU_result, MEM_WB_ALU_HI, MEM_WB_ALU_LO, MEM_WB_ALU_zero : std_logic;
-signal ID_EX_Rd, EX_MEM_Rd, MEM_WB_Rd : std_logic_vector(4 downto 0);
-signal ID_EX_Data1, EX_MEM_Data1 : std_logic_vector(31 downto 0);
-signal MEM_WB_data, WB_data : std_logic_vector(31 downto 0);
-
 --ID_EX output signals
 signal ID_EX_data0_out, ID_EX_data1_out : std_logic_vector(31 downto 0);
 signal ID_EX_Rs_out, ID_EX_Rt_out : std_logic_vector(4 downto 0);
@@ -365,6 +358,20 @@ signal ID_EX_ALU_op_out : std_logic_vector(3 downto 0);
 signal ID_EX_ALU_src_out : 
 signal ID_EX_Branch_out : std_logic;
 signal ID_EX_RegDest_out : std_logic;
+
+--Signals for ALU
+signal ALU_data0, t_ALU_data1, ALU_data1 : std_logic_vector(31 downto 0);
+
+--for EX_MEM stage to MEM_WB stage
+signal ID_EX_MemWrite, EX_MEM_MemWrite : std_logic;
+signal ID_EX_MemRead, EX_MEM_MemRead : std_logic;
+signal ID_EX_MemtoReg, EX_MEM_MemtoReg, MEM_WB_MemtoReg : std_logic;
+signal EX_MEM_ALU_result, EX_MEM_ALU_HI, EX_MEM_ALU_LO, EX_MEM_ALU_zero : std_logic;
+signal MEM_WB_ALU_result, MEM_WB_ALU_HI, MEM_WB_ALU_LO, MEM_WB_ALU_zero : std_logic;
+signal ID_EX_Rd, EX_MEM_Rd, MEM_WB_Rd : std_logic_vector(4 downto 0);
+signal ID_EX_Data1, EX_MEM_Data1 : std_logic_vector(31 downto 0);
+signal MEM_WB_data, Result_W : std_logic_vector(31 downto 0);
+
 
 BEGIN
 
@@ -465,13 +472,13 @@ Register_bank: Registers
 	PORT MAP(
 		clk 		=> clk,
 
-    regWrite 	=> regWrite,
+    RegWrite 	=> regWrite,
     ALU_LOHI_Write	=> ALU_LOHI_Write, --control
 
-    readReg_0 	=> IFID_inst_out(25 downto 21),--rs 
+    readReg_0 	=> IFID_inst_out(25 downto 21),--rs
     readReg_1 	=> IFID_inst_out(20 downto 16),--rt
     writeReg 	  => temp_MEM/WB_RD, --mem/wb rd
-    writeData 	=> WB_data,--wb(mux) rd
+    writeData 	=> Result_W,--wb(mux) rd
 
 	 	ALU_LO_in 	=> ALU_LO, --from alu
 	 	ALU_HI_in 	=> ALU_HI, --from alu
@@ -503,7 +510,7 @@ Hazard_Control: Mux_2to1
 	GENERIC MAP(WIDTH_IN <= 10)
 	PORT MAP(
 		sel => stall,
-		in1 => (RegWrite & MemtoReg & Branch & MemRead & MemWrite & ALUOpcode & RegDest & AluSrc),
+		in1 => (RegWrite & MemtoReg & Branch & MemRead & MemWrite & ALUOpcode & RegDest & ALUSrc),
 		in2 => (others => '0'),
 		dataOut => haz_output
 		);
@@ -524,7 +531,7 @@ ID_EX_stage: ID_EX
     Rd_in             => IFID_inst_out(15 downto 11),
    
     --Control inputs (8 of them?)
-    RegWrite_in       => t_RegWrite_in,
+    RegWrite_in       => t_RegWrite,
     MemToReg_in       => MemtoReg,
     MemWrite_in       => MemWrite,
     MemRead_in        => MemRead,
@@ -543,7 +550,7 @@ ID_EX_stage: ID_EX
     Rt_out            => ID_EX_Rt_out,
     Rd_out            => ID_EX_Rd,
     --Control outputs
-    RegWrite_out      => t_RegWrite_out,
+    RegWrite_out      => ID_EX_RegWrite,
     MemToReg_out      => ID_EX_MemtoReg,
     MemWrite_out      => ID_EX_MemWrite,
     MemRead_out       => ID_EX_MemRead,
@@ -552,19 +559,44 @@ ID_EX_stage: ID_EX
     ALU_src_out       => ID_EX_ALU_src_out,
     Reg_dest_out      => ID_EX_RegDest_out
 	);
-   
-ALU: ALU
-	PORT MAP( 
-    opcode      => t_opcode, --from control
-    data0	=> ID_EX_data0_out, --from ID_EX
-    data1   	=> ID_EX_data1_out, --from ID_EX
-    shamt       => t_shamt, --from insttruction
-    data_out    => t_data_out, --signal
-    HI          => t_HI, --signal
-    LO          => t_LO, --signal
-    zero        => t_zero --signal
-	);
 
+ALU_data0_Mux : Mux_3to1
+  PORT MAP(
+    sel      => ,--Forward Unit: in std_logic_vector(1 downto 0);
+    in1      => ID_EX_data0_out,
+    in2      => Result_W,
+    in3      => DataMem_data,
+    dataOout => ALU_data0
+    );
+
+ALU_data1_Mux : Mux_3to1
+  PORT MAP(
+    sel      => ,--Forward Unit
+    in1      => ID_EX_data1_out,
+    in2      => Result_W,
+    in3      => DataMem_data,
+    dataOout => t_ALU_data1
+  );
+
+Mem_to_Reg_Mux : Mux_2to1
+  PORT MAP(
+    sel      => ALUSrc,
+    in1      => t_ALU_data1,
+    in2      => ,--SignExtend
+    dataOout => ALU_data1,
+  );
+
+ALU: ALU
+	PORT MAP(
+    opcode    => t_opcode, --from control
+    data0	    => ID_EX_data0_out, --from ID_EX
+    data1   	=> ID_EX_data1_out, --from ID_EX
+    shamt     => t_shamt, --from insttruction
+    data_out  => t_data_out, --signal
+    HI        => t_HI, --signal
+    LO        => t_LO, --signal
+    zero      => t_zero --signal
+	);
 
 -----------------------------------------------------------
 ----   LINK BETWEEN ID_EX stage and EX_MEM stage MISSING
@@ -577,50 +609,39 @@ EX_MEM_stage: EX_MEM
     MemWrite_in    => ID_EX_MemWrite,
     MemRead_in     => ID_EX_MemRead,
     MemtoReg_in    => ID_EX_MemtoReg,
-
+    RegWrite_in    => ID_EX_RegWrite,
     --ALU
     ALU_Result_in  => t_data_out,-- from ALU t_data_out
-    ALU_HI_in      => ALU_HI,
-    ALU_LO_in      => ALU_LO,
-    ALU_zero_in    => ALU_zero,
-
+    ALU_HI_in      => t_HI,
+    ALU_LO_in      => t_LO,
+    ALU_zero_in    => t_zero,
     --Read Data
     Data1_in       => ID_EX_Data1,
-
     --Register
     Rd_in          => ID_EX_Rd,
 
     --Control Unit
-    MemWrite_out   =>EX_MEM_MemWrite,
-    MemRead_out    => EX_MEM_MemRead,
+    MemWrite_out   => DataMem_we,
+    MemRead_out    => DataMem_re,
     MemtoReg_out   => EX_MEM_MemtoReg,
-
+    RegWrite_out   => EX_MEM_RegWrite,
     --ALU
-    ALU_Result_out => EX_MEM_ALU_result,--from ALU t_data_out
+    ALU_Result_out => DataMem_data,--from ALU t_data_out
     ALU_HI_out     => EX_MEM_ALU_HI,
     ALU_LO_out     => EX_MEM_ALU_LO,
     ALU_zero_out   => EX_MEM_ALU_zero,
-
     --Read Data
     Data1_out      => EX_MEM_Data1,
     --Register
     Rd_out         => EX_MEM_Rd
   );
 
-  --Link to Data Memory
-  ---------------------------------------
-  -- Need to be fix
-  ---------------------------------------
-  if (EX_MEM_MemWrite = '1') then
-    DataMem_data <= EX_MEM_Data1;
-  end if;
-
-
 MEM_WB_stage: MEM_WB
   PORT MAP(
     clk            => clk,
     --Control Unit
     MemtoReg_in    => EX_MEM_MemtoReg,
+    RegWrite_in    => EX_MEM_RegWrite,
     --Data Memory
     busy_in        => DataMem_busy,
     Data_in        => DataMem_data,
@@ -632,7 +653,8 @@ MEM_WB_stage: MEM_WB
     --Register
     Rd_in          => EX_MEM_Rd,
     --Control Unit
-    MemtoReg_in    => MEM_WB_MemtoReg,
+    MemtoReg_out   => MEM_WB_MemtoReg,
+    RegWrite_out   => MEM_WB_RegWrite,
     --Data Memory
     busy_out       => MEM_WB_busy,
     Data_out       => MEM_WB_data,
@@ -650,7 +672,7 @@ Mem_to_Reg_Mux : Mux_2to1
     sel      => MEM_WB_MemtoReg,
     in1      => MEM_WB_ALU_result,
     in2      => MEM_WB_data,
-    dataOout => WB_data,
+    dataOout => Result_W,
   );
 
 END rtl;

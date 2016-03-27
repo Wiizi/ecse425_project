@@ -12,7 +12,7 @@ entity Registers is
 	port(
 		clk : in std_logic;
 		--control
-		regWrite : in std_logic;
+		RegWrite : in std_logic;
 		ALU_LOHI_Write : in std_logic;
 
 		--Register file inputs
@@ -48,7 +48,7 @@ readData_1 <= temp_readData_1;
 ALU_LO_out <= temp_ALU_LO_out;
 ALU_HI_out <= temp_ALU_HI_out;
 
-	process(clk, regWrite, readReg_0, readReg_1, writeReg, writeData)
+	process(clk, RegWrite, readReg_0, readReg_1, writeReg, writeData)
 	begin
 		--wait for active clock edge
 		if (clk'event and clk = '1') then
@@ -58,7 +58,7 @@ ALU_HI_out <= temp_ALU_HI_out;
 			temp_ALU_LO_out <= regArray(32);
 			temp_ALU_HI_out <= regArray(33);
 			--check whether write signal is active
-			if (regWrite = '1') then
+			if (RegWrite = '1') then
 				--write the data
 				regArray(TO_INTEGER(UNSIGNED(writeReg))) <= writeData;
 			end if;
