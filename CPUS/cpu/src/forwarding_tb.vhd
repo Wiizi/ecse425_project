@@ -84,8 +84,8 @@ begin
   wait for 20ns;
   -- example assert statement
   REPORT "Testing - 2";
-  ASSERT (t_F0_EX = "01") REPORT "Forward0_EX is not correct." SEVERITY ERROR;
-  ASSERT (t_F1_EX = "00") REPORT "Forward1_EX is not correct." SEVERITY ERROR;
+  ASSERT (t_F0_EX = "00") REPORT "Forward0_EX is not correct." SEVERITY ERROR;
+  ASSERT (t_F1_EX = "10") REPORT "Forward1_EX is not correct." SEVERITY ERROR;
 
   t_EX_MEM_RegWrite <= '0';
   t_MEM_WB_RegWrite <= '1';
@@ -123,8 +123,8 @@ begin
   wait for 20ns;
   -- example assert statement
   REPORT "Testing - 5";
-  ASSERT (t_F0_EX = "00") REPORT "Forward0_EX is not correct." SEVERITY ERROR;
-  ASSERT (t_F1_EX = "10") REPORT "Forward1_EX is not correct." SEVERITY ERROR;
+  ASSERT (t_F0_EX = "10") REPORT "Forward0_EX is not correct." SEVERITY ERROR;
+  ASSERT (t_F1_EX = "00") REPORT "Forward1_EX is not correct." SEVERITY ERROR;
 
   t_EX_MEM_RegWrite <= '1';
   t_MEM_WB_RegWrite <= '1';
@@ -183,13 +183,13 @@ begin
   t_ID_EX_Rs <= "00101";
   t_ID_EX_Rt <= "00110";
   t_EX_MEM_Rd <= "00110";
-  t_MEM_WB_Rd <= "00110";
+  t_MEM_WB_Rd <= "00101";
 
   wait for 20ns;
   -- example assert statement
   REPORT "Testing - 10";
-  ASSERT (t_F0_EX = "01") REPORT "Forward0_EX is not correct." SEVERITY ERROR;
-  ASSERT (t_F1_EX = "10") REPORT "Forward1_EX is not correct." SEVERITY ERROR;
+  ASSERT (t_F0_EX = "10") REPORT "Forward0_EX is not correct." SEVERITY ERROR;
+  ASSERT (t_F1_EX = "01") REPORT "Forward1_EX is not correct." SEVERITY ERROR;
 
   WAIT;
 end process;
