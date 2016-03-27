@@ -34,7 +34,7 @@ end Registers;
 architecture Behavioural of Registers is
 
 type reg_mem is array (0 to 33) of std_logic_vector(31 downto 0);
-signal regArray : reg_mem := (others => (others => '0'));
+signal regArray : reg_mem := (others => (others => 'Z'));
 
 signal temp_readData_0, temp_readData_1, temp_ALU_LO_out, temp_ALU_HI_out : std_logic_vector(31 downto 0);
 
