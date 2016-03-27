@@ -55,3 +55,6 @@ fabric.properties
 Assembler/.idea/workspace.xml
 CPUS/cpu/src/work/_info
 CPUS/cpu/src/work/_lib.qdb
+*.qdb
+*.qpg
+CPUS/cpu/src/work/_lib1_0.qtl
