@@ -30,7 +30,6 @@ SIGNAL t_EX_MEM_Rd       : std_logic_vector(4 downto 0);
 SIGNAL t_MEM_WB_Rd       : std_logic_vector(4 downto 0);
 SIGNAL t_F0_EX         : std_logic_vector(1 downto 0);
 SIGNAL t_F1_EX         : std_logic_vector(1 downto 0);
-SIGNAL clk : std_logic;
 
 begin
 
@@ -47,14 +46,6 @@ forward : Forwarding
     Forward0_EX     => t_F0_EX,
     Forward1_EX     => t_F1_EX
   );
-
-clk_process : process
-begin
-  clk <= '0';
-  wait for 10ns;
-  clk <= '1';
-  wait for 10ns;
-end process;
 
 test : process
 begin
