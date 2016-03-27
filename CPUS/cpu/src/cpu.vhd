@@ -150,6 +150,7 @@ END COMPONENT;
         MemWrite_in       : in std_logic;
         MemRead_in        : in std_logic;
         Branch_in         : in std_logic;
+	LUI_in		  : in std_logic;
         ALU_op_in         : in std_logic_vector(2 downto 0);
         ALU_src_in        : in std_logic;
         Reg_dest_in       : in std_logic;
@@ -169,6 +170,7 @@ END COMPONENT;
         MemWrite_out      : out std_logic;
         MemRead_out       : out std_logic;
         Branch_out        : out std_logic;
+	LUI_out		  : out std_logic;
         ALU_op_out        : out std_logic_vector(2 downto 0);
         ALU_src_out       : out std_logic;
         Reg_dest_out      : out std_logic
@@ -309,7 +311,7 @@ END COMPONENT;
       );
    END COMPONENT;
 
-  COMPONENT Control_Unit is
+  COMPONENT Control_Unit IS
 	    PORT(
 		    clk             : in std_logic;
 
@@ -336,6 +338,20 @@ END COMPONENT;
 		  );
 END COMPONENT;
 
+COMPONENT Forwarding IS
+	PORT(
+		EX_MEM_RegWrite : in std_logic;
+		MEM_WB_RegWrite	: in std_logic;
+		ID_EX_Rs		: in std_logic_vector(4 downto 0);
+		ID_EX_Rt		: in std_logic_vector(4 downto 0);
+		EX_MEM_Rd		: in std_logic_vector(4 downto 0);
+		MEM_WB_Rd		: in std_logic_vector(4 downto 0);
+
+		Forward0_EX 	: out std_logic_vector(1 downto 0) := "00";
+		Forward1_EX		: out std_logic_vector(1 downto 0) := "00"
+		);
+END COMPONENT;
+
 
 ----------Memory module default signals----------------
 SIGNAL InstMem_address	  : integer   := 0;
@@ -355,7 +371,7 @@ signal PC_addr_out : std_logic_vector(31 downto 0);
 
 signal Imem_inst_in, Imem_addr_in : std_logic_vector(31 downto 0);
   
-signal IFID_inst_out, IFID_addr_out : std_logic_vector(31 downto 0); 
+signal IF_ID_inst_out, IF_ID_addr_out : std_logic_vector(31 downto 0); 
 signal haz_IF_ID_write, haz_PC_write : std_logic;
 
 signal regWrite: std_logic;
@@ -372,12 +388,12 @@ signal ALU_LO, ALU_HI : std_logic_vector(31 downto 0) :=(others => '0');
 signal data0, data1 : std_logic_vector(31 downto 0);
 signal ALU_LO_out, ALU_HI_out : std_logic_vector(31 downto 0);
 
-signal IDEX_RegRt : std_logic_vector(4 downto 0);
-signal IDEX_MemRead : std_logic;
+signal ID_EX_RegRt : std_logic_vector(4 downto 0);
+signal ID_EX_MemRead : std_logic;
 
 --hazard detection signal
 signal CPU_stall : std_logic;
-signal IFID_regWrite,IFID_RegDest,IFID_Branch,IFID_BNE,IFID_Jump,IFID_MemWrite,IFID_MemRead,IFID_MemtoReg : std_logic;
+signal IF_ID_regWrite,IF_ID_RegDest,IF_ID_Branch,IF_ID_BNE,IF_ID_Jump,IF_ID_MemWrite,IF_ID_MemRead,IF_ID_MemtoReg : std_logic;
 
 --ID_EX output signals
 signal ID_EX_data0_out, ID_EX_data1_out : std_logic_vector(31 downto 0);
@@ -387,6 +403,7 @@ signal ID_EX_addr_out : std_logic_vector(31 downto 0);
 signal ID_EX_ALU_op_out : std_logic_vector(3 downto 0);
 signal ID_EX_ALU_src_out : std_logic;
 signal ID_EX_Branch_out : std_logic;
+signal ID_EX_LUI : std_logic;
 signal ID_EX_RegDest_out : std_logic;
 
 --Signals for ALU
@@ -402,6 +419,8 @@ signal ID_EX_Rd, EX_MEM_Rd, MEM_WB_Rd : std_logic_vector(4 downto 0);
 signal ID_EX_Data, EX_MEM_Data, EX_MEM_data: std_logic_vector(31 downto 0);
 signal MEM_WB_data, Result_W: std_logic_vector(31 downto 0);
 
+--Signals for Forwarding
+signal Forward0_EX, Forward1_EX : std_logic_vector(1 downto 0);
 
 BEGIN
 
@@ -472,15 +491,15 @@ IF_ID_stage: IF_ID
     inst_in 	    => Imem_inst_in,
     addr_in 	    => PC_addr_out,
     IF_ID_write 	=> haz_IF_ID_write,
-    inst_out 	    => IFID_inst_out,
-    addr_out 	    => IFID_addr_out
+    inst_out 	    => IF_ID_inst_out,
+    addr_out 	    => IF_ID_addr_out
 		);
 
 Control: Control_Unit
 	PORT MAP(
 		clk 		  => clk,
-		opCode 		=> IFID_inst_out(31 downto 26),
-		funct 		=> IFID_inst_out(5 downto 0),
+		opCode 		=> IF_ID_inst_out(31 downto 26),
+		funct 		=> IF_ID_inst_out(5 downto 0),
 
 		--ID (Registers)
 		RegWrite	=> regWrite,
@@ -509,8 +528,8 @@ Register_bank: Registers
     RegWrite 	=> regWrite,
     ALU_LOHI_Write	=> ALU_LOHI_Write, --control
 
-    readReg_0 	=> IFID_inst_out(25 downto 21),--rs
-    readReg_1 	=> IFID_inst_out(20 downto 16),--rt
+    readReg_0 	=> IF_ID_inst_out(25 downto 21),--rs
+    readReg_1 	=> IF_ID_inst_out(20 downto 16),--rt
     writeReg 	  => temp_MEM_WB_RD, --mem/wb rd
     writeData 	=> Result_W,--wb(mux) rd
 
@@ -529,9 +548,9 @@ Register_bank: Registers
 
 Hazard : HazardDetectionControl
 	PORT MAP (
-    IDEX_RegRt     	=> IDEX_RegRt,
-    IFID_RegRs     	=> IFID_inst_out(25 downto 21),
-    IFID_RegRt     	=> IFID_inst_out(20 downto 16),
+    IDEX_RegRt     	=> ID_EX_RegRt,
+    IFID_RegRs     	=> IF_ID_inst_out(25 downto 21),
+    IFID_RegRt     	=> IF_ID_inst_out(20 downto 16),
     IDEX_MemRead   	=> IDEX_MemRead, --create
     BRANCH         	=> Branch,
 
@@ -553,14 +572,14 @@ Hazard_Control: Haz_mux
 		in7 => MemRead,
 		in8 => MemtoReg,
 
-		out1 =>IFID_regWrite, 
-		out2 =>IFID_RegDest,
-		out3 =>IFID_Branch,
-		out4 =>IFID_BNE,
-		out5 =>IFID_Jump,
-		out6 =>IFID_MemWrite,
-		out7 =>IFID_MemRead,
-		out8 =>IFID_MemtoReg
+		out1 =>IF_ID_regWrite, 
+		out2 =>IF_ID_RegDest,
+		out3 =>IF_ID_Branch,
+		out4 =>IF_ID_BNE,
+		out5 =>IF_ID_Jump,
+		out6 =>IF_ID_MemWrite,
+		out7 =>IF_ID_MemRead,
+		out8 =>IF_ID_MemtoReg
 		
 		);
 
@@ -569,22 +588,23 @@ ID_EX_stage: ID_EX
     clk               => clk,
 
     --Data inputs
-    Addr_in           => IFID_addr_out,
+    Addr_in           => IF_ID_addr_out,
     RegData0_in       => data0, --from registers, forwards to ALU
     RegData1_in       => data1,
     SignExtended_in   => t_SignExtended_in,	--sign extended needs to be implemented
    
     --Register inputs (5 bits each)
-    Rs_in             => IFID_inst_out(25 downto 21),--rs 
-    Rt_in             => IFID_inst_out(20 downto 16),--rt
-    Rd_in             => IFID_inst_out(15 downto 11),
+    Rs_in             => IF_ID_inst_out(25 downto 21),--rs 
+    Rt_in             => IF_ID_inst_out(20 downto 16),--rt
+    Rd_in             => IF_ID_inst_out(15 downto 11),
    
     --Control inputs (8 of them?)
-    RegWrite_in       => IFID_regWrite,
-    MemToReg_in       => IFID_MemtoReg
-    MemWrite_in       => IFID_MemWrite,
-    MemRead_in        => IFID_MemRead,
-    Branch_in         => IFID_Branch,
+    RegWrite_in       => IF_ID_regWrite,
+    MemToReg_in       => IF_ID_MemtoReg
+    MemWrite_in       => IF_ID_MemWrite,
+    MemRead_in        => IF_ID_MemRead,
+    Branch_in         => IF_ID_Branch,
+    LUI_in	      => LUI,
     ALU_op_in         => ALUOpcode,
     ALU_src_in        => ALUSrc,
     Reg_dest_in       => IFID_RegDest,
@@ -604,27 +624,39 @@ ID_EX_stage: ID_EX
     MemWrite_out      => ID_EX_MemWrite,
     MemRead_out       => ID_EX_MemRead,
     Branch_out        => ID_EX_Branch_out,
+    LUI_out           => ID_EX_LUI,
     ALU_op_out        => ID_EX_ALU_op_out,
     ALU_src_out       => ID_EX_ALU_src_out,
     Reg_dest_out      => ID_EX_RegDest_out
 	);
+Forwarding_unit: Forwarding
+  PORT MAP(
+	EX_MEM_RegWrite => EX_MEM_RegWrite;
+	MEM_WB_RegWrite	=> MEM_WB_RegWrite;
+	ID_EX_Rs	=> ID_EX_Rs_out,
+	ID_EX_Rt	=> ID_EX_Rt_out,
+	EX_MEM_Rd	=> EX_MEM_Rd,
+	MEM_WB_Rd	=> MEM_WB_Rd,
+	Forward0_EX 	=> Forward0_EX,
+	Forward1_EX	=> Forward1_EX
+	);
 
 ALU_data0_Forward_Mux : Mux_3to1
   PORT MAP(
-    sel      => ,--Forward Unit: in std_logic_vector(1 downto 0);
+    sel      => Forward0_EX,--Forward Unit: in std_logic_vector(1 downto 0);
     in1      => ID_EX_data0_out,
     in2      => EX_MEM_data,
     in3      => Result_W,
-    dataOout => ALU_data0
+    dataOut  => ALU_data0
     );
 
 ALU_data1_Forward_Mux : Mux_3to1
   PORT MAP(
-    sel      => ,--Forward Unit
+    sel      => Forward1_EX,--Forward Unit
     in1      => ID_EX_data1_out,
     in2      => EX_MEM_data,
     in3      => Result_W,
-    dataOout => t_ALU_data1
+    dataOut  => t_ALU_data1
   );
 
 ALU_data1_Mux : Mux_2to1
@@ -632,14 +664,14 @@ ALU_data1_Mux : Mux_2to1
     sel      => ALUSrc,
     in1      => t_ALU_data1,
     in2      => ,--SignExtend
-    dataOout => ALU_data1,
+    dataOut  => ALU_data1,
   );
 
-ALU: ALU
+main_ALU: ALU
 	PORT MAP(
     opcode    => ALUOpcode, --from control
-    data0     => ID_EX_data0_out, --from ID_EX
-    data1     => ID_EX_data1_out, --from ID_EX
+    data0     => ALU_data0, --from ID_EX
+    data1     => ALU_data1, --from ID_EX
     shamt     => t_shamt, --from insttruction
     data_out  => t_data_out, --signal
     HI        => t_HI, --signal
@@ -721,7 +753,7 @@ Mem_to_Reg_Mux : Mux_2to1
     sel      => MEM_WB_MemtoReg,
     in1      => MEM_WB_ALU_result,
     in2      => MEM_WB_data,
-    dataOout => Result_W,
+    dataOut  => Result_W,
   );
 
 END rtl;
