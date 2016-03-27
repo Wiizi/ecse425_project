@@ -361,6 +361,10 @@ signal ID_EX_data0_out, ID_EX_data1_out : std_logic_vector(31 downto 0);
 signal ID_EX_Rs_out, ID_EX_Rt_out : std_logic_vector(4 downto 0);
 signal ID_EX_addr_out : std_logic_vector(31 downto 0); 
 
+signal ID_EX_ALU_op_out : std_logic_vector(3 downto 0);
+signal ID_EX_ALU_src_out : 
+signal ID_EX_Branch_out : std_logic;
+signal ID_EX_RegDest_out : std_logic;
 
 BEGIN
 
@@ -521,13 +525,13 @@ ID_EX_stage: ID_EX
    
     --Control inputs (8 of them?)
     RegWrite_in       => t_RegWrite_in,
-    MemToReg_in       => t_MemToReg_in,
-    MemWrite_in       => t_MemWrite_in,
-    MemRead_in        => t_MemRead_in
-    Branch_in         => t_Branch_in,
-    ALU_op_in         => t_ALU_op_in,
+    MemToReg_in       => MemtoReg,
+    MemWrite_in       => MemWrite,
+    MemRead_in        => MemRead,
+    Branch_in         => Branch,
+    ALU_op_in         => ALUOpcode,
     ALU_src_in        => t_ALU_src_in,
-    Reg_dest_in       => t_Reg_dest_in,
+    Reg_dest_in       => RegDest,
    
     --Data Outputs
     Addr_out          => ID_EX_addr_out,
@@ -543,10 +547,10 @@ ID_EX_stage: ID_EX
     MemToReg_out      => ID_EX_MemtoReg,
     MemWrite_out      => ID_EX_MemWrite,
     MemRead_out       => ID_EX_MemRead,
-    Branch_out        => t_Branch_out,
-    ALU_op_out        => t_ALU_op_out,
-    ALU_src_out       => t_ALU_src_out,
-    Reg_dest_out      => t_Reg_dest_out
+    Branch_out        => ID_EX_Branch_out,
+    ALU_op_out        => ID_EX_ALU_op_out,
+    ALU_src_out       => ID_EX_ALU_src_out,
+    Reg_dest_out      => ID_EX_RegDest_out
 	);
    
 ALU: ALU
