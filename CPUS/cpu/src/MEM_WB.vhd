@@ -13,9 +13,10 @@ entity MEM_WB is
 	port(
 			clk 			: in std_logic;
 
+			--Control Unit
+			MemtoReg_in		: in std_logic;
 			--Data Memory
-			wr_done_in		: in std_logic;
-			rd_ready_in 	: in std_logic;
+			busy_in			: in std_logic;
 			Data_in 		: in std_logic_vector(31 downto 0);
 			--ALU
 			ALU_Result_in	: in std_logic_vector(31 downto 0);
@@ -25,9 +26,10 @@ entity MEM_WB is
 			--Register
 			Rd_in 			: in std_logic;
 
+			--Control Unit
+			MemtoReg_out	: out std_logic;
 			--Data Memory
-			wr_done_out		: out std_logic;
-			rd_ready_out	: out std_logic;
+			busy_out		: out std_logic;
 			Data_out		: out std_logic_vector(31 downto 0);
 			--ALU
 			ALU_Result_out	: out std_logic_vector(31 downto 0);
@@ -41,35 +43,37 @@ end MEM_WB;
 
 architecture Behavioural of MEM_WB is
 
-signal temp_wr_done, temp_rd_ready, temp_ALU_zero, temp_Rd : std_logic;
-signal temp_Data, temp_ALUResult, temp_ALU_HI, temp_ALU_LO : std_logic_vector (31 downto 0);
+signal temp_MemtoReg, temp_busy, temp_ALU_zero, temp_Rd 	: std_logic;
+signal temp_Data, temp_ALUResult, temp_ALU_HI, temp_ALU_LO 	: std_logic_vector (31 downto 0);
 
 begin
 
-	temp_wr_done <= wr_done_in;
-	temp_rd_ready <= rd_ready_in;
-	temp_Data <= Data_in;
+	temp_MemtoReg 	<= MemtoReg_in;
 
-	temp_ALUResult <= ALU_Result_in;
-	temp_ALU_HI <= ALU_HI_in;
-	temp_ALU_LO <= ALU_LO_in;
-	temp_ALU_zero <= ALU_zero_in;
+	temp_busy 		<= busy_in;
+	temp_Data 		<= Data_in;
 
-	temp_Rd <= Rd_in;
+	temp_ALUResult 	<= ALU_Result_in;
+	temp_ALU_HI 	<= ALU_HI_in;
+	temp_ALU_LO 	<= ALU_LO_in;
+	temp_ALU_zero 	<= ALU_zero_in;
+
+	temp_Rd 		<= Rd_in;
 
 	process(clk)
 	begin
 		if (clk'event and clk = '1') then
-			wr_done_out <= temp_wr_done;
-			rd_ready_out <= temp_rd_ready;
-			Data_out <= temp_Data;
+			MemtoReg_out 	<= temp_MemtoReg;
 
-			ALU_Result_out <= temp_ALUResult;
-			ALU_HI_out <= temp_ALU_HI;
-			ALU_LO_out <= temp_ALU_LO;
-			ALU_zero_out <= temp_ALU_zero;
+			busy_out		<= temp_busy;
+			Data_out 		<= temp_Data;
 
-			Rd_out <= temp_Rd;
+			ALU_Result_out 	<= temp_ALUResult;
+			ALU_HI_out 		<= temp_ALU_HI;
+			ALU_LO_out 		<= temp_ALU_LO;
+			ALU_zero_out 	<= temp_ALU_zero;
+
+			Rd_out 			<= temp_Rd;
 		end if;
 	end process;
 
