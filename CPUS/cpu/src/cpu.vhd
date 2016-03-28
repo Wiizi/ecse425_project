@@ -582,7 +582,7 @@ Hazard_Control: Haz_mux
 	PORT MAP(
 		sel => stall,
 
-		in1 => regWrite, 
+		in1 => regWrite,
 		in2 => RegDest,
 		in3 => Branch,
 		in4 => BNE,
@@ -591,7 +591,7 @@ Hazard_Control: Haz_mux
 		in7 => MemRead,
 		in8 => MemtoReg,
 
-		out1 =>IF_ID_regWrite, 
+		out1 =>IF_ID_regWrite,
 		out2 =>IF_ID_RegDest,
 		out3 =>IF_ID_Branch,
 		out4 =>IF_ID_BNE,
@@ -650,7 +650,7 @@ ID_EX_stage: ID_EX
 	);
 
 LUI_mux: Mux_2to1
-  GENERIC MAP(WIDTH_IN =>  32)
+  GENERIC MAP(WIDTH_IN => 32)
   PORT MAP(
     sel      => LUI,
     in1      => ID_EX_SignExtend,
@@ -671,7 +671,7 @@ Forwarding_unit: Forwarding
 	);
 
 ALU_data0_Forward_Mux : Mux_3to1
-  GENERIC MAP(WIDTH_IN =>  32)
+  GENERIC MAP(WIDTH_IN => 32)
   PORT MAP(
     sel      => Forward0_EX,--Forward Unit: in std_logic_vector(1 downto 0);
     in1      => ID_EX_data0_out,
@@ -681,7 +681,7 @@ ALU_data0_Forward_Mux : Mux_3to1
     );
 
 ALU_data1_Forward_Mux : Mux_3to1
-  GENERIC MAP(WIDTH_IN =>  32)
+  GENERIC MAP(WIDTH_IN => 32)
   PORT MAP(
     sel      => Forward1_EX,--Forward Unit
     in1      => ID_EX_data1_out,
@@ -691,7 +691,7 @@ ALU_data1_Forward_Mux : Mux_3to1
   );
 
 ALU_data1_Mux : Mux_2to1
-  GENERIC MAP(WIDTH_IN =>  32)
+  GENERIC MAP(WIDTH_IN => 32)
   PORT MAP(
     sel      => ALUSrc,
     in1      => t_ALU_data1,
