@@ -5,10 +5,18 @@ In order to create a binary output from a given .asm file, follow these steps:
 
 *************************************************************
 
-OPTION 1 (Manual):
+OPTION 1 (IntelliJ):
+
+Steps:
+	1. Compile and run project using IntelliJ (Java 1.8) 
+
+*************************************************************
+
+OPTION 2 (Manual):
 
 Requirements:
-1. The project folder hierarchy must be maintained:
+1. UNIX environment
+2. The project folder hierarchy must be maintained:
 	Assembler source files: CPUS/cpu/bin
 	.asm files: CPUS/cpu/tests
 
@@ -21,12 +29,13 @@ Steps:
 
 *************************************************************
 
-OPTION 2 (Use Assembler.exe):
+OPTION 3 (Use Assembler.exe):
 
 Requirements:
 1. UNIX environment
 2. The project folder hierarchy must be maintained:
 	Assembler.exe: CPUS/cpu/bin
+	Assembler.c : CPUS/cpu/bin
 	Assembler source files: CPUS/cpu/bin
 	.asm files: CPUS/cpu/tests
 
