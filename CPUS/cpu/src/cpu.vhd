@@ -3,9 +3,13 @@
 -- entity name: cpu
 
 --Last edited: 25/03/2016
---TODO: Finish conecting the signals to ID_EX stage. Create ALUsrc output for HazardControl mux. This signal needs to be an output from the 
--- Control module because it is use for I-type signals. Check sandobx.vhd on github line 732. Also, ID_EX stage contains signals 
--- that are meant to be used for fowarding and early branch resolution. 
+--TODO: Finish conecting the signals to ID_EX stage. Create ALUsrc output for HazardControl mux. This signal needs to be an output from the
+-- Control module because it is use for I-type signals. Check sandobx.vhd on github line 732. Also, ID_EX stage contains signals
+-- that are meant to be used for fowarding and early branch resolution.
+
+--2016-03-27
+--TODO: JUMP ADDRESS, BRANCH ADDRESS
+
 library ieee;
 
 use ieee.std_logic_1164.all; -- allows use of the std_logic_vector type
@@ -408,16 +412,19 @@ signal ID_EX_LUI : std_logic;
 signal ID_EX_RegDest_out : std_logic;
 
 --Signals for ALU
-signal ALU_data0, t_ALU_data1, ALU_data1 : std_logic_vector(31 downto 0);
+signal ALU_data0, t_ALU_data1, ALU_data1, ALU_data_out : std_logic_vector(31 downto 0);
+signal EX_ALU_result : std_logic_vector(31 downto 0);
 
 --for EX_MEM stage to MEM_WB stage
 signal ID_EX_MemWrite, EX_MEM_MemWrite : std_logic;
 signal ID_EX_MemRead, EX_MEM_MemRead : std_logic;
 signal ID_EX_MemtoReg, EX_MEM_MemtoReg, MEM_WB_MemtoReg : std_logic;
-signal EX_MEM_ALU_result, EX_MEM_ALU_HI, EX_MEM_ALU_LO, EX_MEM_ALU_zero : std_logic;
-signal MEM_WB_ALU_result, MEM_WB_ALU_HI, MEM_WB_ALU_LO, MEM_WB_ALU_zero : std_logic;
+signal EX_MEM_ALU_result, EX_MEM_ALU_HI, EX_MEM_ALU_LO : std_logic_vector(31 downto 0);
+signal EX_MEM_ALU_zero : std_logic;
+signal MEM_WB_ALU_zero : std_logic;
+signal MEM_WB_ALU_result, MEM_WB_ALU_HI, MEM_WB_ALU_LO : std_logic_vector(31 downto 0);
 signal ID_EX_Rd, EX_MEM_Rd, MEM_WB_Rd : std_logic_vector(4 downto 0);
-signal ID_EX_Data, EX_MEM_Data, EX_MEM_data: std_logic_vector(31 downto 0);
+signal EX_MEM_Data1, EX_MEM_data: std_logic_vector(31 downto 0);
 signal MEM_WB_data, Result_W: std_logic_vector(31 downto 0);
 
 --Signals for Forwarding
@@ -546,6 +553,16 @@ Register_bank: Registers
 ----------------------------------
 --add mux for mflo and mfhi logic
 ----------------------------------
+MFLO_MFHI : Mux_3to1
+  GENERIC MAP(WIDTH_IN =>  32)
+  PORT MAP(
+    sel      => ALU_LOHI_Read,--Forward Unit: in std_logic_vector(1 downto 0);
+    in1      => ALU_data_out,
+    in2      => ALU_LO,
+    in3      => ALU_HI,
+    dataOut  => EX_ALU_result
+    );
+
 ID_SignExtend <= ((others => IF_ID_inst_out(15)) & IF_ID_inst_out(15 downto 0));
 
 Hazard : HazardDetectionControl
@@ -633,6 +650,7 @@ ID_EX_stage: ID_EX
 	);
 
 LUI_mux: Mux_2to1
+  GENERIC MAP(WIDTH_IN =>  32)
   PORT MAP(
     sel      => LUI,
     in1      => ID_EX_SignExtend,
@@ -653,6 +671,7 @@ Forwarding_unit: Forwarding
 	);
 
 ALU_data0_Forward_Mux : Mux_3to1
+  GENERIC MAP(WIDTH_IN =>  32)
   PORT MAP(
     sel      => Forward0_EX,--Forward Unit: in std_logic_vector(1 downto 0);
     in1      => ID_EX_data0_out,
@@ -662,6 +681,7 @@ ALU_data0_Forward_Mux : Mux_3to1
     );
 
 ALU_data1_Forward_Mux : Mux_3to1
+  GENERIC MAP(WIDTH_IN =>  32)
   PORT MAP(
     sel      => Forward1_EX,--Forward Unit
     in1      => ID_EX_data1_out,
@@ -671,6 +691,7 @@ ALU_data1_Forward_Mux : Mux_3to1
   );
 
 ALU_data1_Mux : Mux_2to1
+  GENERIC MAP(WIDTH_IN =>  32)
   PORT MAP(
     sel      => ALUSrc,
     in1      => t_ALU_data1,
@@ -683,16 +704,13 @@ main_ALU: ALU
     opcode    => ALUOpcode, --from control
     data0     => ALU_data0, --from ID_EX
     data1     => ALU_data1, --from ID_EX
-    shamt     => t_shamt, --from insttruction
-    data_out  => t_data_out, --signal
-    HI        => t_HI, --signal
-    LO        => t_LO, --signal
+    shamt     => EX_SignExtend(10 downto 6), --from insttruction
+    data_out  => ALU_data_out, --signal
+    HI        => ALU_HI, --signal
+    LO        => ALU_LO, --signal
     zero      => t_zero --signal
 	);
 
------------------------------------------------------------
-----   LINK BETWEEN ID_EX stage and EX_MEM stage MISSING
------------------------------------------------------------
 EX_MEM_stage: EX_MEM
   PORT MAP(
     clk            => clk,
@@ -703,12 +721,12 @@ EX_MEM_stage: EX_MEM
     MemtoReg_in    => ID_EX_MemtoReg,
     RegWrite_in    => ID_EX_RegWrite,
     --ALU
-    ALU_Result_in  => t_data_out,-- from ALU t_data_out
-    ALU_HI_in      => t_HI,
-    ALU_LO_in      => t_LO,
-    ALU_zero_in    => t_zero,
+    ALU_Result_in  => EX_ALU_result,-- from ALU t_data_out
+    ALU_HI_in      => ALU_HI,
+    ALU_LO_in      => ALU_LO,
+    ALU_zero_in    => t_zero, --TODO
     --Read Data
-    Data1_in       => ID_EX_Data,
+    Data1_in       => ID_EX_data1_out,
     --Register
     Rd_in          => ID_EX_Rd,
 
@@ -723,7 +741,7 @@ EX_MEM_stage: EX_MEM
     ALU_LO_out     => EX_MEM_ALU_LO,
     ALU_zero_out   => EX_MEM_ALU_zero,
     --Read Data
-    Data1_out      => EX_MEM_Data,
+    Data1_out      => EX_MEM_Data1,
     --Register
     Rd_out         => EX_MEM_Rd
   );
