@@ -11,8 +11,8 @@ public class Driver {
 
     /**
      * run assembler.
-     * Assumes Driver.java is placed in path .../cpu/bin
-     * Assumes tests to compile are placed at
+     * Assumes Driver.java is placed in path ...CPUS/cpu/bin
+     * Assumes code to assemble is placed at ...CPUS/cpu/tests
      *
      * @param args
      */
