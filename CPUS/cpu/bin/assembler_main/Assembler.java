@@ -6,6 +6,7 @@ import assembler_main.binary_instructions.instruction_types.JInstruction;
 import assembler_main.binary_instructions.instruction_types.RInstruction;
 import assembler_main.binary_instructions.toolset.Tools;
 
+import java.io.FileNotFoundException;
 import java.util.*;
 
 /**
@@ -246,7 +247,8 @@ public class Assembler {
                             throw new Exception("Custom exception -> Invalid instruction syntax.");
                     } else if (op.equals("asrt")) {
                         rt = Tools.formatToBinary(Tools.remove$(parsed.get(0)), 5);
-                        rs = Tools.formatToBinary(Tools.remove$(parsed.get(1)), 5);;
+                        rs = Tools.formatToBinary(Tools.remove$(parsed.get(1)), 5);
+                        ;
                         immediate = Tools.formatToBinary("0", 16);
                         if (parsed.size() > 2)
                             throw new Exception("Custom exception -> Invalid instruction syntax.");
