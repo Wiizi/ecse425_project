@@ -29,11 +29,13 @@ END ENTITY;
 ARCHITECTURE BEHAVIOR OF ALU IS
 
 signal temp_data_out : std_logic_vector (31 downto 0);
-signal mult : std_logic_vector (63 downto 0);
 signal div, remainder : std_logic_vector (31 downto 0);
+signal hilo : std_logic_vector (63 downto 0);
 
 BEGIN
 
+HI <= hilo (63 downto 32);
+LO <= hilo (31 downto 0);
 data_out <= temp_data_out;
 
 alu: process(clk)
@@ -68,14 +70,9 @@ if(rising_edge(clk))then
 			temp_data_out <= std_logic_vector(shift_right(signed(data0),
 										to_integer(unsigned(shamt))));
 		when "0011" =>
-			mult <= std_logic_vector(signed(data0) * signed(data1));
-			HI <= mult(63 downto 32);
-			LO <= mult(31 downto 0);
+			hilo <= (std_logic_vector(signed(data0) * signed(data1)));
 		when "0100" =>
-			div <= std_logic_vector(signed(data0) / signed(data1));
-			remainder <= std_logic_vector(signed(data0) mod signed(data1));
-			HI <= remainder;
-			LO <= div;
+			hilo <= std_logic_vector(signed(data0) mod signed(data1)) & std_logic_vector(signed(data0) / signed(data1));
 		when others =>
 			temp_data_out <= (others => 'X');
 	end case;
