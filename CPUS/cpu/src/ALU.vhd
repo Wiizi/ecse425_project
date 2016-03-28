@@ -13,7 +13,8 @@ USE IEEE.std_logic_1164.all;
 USE IEEE.numeric_std.all;
 
 ENTITY ALU IS
-	PORT(	opcode: in std_logic_vector(3 downto 0); --Specified the ALU which operation to perform
+	PORT(	clk : in std_logic;
+		opcode: in std_logic_vector(3 downto 0); --Specified the ALU which operation to perform
 		data0, data1: in std_logic_vector(31 downto 0);
 		shamt	: in std_logic_vector (4 downto 0);
 		data_out: out std_logic_vector(31 downto 0); 
@@ -27,14 +28,17 @@ END ENTITY;
 
 ARCHITECTURE BEHAVIOR OF ALU IS
 
-signal temp_data_out : std_logic_vector (32 downto 0);
+signal temp_data_out : std_logic_vector (31 downto 0);
 signal mult : std_logic_vector (63 downto 0);
 signal div, remainder : std_logic_vector (31 downto 0);
 
 BEGIN
 
-alu: process(opcode)
+data_out <= temp_data_out;
+
+alu: process(clk)
 begin
+if(rising_edge(clk))then
 	case opcode is
 		when "0000" =>
 			temp_data_out <= data0 AND data1;
@@ -82,8 +86,9 @@ begin
 			zero <= '0';
 		end if;
 
-data_out <= temp_data_out(31 downto 0);
 
+
+end if;
 end process alu;
 
 END BEHAVIOR;

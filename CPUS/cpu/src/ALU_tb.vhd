@@ -15,7 +15,8 @@ END ALU_tb;
 architecture testing of ALU_tb is
 
 COMPONENT ALU IS
-	PORT(	opcode			: in std_logic_vector(3 downto 0); --Specified the ALU which operation to perform
+	PORT(		clk : in std_logic;
+			opcode			: in std_logic_vector(3 downto 0); --Specified the ALU which operation to perform
 			data0, data1	: in std_logic_vector(31 downto 0);
 			shamt			: in std_logic_vector (4 downto 0);
 			data_out		: out std_logic_vector(31 downto 0); 
@@ -25,10 +26,10 @@ COMPONENT ALU IS
 		--overflow: out std_logic;
 		--carryout: out std_logic
 	);
-END COMPONENT
+END COMPONENT;
 
 --signals
-SIGNAL clk			: std_logic 						:='0';
+SIGNAL clk		: std_logic 				:='0';
 SIGNAL t_opcode		: std_logic_vector(3 downto 0)		:=(OTHERS => '0');
 SIGNAL t_data0		: std_logic_vector(31 downto 0)		:=(OTHERS => '0');
 SIGNAL t_data1		: std_logic_vector(31 downto 0)		:=(OTHERS => '0');
@@ -42,6 +43,7 @@ begin
 
 test_ALU: ALU
 	PORT MAP(
+    clk 	=> clk,
     opcode    => t_opcode, 
     data0     => t_data0, 
     data1     => t_data1, 
@@ -63,6 +65,7 @@ end process clk_process;
 
 
 ALU_test : process
+BEGIN
 --AND
 		t_opCode	<= "0000" ; 
 		t_data0		<= "00001111010101011111111100000101";
@@ -90,6 +93,7 @@ ALU_test : process
 		t_data0		<= "00000000000000000000000000001000";	--8
 		t_data1		<= "00000000000000000000000000000101";  --5
 		wait for 20 ns;	
+
 		REPORT "Testing ALU - SUB";
 		ASSERT (t_data_out = "00000000000000000000000000000011") 		REPORT "ERROR with SUB"	SEVERITY ERROR; --3
 
@@ -99,6 +103,8 @@ ALU_test : process
 		t_opCode	<= "0010" ; 
 		t_data0		<= "00000000000000000000000000001000";	--8
 		t_data1		<= "00000000000000000000000000000101";  --5
+		wait for 20 ns;	
+
 		REPORT "Testing ALU - ADD";
 		ASSERT (t_data_out = "00000000000000000000000000001101") 		REPORT "ERROR with ADD"	SEVERITY ERROR; --13
 
@@ -108,6 +114,8 @@ ALU_test : process
 		t_opCode	<= "0111" ; 
 		t_data0		<= "00000000000000000000000000001000";	--8
 		t_data1		<= "00000000000000000000000000010000";  --16
+		wait for 20 ns;	
+
 		REPORT "Testing ALU - SLT";
 		ASSERT (t_data_out = "00000000000000000000000000000001") 		REPORT "ERROR with SLT"	SEVERITY ERROR; --13
 
@@ -117,6 +125,8 @@ ALU_test : process
 		t_opCode	<= "1100" ; 
 		t_data0		<= "00000000000000000000000000000101";
 		t_data1		<= "11111111111111111111111111111100";
+		wait for 20 ns;	
+
 		REPORT "Testing ALU - NOR";
 		ASSERT (t_data_out = "00000000000000000000000000000010")		REPORT "ERROR with NOR"	SEVERITY ERROR;
 
@@ -126,6 +136,8 @@ ALU_test : process
 		t_opCode	<= "1101" ; 
 		t_data0		<= "00000000000000000000000000000101";
 		t_data1		<= "11111111111111111111111111111100";
+		wait for 20 ns;	
+
 		REPORT "Testing ALU - XOR";
 		ASSERT (t_data_out = "11111111111111111111111111111001")		REPORT "ERROR with XOR"	SEVERITY ERROR;
 
@@ -135,6 +147,7 @@ ALU_test : process
 		t_opCode	<= "1000" ; 
 		t_shamt		<= "00001";
 		t_data0		<= "00000000000000000000000000000101";
+		wait for 20 ns;	
 
 		REPORT "Testing ALU - SLL";
 		ASSERT (t_data_out = "00000000000000000000000000001010")		REPORT "ERROR with SLL"	SEVERITY ERROR;
@@ -145,6 +158,8 @@ ALU_test : process
 		t_opCode	<= "1001" ; 
 		t_shamt		<= "00001";
 		t_data0		<= "00000000000000000000000000000101";
+		wait for 20 ns;	
+
 		REPORT "Testing ALU - SRL";
 		ASSERT (t_data_out = "00000000000000000000000000000010")		REPORT "ERROR with SRL"	SEVERITY ERROR;
 
@@ -154,6 +169,7 @@ ALU_test : process
 		t_opCode	<= "1010" ; 
 		t_shamt		<= "00001";
 		t_data0		<= "00000000000000000000000000000101";	
+		wait for 20 ns;	
 		
 		REPORT "Testing ALU - SRA";
 		ASSERT (t_data_out = "00000000000000000000000000000010")		REPORT "ERROR with SRA"	SEVERITY ERROR;
@@ -164,6 +180,7 @@ ALU_test : process
 		t_opCode	<= "0011" ; 
 		t_data0		<= "00000000000000000000000000001000";	--8
 		t_data1		<= "00000000000000000000000000000101";  --5
+		wait for 20 ns;	
 		
 		REPORT "Testing ALU - MULT";
 		ASSERT (t_HI = "00000000000000000000000000000000")		REPORT "ERROR with MULT (HI)"	SEVERITY ERROR;
@@ -175,6 +192,7 @@ ALU_test : process
 		t_opCode	<= "0100" ; 
 		t_data0		<= "00000000000000000000000000101000";	--40
 		t_data1		<= "00000000000000000000000000000101";  --5
+		wait for 20 ns;	
 		
 		REPORT "Testing ALU - DIV";
 		ASSERT (t_HI = "00000000000000000000000000000000")		REPORT "ERROR with DIV (rem)"	SEVERITY ERROR;
@@ -185,7 +203,7 @@ ALU_test : process
 	--end, wait forever
 	WAIT;
 
-end process ALU_test
+end process ALU_test;
 
 
 end testing;
