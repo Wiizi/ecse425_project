@@ -17,6 +17,10 @@ public class Driver {
      * @param args
      */
     public static void main(String[] args) {
+        if (args.length < 1) {
+            Tools.print("Missing .asm file input. Please add this to command line.");
+            System.exit(-1);
+        }
         String read_from = getPath("Driver.java");
         read_from = read_from.substring(0, read_from.length() - ("Driver.java").length() - 4);
         read_from += File.separatorChar + "tests" + File.separatorChar + args[0];
