@@ -417,6 +417,7 @@ signal ID_EX_RegDest_out : std_logic;
 --Signals for ALU
 signal ALU_data0, t_ALU_data1, ALU_data1, ALU_data_out : std_logic_vector(31 downto 0);
 signal EX_ALU_result : std_logic_vector(31 downto 0);
+signal ALU_shamt : std_logic_vector (4 downto 0);
 signal t_zero : std_logic := '0';
 
 --for EX_MEM stage to MEM_WB stage
@@ -510,7 +511,7 @@ PORT MAP
     re            => DataMem_re,
     we            => DataMem_we,
     dump          => mem_dump,
-    dataIn        => EX_MEM_Data, -- TODO: ADD CORRECT DATAIN HERE
+    dataIn        => EX_MEM_data , -- TODO: ADD CORRECT DATAIN HERE
     dataOut       => DataMem_data,
     busy          => DataMem_busy
 );
@@ -725,13 +726,15 @@ ALU_data1_Mux : Mux_2to1
     dataOut  => ALU_data1
   );
 
+ALU_shamt <= EX_SignExtend(10 downto 6);
+
 main_ALU: ALU
   PORT MAP(
     clk       => clk,
     opcode    => ALUOpcode, --from control
     data0     => ALU_data0, --from ID_EX
     data1     => ALU_data1, --from ID_EX
-    shamt     => EX_SignExtend(10 downto 6), --from insttruction
+    shamt     => ALU_shamt, --from insttruction
     data_out  => ALU_data_out, --signal
     HI        => ALU_HI, --signal
     LO        => ALU_LO, --signal

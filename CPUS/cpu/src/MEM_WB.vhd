@@ -45,8 +45,9 @@ end MEM_WB;
 
 architecture Behavioural of MEM_WB is
 
-signal temp_MemtoReg, temp_RegWrite, temp_busy, temp_ALU_zero, temp_Rd 	: std_logic;
+signal temp_MemtoReg, temp_RegWrite, temp_busy, temp_ALU_zero 	: std_logic;
 signal temp_Data, temp_ALUResult, temp_ALU_HI, temp_ALU_LO 				: std_logic_vector (31 downto 0);
+signal temp_Rd : std_logic_vector(4 downto 0);
 
 begin
 

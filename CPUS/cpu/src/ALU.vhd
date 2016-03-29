@@ -77,11 +77,11 @@ if(rising_edge(clk))then
 			temp_data_out <= (others => 'X');
 	end case;
 
-		if(to_integer(signed(temp_data_out)) = 0)then
-			zero <= '1';
-		else
-			zero <= '0';
-		end if;
+	if(to_integer(signed(temp_data_out)) = 0)then
+		zero <= '1';
+	else
+		zero <= '0';
+	end if;
 
 
 

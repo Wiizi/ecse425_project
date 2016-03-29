@@ -17,6 +17,13 @@ proc AddWaves {} {
   add wave -group "INSTMEM"   -position end -radix decimal sim:/cpu_test/InstMem_address\
                               -radix binary sim:/cpu_test/Imem_inst_in
 
+  add wave -group "DATAMEM"   -position end -radix decimal sim:/cpu_test/DataMem_addr\
+                              -radix binary sim:/cpu_test/DataMem_re\
+                              -radix binary sim:/cpu_test/DataMem_we\
+                              -radix binary sim:/cpu_test/MEM_WB_data\
+                              -radix binary sim:/cpu_test/DataMem_data\
+                              -radix binary sim:/cpu_test/DataMem_busy
+
   add wave -group "CONTROL"   -position end -radix binary sim:/cpu_test/ALUOpcode\
                               -radix binary sim:/cpu_test/RegDest\
                               -radix binary sim:/cpu_test/Branch\
@@ -29,6 +36,16 @@ proc AddWaves {} {
                               -radix binary sim:/cpu_test/MemWrite\
                               -radix binary sim:/cpu_test/MemRead\
                               -radix binary sim:/cpu_test/MemtoReg 
+
+  add wave -group "ALU IN"    -position end -radix binary sim:/cpu_test/ALUOpcode\
+                              -radix decimal sim:/cpu_test/ALU_data0\
+                              -radix decimal sim:/cpu_test/ALU_data1\
+                              -radix decimal sim:/cpu_test/ALU_shamt
+
+  add wave -group "ALU OUT"   -position end -radix decimal sim:/cpu_test/ALU_data_out\
+                              -radix decimal sim:/cpu_test/ALU_HI\
+                              -radix decimal sim:/cpu_test/ALU_LO\
+                              -radix binary sim:/cpu_test/t_zero
 
   ;#Set some formating options to make the Waves window more legible
 	configure wave -namecolwidth 250
@@ -65,6 +82,7 @@ proc CompileAndSimulate {} {
   vcom Registers.vhd
   vcom Forwarding.vhd
   vcom Haz_mux.vhd
+  vcom MEM_WB.vhd
   vcom cpu_test.vhd
   
   ;#Start a simulation session with the cpu component
@@ -107,5 +125,6 @@ proc CompileOnly {} {
   vcom Registers.vhd
   vcom Forwarding.vhd
   vcom Haz_mux.vhd
+  vcom MEM_WB.vhd
   vcom cpu_test.vhd
 }
