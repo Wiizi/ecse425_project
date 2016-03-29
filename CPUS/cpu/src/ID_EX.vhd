@@ -31,7 +31,7 @@ ENTITY ID_EX IS
 		MemRead_in			: in std_logic;
 		Branch_in			: in std_logic;
 		LUI_in				: in std_logic;
-		ALU_op_in			: in std_logic_vector(2 downto 0);
+		ALU_op_in			: in std_logic_vector(3 downto 0);
 		ALU_src_in			: in std_logic;
 		Reg_dest_in			: in std_logic;
 
@@ -54,7 +54,7 @@ ENTITY ID_EX IS
 		MemRead_out			: out std_logic;
 		Branch_out			: out std_logic;
 		LUI_out				: out std_logic;
-		ALU_op_out			: out std_logic_vector(2 downto 0);
+		ALU_op_out			: out std_logic_vector(3 downto 0);
 		ALU_src_out			: out std_logic;
 		Reg_dest_out		: out std_logic
 	);
@@ -82,7 +82,7 @@ signal temp_MemWrite		: std_logic;
 signal temp_MemRead			: std_logic;
 signal temp_Branch			: std_logic;
 signal temp_LUI				: std_logic;
-signal temp_ALU_op			: std_logic_vector(2 downto 0);
+signal temp_ALU_op			: std_logic_vector(3 downto 0);
 signal temp_ALU_src			: std_logic;
 signal temp_Reg_dest		: std_logic;
 

@@ -25,7 +25,7 @@ entity MEM_WB is
 			ALU_LO_in 		: in std_logic_vector (31 downto 0);
 			ALU_zero_in		: in std_logic;
 			--Register
-			Rd_in 			: in std_logic;
+			Rd_in 			: in std_logic_vector (4 downto 0);
 
 			--Control Unit
 			MemtoReg_out	: out std_logic;
@@ -39,7 +39,7 @@ entity MEM_WB is
 			ALU_LO_out 		: out std_logic_vector (31 downto 0);
 			ALU_zero_out	: out std_logic;
 			--Register
-			Rd_out			: out std_logic
+			Rd_out			: out std_logic_vector (4 downto 0)
 		);
 end MEM_WB;
 
