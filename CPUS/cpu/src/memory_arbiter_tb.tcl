@@ -8,13 +8,13 @@ puts {
 proc AddWaves {} \
 {
 	# all relevant signals and appropriate radix's
-	add wave -radix binary -position end sim:/memory_arbiter_tb/clk
-	add wave -radix binary -position end sim:/memory_arbiter_tb/t_addr
-	add wave -radix binary -position end sim:/memory_arbiter_tb/t_re
-	add wave -radix binary -position end sim:/memory_arbiter_tb/t_we
-	add wave -radix binary -position end sim:/memory_arbiter_tb/t_dataIn
-	add wave -radix binary -position end sim:/memory_arbiter_tb/t_dataOut
-	add wave -radix binary -position end sim:/memory_arbiter_tb/t_busy
+	add wave -radix binary -position end sim:/memory_tb/clk
+	add wave -radix binary -position end sim:/memory_tb/t_addr
+	add wave -radix binary -position end sim:/memory_tb/t_re
+	add wave -radix binary -position end sim:/memory_tb/t_we
+	add wave -radix binary -position end sim:/memory_tb/t_dataIn
+	add wave -radix binary -position end sim:/memory_tb/t_dataOut
+	add wave -radix binary -position end sim:/memory_tb/t_busy
 
 }
 
@@ -23,10 +23,10 @@ vlib work
 # compile relevant files
 
 vcom -reportprogress 300 -work work memory.vhd
-vcom -reportprogress 300 -work work memory_arbiter_tb.vhd
+vcom -reportprogress 300 -work work memory_tb.vhd
 
 # start simulation
-vsim memory_arbiter_tb
+vsim memory_tb
 
 # Add the waves
 AddWaves
