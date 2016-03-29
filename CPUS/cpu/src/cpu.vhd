@@ -440,7 +440,7 @@ BEGIN
 Program_counter: PC
 	PORT MAP( 
          	clk         => clk,
-         	addr_in     => Imem_addr_in,
+         	addr_in     => Imem_addr_in, --should be jump_mux_out
          	PC_write    => haz_PC_write,-- from hazard detection
          	addr_out    => PC_addr_out
       );
