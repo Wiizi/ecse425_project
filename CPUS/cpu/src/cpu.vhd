@@ -520,7 +520,7 @@ Control: Control_Unit
 		ALUOpCode       => ALUOpcode, --goes to alu
 		RegDest 	      => RegDest, --todo
 		Branch 		      => Branch, --if theres a branch, signal
-    		ALUSrc          => ALUSrc,
+    ALUSrc          => ALUSrc,
 		BNE 		        => BNE,--signal
 		Jump            => Jump,--signal
 		LUI 		        => LUI, --signal
@@ -533,7 +533,7 @@ Control: Control_Unit
 		MemtoReg      	=> MemtoReg --signal, for mux
 		);
 
-Register_bank: Registers 
+Register_bank: Registers
 	PORT MAP(
 		clk 		=> clk,
 
@@ -603,7 +603,7 @@ Hazard_Control: Haz_mux
 		out6 =>IF_ID_MemWrite,
 		out7 =>IF_ID_MemRead,
 		out8 =>IF_ID_MemtoReg
-		
+
 		);
 
 -----------------------------
@@ -616,7 +616,7 @@ Branch_logic: Mux_2to1
   GENERIC MAP(WIDTH_IN =>  32)
   PORT MAP(
     sel      => PC_Branch,
-    in1      => Imem_inst_in,
+    in1      => Imem_inst_in, --assuming that PC+4 since it is currently at ID stage
     in2      => Branch_addr,
     dataOut  => after_Branch
   );
@@ -630,12 +630,12 @@ ID_EX_stage: ID_EX
     RegData0_in       => data0, --from registers, forwards to ALU
     RegData1_in       => data1,
     SignExtended_in   => ID_SignExtend,	--sign extended needs to be implemented
-   
+
     --Register inputs (5 bits each)
-    Rs_in             => IF_ID_inst_out(25 downto 21),--rs 
+    Rs_in             => IF_ID_inst_out(25 downto 21),--rs
     Rt_in             => IF_ID_inst_out(20 downto 16),--rt
     Rd_in             => IF_ID_inst_out(15 downto 11),
-   
+
     --Control inputs (8 of them?)
     RegWrite_in       => IF_ID_regWrite,
     MemToReg_in       => IF_ID_MemtoReg
@@ -646,7 +646,7 @@ ID_EX_stage: ID_EX
     ALU_op_in         => ALUOpcode,
     ALU_src_in        => ALUSrc,
     Reg_dest_in       => IFID_RegDest,
-   
+
     --Data Outputs
     Addr_out          => ID_EX_addr_out,
     RegData0_out      => ID_EX_data0_out,
@@ -679,14 +679,14 @@ LUI_mux: Mux_2to1
 
 Forwarding_unit: Forwarding
   PORT MAP(
-	EX_MEM_RegWrite => EX_MEM_RegWrite;
-	MEM_WB_RegWrite	=> MEM_WB_RegWrite;
-	ID_EX_Rs	=> ID_EX_Rs_out,
-	ID_EX_Rt	=> ID_EX_Rt_out,
-	EX_MEM_Rd	=> EX_MEM_Rd,
-	MEM_WB_Rd	=> MEM_WB_Rd,
-	Forward0_EX 	=> Forward0_EX,
-	Forward1_EX	=> Forward1_EX
+    EX_MEM_RegWrite => EX_MEM_RegWrite;
+    MEM_WB_RegWrite	=> MEM_WB_RegWrite;
+    ID_EX_Rs	=> ID_EX_Rs_out,
+    ID_EX_Rt	=> ID_EX_Rt_out,
+    EX_MEM_Rd	=> EX_MEM_Rd,
+    MEM_WB_Rd	=> MEM_WB_Rd,
+    Forward0_EX 	=> Forward0_EX,
+    Forward1_EX	=> Forward1_EX
 	);
 
 ALU_data0_Forward_Mux : Mux_3to1
