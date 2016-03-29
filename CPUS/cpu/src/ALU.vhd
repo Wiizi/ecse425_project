@@ -47,11 +47,11 @@ if(rising_edge(clk))then
 		when "0001" =>
 			temp_data_out <= data0 OR data1;
 		when "0110" =>
-			temp_data_out <= std_logic_vector(signed(data0) - signed(data1));
+			temp_data_out <= std_logic_vector(unsigned(data0) - unsigned(data1));
 		when "0010" =>
-			temp_data_out <= std_logic_vector(signed(data0) + signed(data1));
+			temp_data_out <= std_logic_vector(unsigned(data0) + unsigned(data1));
 		when "0111" => --set less than
-			if(to_integer(signed(data0)) < to_integer(signed(data1)))then
+			if(to_integer(unsigned(data0)) < to_integer(unsigned(data1)))then
 				temp_data_out <= (31 downto 1 => '0') & '1';
 			else
 				temp_data_out <= (others => '0');
@@ -61,18 +61,18 @@ if(rising_edge(clk))then
 		when "1101" =>
 			temp_data_out <= data0 XOR data1;
 		when "1000" => --shift left logical
-			temp_data_out <= std_logic_vector(signed(shift_left(unsigned(data0),
+			temp_data_out <= std_logic_vector(unsigned(shift_left(unsigned(data0),
 										to_integer(unsigned(shamt))))); 
 		when "1001" => --shift right logical
-			temp_data_out <= std_logic_vector(signed(shift_right(unsigned(data0),
+			temp_data_out <= std_logic_vector(unsigned(shift_right(unsigned(data0),
 										to_integer(unsigned(shamt))))); 
 		when "1010" => --shift right arithmetical
 			temp_data_out <= std_logic_vector(shift_right(signed(data0),
 										to_integer(unsigned(shamt))));
 		when "0011" =>
-			hilo <= (std_logic_vector(signed(data0) * signed(data1)));
+			hilo <= (std_logic_vector(unsigned(data0) * unsigned(data1)));
 		when "0100" =>
-			hilo <= std_logic_vector(signed(data0) mod signed(data1)) & std_logic_vector(signed(data0) / signed(data1));
+			hilo <= std_logic_vector(unsigned(data0) mod unsigned(data1)) & std_logic_vector(unsigned(data0) / unsigned(data1));
 		when others =>
 			temp_data_out <= (others => 'X');
 	end case;
