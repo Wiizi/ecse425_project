@@ -12,11 +12,23 @@ proc AddWaves {} {
   ;#These signals will be contained in a group
 	;# add wave -group "SIGNALS" -radix hex sim:/memory/addr\
 
-  add wave -group "SIGNALS"   -radix decimal sim:/cpu_test/PC_addr_out\
+  add wave -group "SIGNALS"   -position end -radix decimal sim:/cpu_test/PC_addr_out\
 
-  add wave -group "MEMORY"  -radix decimal sim:/cpu_test/Imem_addr_in\
-                              -radix decimal sim:/cpu_test/InstMem_address\
+  add wave -group "INSTMEM"   -position end -radix decimal sim:/cpu_test/InstMem_address\
                               -radix binary sim:/cpu_test/Imem_inst_in
+
+  add wave -group "CONTROL"   -position end -radix binary sim:/cpu_test/ALUOpcode\
+                              -radix binary sim:/cpu_test/RegDest\
+                              -radix binary sim:/cpu_test/Branch\
+                              -radix binary sim:/cpu_test/ALUSrc\
+                              -radix binary sim:/cpu_test/BNE\
+                              -radix binary sim:/cpu_test/Jump\
+                              -radix binary sim:/cpu_test/LUI\
+                              -radix binary sim:/cpu_test/ALU_LOHI_Write\
+                              -radix binary sim:/cpu_test/ALU_LOHI_Read\
+                              -radix binary sim:/cpu_test/MemWrite\
+                              -radix binary sim:/cpu_test/MemRead\
+                              -radix binary sim:/cpu_test/MemtoReg 
 
   ;#Set some formating options to make the Waves window more legible
 	configure wave -namecolwidth 250
