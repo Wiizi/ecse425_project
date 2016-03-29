@@ -8,6 +8,10 @@ ENTITY memory IS
 GENERIC 
 (
     File_Address_Read   : string    := "Init.dat";
+    File_Address_Read0  : string    := "Init0.dat";
+    File_Address_Read1  : string    := "Init1.dat";
+    File_Address_Read2  : string    := "Init2.dat";
+    File_Address_Read3  : string    := "Init3.dat";
     File_Address_Write  : string    := "MemCon.dat";
     Mem_Size_in_Word    : integer   := 2048;
     Num_Bytes_in_Word   : integer   := NUM_BYTES_IN_WORD;
@@ -61,6 +65,10 @@ begin
   main_memory : ENTITY work.Main_Memory
       GENERIC MAP (
         File_Address_Read   => File_Address_Read,
+        File_Address_Read0  => File_Address_Read0,
+        File_Address_Read1  => File_Address_Read1,
+        File_Address_Read2  => File_Address_Read2,
+        File_Address_Read3  => File_Address_Read3,
         File_Address_Write  => File_Address_Write,
         Mem_Size_in_Word    => Mem_Size_in_Word,
         Num_Bytes_in_Word   => Num_Bytes_in_Word,

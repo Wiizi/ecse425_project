@@ -52,6 +52,10 @@ COMPONENT memory IS
 GENERIC 
 (
     File_Address_Read   : string    := "Init.dat";
+    File_Address_Read0  : string    := "Init0.dat";
+    File_Address_Read1  : string    := "Init1.dat";
+    File_Address_Read2  : string    := "Init2.dat";
+    File_Address_Read3  : string    := "Init3.dat";
     File_Address_Write  : string    := "MemCon.dat";
     Mem_Size_in_Word    : integer   := 2048;
     Num_Bytes_in_Word   : integer   := NUM_BYTES_IN_WORD;
@@ -89,6 +93,7 @@ END COMPONENT;
 
    COMPONENT ALU
       PORT( 
+        clk            : in std_logic;
         opcode         : in std_logic_vector(3 downto 0);
         data0, data1   : in std_logic_vector(31 downto 0);
         shamt          : in std_logic_vector (4 downto 0);
@@ -449,7 +454,7 @@ begin
   end if;
 end process;
 
-InstMem_address <= to_integer(unsigned(PC_addr_out));
+InstMem_address <= to_integer(unsigned(Imem_addr_in));
 
 InstMem_re <= '1';
 
@@ -457,7 +462,11 @@ InstMem_re <= '1';
 Instruction_Memory : memory
 GENERIC MAP
 (
-    File_Address_Read   => "Init.dat",
+    File_Address_Read   => "Init.dat",  
+    File_Address_Read0  => "Init0.dat",
+    File_Address_Read1  => "Init1.dat",
+    File_Address_Read2  => "Init2.dat",
+    File_Address_Read3  => "Init3.dat",
     File_Address_Write  => "InstDump.dat",
     Mem_Size_in_Word    => 2048,
     Num_Bytes_in_Word   => 4,
@@ -481,7 +490,11 @@ PORT MAP
 Data_Memory : memory
 GENERIC MAP
 (
-    File_Address_Read   => "InitData.dat",
+    File_Address_Read   => "InitData.dat",  
+    File_Address_Read0  => "Init4.dat",
+    File_Address_Read1  => "Init5.dat",
+    File_Address_Read2  => "Init6.dat",
+    File_Address_Read3  => "Init7.dat",
     File_Address_Write  => "DataDump.dat",
     Mem_Size_in_Word    => 2048,
     Num_Bytes_in_Word   => 4,
@@ -714,6 +727,7 @@ ALU_data1_Mux : Mux_2to1
 
 main_ALU: ALU
   PORT MAP(
+    clk       => clk,
     opcode    => ALUOpcode, --from control
     data0     => ALU_data0, --from ID_EX
     data1     => ALU_data1, --from ID_EX

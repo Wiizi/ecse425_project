@@ -6,17 +6,17 @@
 proc AddWaves {} {
 
 	;#Add the following signals to the Waves window
-	add wave -group "CLOCKS" -position end -radix binary work:/cpu_test/clk\
-                                          -radix binary work:/cpu_test/clk_mem
+	add wave -group "CLOCKS" -position end -radix binary sim:/cpu_test/clk\
+                                          -radix binary sim:/cpu_test/clk_mem
   
   ;#These signals will be contained in a group
 	;# add wave -group "SIGNALS" -radix hex sim:/memory/addr\
 
-  add wave -group "SIGNALS"   -radix decimal work:/cpu_test/PC_addr_out\
+  add wave -group "SIGNALS"   -radix decimal sim:/cpu_test/PC_addr_out\
 
-  add wave -group "MEMORY"  -radix decimal work:/cpu_test/Imem_addr_in\
-                              -radix binary work:/cpu_test/InstMem_address\
-                              -radix binary work:/cpu_test/Imem_inst_in
+  add wave -group "MEMORY"  -radix decimal sim:/cpu_test/Imem_addr_in\
+                              -radix decimal sim:/cpu_test/InstMem_address\
+                              -radix binary sim:/cpu_test/Imem_inst_in
 
   ;#Set some formating options to make the Waves window more legible
 	configure wave -namecolwidth 250
@@ -51,9 +51,9 @@ proc CompileAndSimulate {} {
   vcom Mux_3to1.vhd
   vcom PC.vhd
   vcom Registers.vhd
-  vcom cpu_test.vhd
   vcom Forwarding.vhd
   vcom Haz_mux.vhd
+  vcom cpu_test.vhd
   
   ;#Start a simulation session with the cpu component
   vsim -t ps cpu_test
@@ -77,11 +77,13 @@ proc CompileOnly {} {
   vlib work
   
   ;#Compile the cpu and its subcomponents
+  vcom ALU.vhd
   vcom Memory_in_Byte.vhd
   vcom Main_Memory.vhd
+  vcom Main_Memory1.vhd
   vcom memory_arbiter_lib.vhd
   vcom memory.vhd
-  vcom ALU.vhd
+  vcom memory1.vhd
   vcom Control_Unit.vhd
   vcom EX_MEM.vhd
   vcom HazardDetectionControl.vhd
@@ -91,7 +93,7 @@ proc CompileOnly {} {
   vcom Mux_3to1.vhd
   vcom PC.vhd
   vcom Registers.vhd
-  vcom cpu_test.vhd
   vcom Forwarding.vhd
   vcom Haz_mux.vhd
+  vcom cpu_test.vhd
 }

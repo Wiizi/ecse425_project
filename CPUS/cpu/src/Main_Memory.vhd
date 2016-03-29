@@ -5,6 +5,10 @@ use STD.textio.all; --Don't forget to include this library for file operations.
 ENTITY Main_Memory IS
 	generic (
 			File_Address_Read : string :="Init.dat";
+			File_Address_Read0: string :="Init0.dat";
+			File_Address_Read1: string :="Init1.dat";
+			File_Address_Read2: string :="Init2.dat";
+			File_Address_Read3: string :="Init3.dat";
 			File_Address_Write : string :="MemCon.dat";
 			Mem_Size_in_Word : integer:=256;	
 			Num_Bytes_in_Word: integer:=4;
@@ -225,10 +229,10 @@ wr_done <= '1' when wr_done0='1' or wr_done1='1' or wr_done2='1' or wr_done3='1'
 		if (initialize'event and initialize='1') then
 			  --Open the file read.txt from the specified location for reading(READ_MODE).
 			file_open(file_pointer,File_Address_Read,READ_MODE);
-			file_open (file_write_pointer0, "Init0.dat", WRITE_MODE);
-			file_open (file_write_pointer1, "Init1.dat", WRITE_MODE);
-			file_open (file_write_pointer2, "Init2.dat", WRITE_MODE);
-			file_open (file_write_pointer3, "Init3.dat", WRITE_MODE);
+			file_open (file_write_pointer0, File_Address_Read0, WRITE_MODE);
+			file_open (file_write_pointer1, File_Address_Read1, WRITE_MODE);
+			file_open (file_write_pointer2, File_Address_Read2, WRITE_MODE);
+			file_open (file_write_pointer3, File_Address_Read3, WRITE_MODE);
 			
 			while not endfile(file_pointer) loop --till the end of file is reached continue.
 				readline (file_pointer,line_num_read);  --Read the whole line from the file
