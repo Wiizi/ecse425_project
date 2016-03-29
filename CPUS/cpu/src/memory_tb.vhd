@@ -4,11 +4,11 @@ use IEEE.numeric_std.all;
 
 use work.memory_arbiter_lib.all;
 
-Entity memory_arbiter_tb is
+Entity memory_tb is
 
-end memory_arbiter_tb;
+end memory_tb;
 
-architecture behavioral of memory_arbiter_tb is
+architecture behavioral of memory_tb is
 
 COMPONENT memory IS
 GENERIC 
