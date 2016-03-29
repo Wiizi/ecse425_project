@@ -4,9 +4,9 @@ use IEEE.numeric_std.all;
 
 Entity forwarding_tb is
 
-end forwarding_tb;
+end Forwarding_tb;
 
-architecture behavioral of forwarding_tb is
+architecture behavioral of Forwarding_tb is
 
 COMPONENT Forwarding
   port(
