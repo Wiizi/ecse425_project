@@ -236,7 +236,7 @@ END COMPONENT;
         in2      : in std_logic_vector(31 downto 0);
 
         --output
-        dataOout : out std_logic_vector(31 downto 0)
+        dataOut : out std_logic_vector(31 downto 0)
       );
    END COMPONENT;
 
@@ -251,7 +251,7 @@ END COMPONENT;
         in3      : in std_logic_vector(31 downto 0);
 
         --output
-        dataOout : out std_logic_vector(31 downto 0)
+        dataOut : out std_logic_vector(31 downto 0)
       );
    END COMPONENT;
 
@@ -386,7 +386,7 @@ signal MemWrite, MemRead, MemtoReg: std_logic;
 
 --For Branch
 signal PC_Branch : std_logic;
-signal Branch_addr, After_Branch : std_logic_vector(31 downto 0);
+signal Branch_addr, after_Branch : std_logic_vector(31 downto 0);
 
 --signals from last pipeline stage
 signal temp_MEM_WB_RD : std_logic_vector (4 downto 0);
@@ -613,11 +613,12 @@ PC_Branch <= Branch --and ( xor BNE);
 Branch_addr <= IF_ID_addr_out + ID_SignExtend(29 downto 0) & "00";
 
 Branch_logic: Mux_2to1
+  GENERIC MAP(WIDTH_IN =>  32)
   PORT MAP(
     sel      => PC_Branch,
     in1      => Imem_inst_in,
     in2      => Branch_addr,
-    dataOout => After_Branch
+    dataOut  => after_Branch
   );
 
 ID_EX_stage: ID_EX
