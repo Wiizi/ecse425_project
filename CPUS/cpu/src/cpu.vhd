@@ -384,9 +384,10 @@ signal RegDest, Branch, BNE, Jump, LUI, ALU_LOHI_Write, ALUSrc : std_logic;
 signal ALU_LOHI_Read: std_logic_vector(1 downto 0);
 signal MemWrite, MemRead, MemtoReg: std_logic;
 
---For Branch
+--For Branch and Jump
 signal PC_Branch : std_logic;
 signal Branch_addr, after_Branch : std_logic_vector(31 downto 0) := (others => '0');
+signal Jump_addr, after_Jump : std_logic_vector(31 downto 0) := (others => '0');
 
 --signals from last pipeline stage
 signal temp_MEM_WB_RD : std_logic_vector (4 downto 0);
@@ -607,9 +608,12 @@ Hazard_Control: Haz_mux
 		);
 
 -----------------------------
--- BRANCH LOGIC
+-- BRANCH LOGIC                --TODO
 -----------------------------
-PC_Branch <= Branch --and ( xor BNE);
+PC_Branch <= Branch;
+--PC_Branch <= Branch and (t_zero xor BNE);
+--t-zero from ALU
+--Note: ALU zero should not be accordding to all data_out, it should only consider the subtraction result
 Branch_addr <= IF_ID_addr_out + ID_SignExtend(29 downto 0) & "00";
 
 Branch_logic: Mux_2to1
@@ -619,6 +623,20 @@ Branch_logic: Mux_2to1
     in1      => Imem_inst_in, --assuming that PC+4 since it is currently at ID stage
     in2      => Branch_addr,
     dataOut  => after_Branch
+  );
+
+----------------------------
+-- JUMP LOGIC
+----------------------------
+Jump_addr <= IF_ID_inst_out(31 downto 28) & IF_ID_addr_out(25 downto 0) & "00";
+
+Jump_logic: Mux_2to1
+  GENERIC MAP(WIDTH_IN =>  32)
+  PORT MAP(
+    sel      => Jump,
+    in1      => after_Branch, --from branch mux
+    in2      => Jump_addr,
+    dataOut  => after_Jump
   );
 
 ID_EX_stage: ID_EX
