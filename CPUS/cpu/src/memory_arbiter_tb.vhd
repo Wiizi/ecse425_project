@@ -74,25 +74,25 @@ PORT MAP
 clk_process : process
 begin
   clk <= '0';
-  wait for 10ns;
+  wait for 10 ns;
   clk <= '1';
-  wait for 10ns;
+  wait for 10 ns;
 end process;
 
 test : process
 begin
   t_dataIn <= (0 => '1' , others => '0');
-  wait for 200ns;
+  wait for 200 ns;
   t_addr <= 0;
   t_we <= '1';
-  wait for 80ns;
+  wait for 80 ns;
   t_we <= '0';
   t_dataIn <= ( others => 'Z');
-  wait for 20ns;
+  wait for 20 ns;
   t_re <= '1';
-  wait for 80ns;
+  wait for 80 ns;
   t_re <= '0';
-  wait for 40ns;
+  wait for 40 ns;
   REPORT "Testing memory: read after write data.";
   ASSERT (to_integer(unsigned(t_dataOut)) = 1) REPORT "t_data must be equal to 1." SEVERITY ERROR;
   WAIT;
