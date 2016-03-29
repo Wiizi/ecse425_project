@@ -67,6 +67,20 @@ MemtoReg 		<= temp_MemtoReg;
 	process(clk, opCode, funct)
 	begin
 	if (clk'event and clk = '1') then
+		temp_RegWrite			<= '0';
+		temp_ALUSrc				<= "XXX";
+		temp_ALUOpCode			<= '0';
+		temp_RegDest			<= 'X';
+		temp_Branch				<= '0';
+		temp_BNE				<= '0';
+		temp_Jump				<= '0';
+		temp_LUI				<= '0';
+		temp_ALU_LOHI_Write		<= '0';
+		temp_ALU_LOHI_Read		<= '0';
+		temp_MemWrite			<= '0';
+		temp_MemRead			<= '0';
+		temp_MemtoReg			<= 'X';
+
 		case opCode is
 			--R-type
 			when "000000" =>
