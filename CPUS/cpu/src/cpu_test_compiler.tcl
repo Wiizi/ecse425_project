@@ -110,10 +110,8 @@ proc CompileOnly {} {
   vcom ALU.vhd
   vcom Memory_in_Byte.vhd
   vcom Main_Memory.vhd
-  vcom Main_Memory1.vhd
   vcom memory_arbiter_lib.vhd
   vcom memory.vhd
-  vcom memory1.vhd
   vcom Control_Unit.vhd
   vcom EX_MEM.vhd
   vcom HazardDetectionControl.vhd

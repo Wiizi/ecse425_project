@@ -361,14 +361,14 @@ END COMPONENT;
 
 ----------Memory module default signals----------------
 SIGNAL InstMem_address	  : integer   := 0;
-SIGNAL InstMem_re 		    : std_logic := '0';
-SIGNAL InstMem_init 		  : std_logic	:= '0';
+SIGNAL InstMem_re 		    : std_logic := '1';
 
 SIGNAL DataMem_addr       : integer    := 0;
 SIGNAL DataMem_re         : std_logic  := '1';
 SIGNAL DataMem_we         : std_logic  := '0';
 SIGNAL DataMem_data       : std_logic_vector (31 downto 0)  := (others => 'Z');
- 
+SIGNAL InstMem_Address_Vector : std_logic_vector (31 downto 0)  := (others => '0'); 
+
 SIGNAL InstMem_busy       : std_logic  := '0';
 SIGNAL DataMem_busy       : std_logic  := '0';
 -------------------------------------------------------
@@ -377,7 +377,7 @@ signal PC_addr_out : std_logic_vector(31 downto 0);
 
 signal Imem_inst_in, Imem_addr_in : std_logic_vector(31 downto 0);
   
-signal IF_ID_inst_out, IF_ID_addr_out : std_logic_vector(31 downto 0) := (others => '0');; 
+signal IF_ID_inst_out, IF_ID_addr_out : std_logic_vector(31 downto 0) := (others => '0');
 signal haz_IF_ID_write, haz_PC_write : std_logic;
 
 signal regWrite: std_logic;
@@ -394,9 +394,6 @@ signal Jump_addr, after_Jump : std_logic_vector(31 downto 0) := (others => '0');
 --signals from last pipeline stage
 signal temp_MEM_WB_RD : std_logic_vector (4 downto 0);
 signal temp_Result_W : std_logic_vector(31 downto 0);
-
-signal ID_EX_RegRt : std_logic_vector(4 downto 0);
-signal ID_EX_MemRead : std_logic;
 signal ID_SignExtend, ID_EX_SignExtend, EX_SignExtend : std_logic_vector(31 downto 0);
 
 --hazard detection signal
@@ -404,6 +401,8 @@ signal CPU_stall : std_logic;
 signal IF_ID_regWrite,IF_ID_RegDest,IF_ID_Branch,IF_ID_BNE,IF_ID_Jump,IF_ID_MemWrite,IF_ID_MemRead,IF_ID_MemtoReg : std_logic;
 
 --ID_EX output signals
+signal ID_EX_RegRt : std_logic_vector(4 downto 0);
+signal ID_EX_MemRead : std_logic;
 signal ID_EX_data0_out, ID_EX_data1_out : std_logic_vector(31 downto 0);
 signal ID_EX_Rs_out, ID_EX_Rt_out : std_logic_vector(4 downto 0);
 signal ID_EX_addr_out : std_logic_vector(31 downto 0);
@@ -427,13 +426,12 @@ signal ALU_shamt : std_logic_vector (4 downto 0);
 
 --for EX_MEM stage to MEM_WB stage
 signal ID_EX_MemWrite, EX_MEM_MemWrite : std_logic;
-signal ID_EX_MemRead, EX_MEM_MemRead : std_logic;
+signal EX_MEM_MemRead : std_logic;
 signal EX_MEM_RegWrite, MEM_WB_RegWrite : std_logic;
 signal ID_EX_MemtoReg, EX_MEM_MemtoReg, MEM_WB_MemtoReg : std_logic;
 signal EX_MEM_ALU_result, EX_MEM_ALU_HI, EX_MEM_ALU_LO : std_logic_vector(31 downto 0);
 signal EX_MEM_ALU_zero : std_logic;
 signal MEM_WB_ALU_zero, MEM_WB_busy : std_logic;
-signal MEM_WB_ALU_zero : std_logic;
 signal MEM_WB_ALU_result, MEM_WB_ALU_HI, MEM_WB_ALU_LO : std_logic_vector(31 downto 0);
 signal ID_EX_Rd, EX_MEM_Rd, MEM_WB_Rd : std_logic_vector(4 downto 0);
 signal EX_MEM_Data1, EX_MEM_data: std_logic_vector(31 downto 0);
@@ -452,7 +450,12 @@ Program_counter: PC
          	addr_out    => PC_addr_out
       );
 
-InstMem_address <= to_integer(unsigned(PC_addr_out));
+pc_increment : process (clk)
+begin
+  if (rising_edge(clk)) then
+      InstMem_address <= InstMem_address + 4;
+  end if;
+end process;
 
 --Instantiation of the main memory component
 Instruction_Memory : memory
@@ -486,11 +489,11 @@ PORT MAP
 Data_Memory : memory
 GENERIC MAP
 (
-    File_Address_Read   => "InitData.dat";
-    File_Address_Read0  => "Init4.dat";
-    File_Address_Read1  => "Init5.dat";
-    File_Address_Read2  => "Init6.dat";
-    File_Address_Read3  => "Init7.dat";
+    File_Address_Read   => "InitData.dat",
+    File_Address_Read0  => "Init4.dat",
+    File_Address_Read1  => "Init5.dat",
+    File_Address_Read2  => "Init6.dat",
+    File_Address_Read3  => "Init7.dat",
     File_Address_Write  => "DataDump.dat",
     Mem_Size_in_Word    => 2048,
     Num_Bytes_in_Word   => 4,
@@ -592,7 +595,7 @@ Hazard : HazardDetectionControl
     IDEX_RegRt     	=> ID_EX_RegRt,
     IFID_RegRs     	=> IF_ID_inst_out(25 downto 21),
     IFID_RegRt     	=> IF_ID_inst_out(20 downto 16),
-    IDEX_MemRead   	=> IDEX_MemRead, --create
+    IDEX_MemRead   	=> ID_EX_MemRead, --create
     BRANCH         	=> Branch,
 
     IFID_Write     	=> haz_IF_ID_write,
@@ -631,13 +634,17 @@ Hazard_Control: Haz_mux
 PC_Branch <= Branch and (zero xor BNE);
 --t-zero from ALU
 --Note: ALU zero should not be accordding to all data_out, it should only consider the subtraction result
-Branch_addr <= IF_ID_addr_out + ID_SignExtend(29 downto 0) & "00";
+Branch_addr <= std_logic_vector(to_unsigned((to_integer(unsigned(IF_ID_addr_out)) + to_integer((unsigned(ID_SignExtend(29 downto 0) & "00")))), 32));
+
+InstMem_Address_Vector <= std_logic_vector(to_unsigned(InstMem_address, 32));
 
 Branch_logic: Mux_2to1
-  GENERIC MAP(WIDTH_IN =>  32)
+  GENERIC MAP(
+    WIDTH_IN => 32
+  )
   PORT MAP(
     sel      => PC_Branch,
-    in1      => InstMem_address, --address from memory.vhd? or from whatever logic that incremetns PC and send new address
+    in1      => InstMem_Address_Vector, --address from memory.vhd? or from whatever logic that incremetns PC and send new address
     in2      => Branch_addr,
     dataOut  => after_Branch
   );
@@ -673,7 +680,7 @@ ID_EX_stage: ID_EX
 
     --Control inputs (8 of them?)
     RegWrite_in       => IF_ID_regWrite,
-    MemToReg_in       => IF_ID_MemtoReg
+    MemToReg_in       => IF_ID_MemtoReg,
     MemWrite_in       => IF_ID_MemWrite,
     MemRead_in        => IF_ID_MemRead,
     Branch_in         => IF_ID_Branch,
@@ -718,8 +725,8 @@ ID_EX_stage: ID_EX
 
 Forwarding_unit: Forwarding
   PORT MAP(
-    EX_MEM_RegWrite => EX_MEM_RegWrite;
-    MEM_WB_RegWrite	=> MEM_WB_RegWrite;
+    EX_MEM_RegWrite => EX_MEM_RegWrite,
+    MEM_WB_RegWrite	=> MEM_WB_RegWrite,
     ID_EX_Rs	      => ID_EX_Rs_out,
     ID_EX_Rt	      => ID_EX_Rt_out,
     EX_MEM_Rd	      => EX_MEM_Rd,
@@ -731,7 +738,7 @@ Forwarding_unit: Forwarding
 ALU_data0_Forward_Mux : Mux_3to1
   GENERIC MAP(WIDTH_IN => 32)
   PORT MAP(
-    sel      => Forward0_EX,--Forward Unit: in std_logic_vector(1 downto 0);
+    sel      => Forward0_EX, --Forward Unit: in std_logic_vector(1 downto 0);
     in1      => ID_EX_data0_out,
     in2      => EX_MEM_data,
     in3      => Result_W,
@@ -741,7 +748,7 @@ ALU_data0_Forward_Mux : Mux_3to1
 ALU_data1_Forward_Mux : Mux_3to1
   GENERIC MAP(WIDTH_IN => 32)
   PORT MAP(
-    sel      => Forward1_EX,--Forward Unit
+    sel      => Forward1_EX, --Forward Unit
     in1      => ID_EX_data1_out,
     in2      => EX_MEM_data,
     in3      => Result_W,
@@ -754,13 +761,14 @@ ALU_data1_Mux : Mux_2to1
     sel      => ALUSrc,
     in1      => t_ALU_data1,
     in2      => EX_SignExtend,--SignExtend
-    dataOut  => ALU_data1,
+    dataOut  => ALU_data1
   );
 
 ALU_shamt <= EX_SignExtend(10 downto 6);
 
 main_ALU: ALU
 	PORT MAP(
+    clk       => clk,
     opcode    => ALUOpcode, --from control
     data0     => ALU_data0, --from ID_EX
     data1     => ALU_data1, --from ID_EX
@@ -784,7 +792,7 @@ EX_MEM_stage: EX_MEM
     ALU_Result_in  => EX_ALU_result,-- from ALU t_data_out
     ALU_HI_in      => ALU_HI,
     ALU_LO_in      => ALU_LO,
-    ALU_zero_in    => t_zero, --TODO
+    ALU_zero_in    => zero, --TODO
     --Read Data
     Data1_in       => ID_EX_data1_out,
     --Register
