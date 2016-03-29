@@ -386,13 +386,13 @@ signal MemWrite, MemRead, MemtoReg: std_logic;
 
 --For Branch
 signal PC_Branch : std_logic;
-signal Branch_addr, after_Branch : std_logic_vector(31 downto 0);
+signal Branch_addr, after_Branch : std_logic_vector(31 downto 0) := (others => '0');
 
 --signals from last pipeline stage
 signal temp_MEM_WB_RD : std_logic_vector (4 downto 0);
 signal temp_Result_W : std_logic_vector(31 downto 0);
 
-signal ALU_LO, ALU_HI : std_logic_vector(31 downto 0) :=(others => '0');
+signal ALU_LO, ALU_HI : std_logic_vector(31 downto 0) := (others => '0');
 signal data0, data1 : std_logic_vector(31 downto 0);
 signal ALU_LO_out, ALU_HI_out : std_logic_vector(31 downto 0);
 
@@ -407,7 +407,7 @@ signal IF_ID_regWrite,IF_ID_RegDest,IF_ID_Branch,IF_ID_BNE,IF_ID_Jump,IF_ID_MemW
 --ID_EX output signals
 signal ID_EX_data0_out, ID_EX_data1_out : std_logic_vector(31 downto 0);
 signal ID_EX_Rs_out, ID_EX_Rt_out : std_logic_vector(4 downto 0);
-signal ID_EX_addr_out : std_logic_vector(31 downto 0); 
+signal ID_EX_addr_out : std_logic_vector(31 downto 0);
 
 signal ID_EX_ALU_op_out : std_logic_vector(3 downto 0);
 signal ID_EX_ALU_src_out : std_logic;
