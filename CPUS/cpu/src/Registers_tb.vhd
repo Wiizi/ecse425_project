@@ -1,4 +1,3 @@
-
 -- ECSE 425 - Comp Organization & Architecture - Final Project
 -- Group 5: Andrei Chubarau, Luis Gallet Zambrano, Aidan Petit, Wei Wang
 -- Author: Aidan Petit
@@ -18,9 +17,9 @@ ARCHITECTURE testing OF Registers_tb IS
 
 COMPONENT Registers is
 	PORT(
-		clk 			: in std_logic;
+		clk        	: in std_logic;
 		--control
-		RegWrite 		: in std_logic;
+		RegWrite 	: in std_logic;
 		ALU_LOHI_Write 	: in std_logic;
 
 		--Register file inputs
@@ -40,32 +39,32 @@ COMPONENT Registers is
 end COMPONENT Registers;
 
 --signals
-SIGNAL t_clk 			: in std_logic				:='0';
-SIGNAL t_RegWrite 		: in std_logic				:='0';
-SIGNAL t_ALU_LOHI_Write 	: in std_logic				:='0';		
-SIGNAL t_readReg_0 		: in std_logic_vector(4 downto 0)	:=(OTHERS => '0');
-SIGNAL t_readReg_1 		: in std_logic_vector(4 downto 0)	:=(OTHERS => '0');
-SIGNAL t_writeReg  		: in std_logic_vector(4 downto 0)	:=(OTHERS => '0');
-SIGNAL t_writeData 		: in std_logic_vector(31 downto 0)	:=(OTHERS => '0');
-SIGNAL t_ALU_LO_in 		: in std_logic_vector(31 downto 0)	:=(OTHERS => '0');
-SIGNAL t_ALU_HI_in 		: in std_logic_vector(31 downto 0)	:=(OTHERS => '0');
-SIGNAL t_readData_0 		: out std_logic_vector(31 downto 0)	:=(OTHERS => '0');
-SIGNAL t_readData_1 		: out std_logic_vector(31 downto 0)	:=(OTHERS => '0');
-SIGNAL t_ALU_LO_out 		: out std_logic_vector(31 downto 0)	:=(OTHERS => '0');
-SIGNAL t_ALU_HI_out 		: out std_logic_vector(31 downto 0)	:=(OTHERS => '0');
+SIGNAL clk			: std_logic				:='0';
+SIGNAL t_RegWrite		: std_logic				:='0';
+SIGNAL t_ALU_LOHI_Write		: std_logic				:='0';		
+SIGNAL t_readReg_0		: std_logic_vector(4 downto 0)	:=(OTHERS => '0');
+SIGNAL t_readReg_1		: std_logic_vector(4 downto 0)	:=(OTHERS => '0');
+SIGNAL t_writeReg		: std_logic_vector(4 downto 0)	:=(OTHERS => '0');
+SIGNAL t_writeData		: std_logic_vector(31 downto 0)	:=(OTHERS => '0');
+SIGNAL t_ALU_LO_in		: std_logic_vector(31 downto 0)	:=(OTHERS => '0');
+SIGNAL t_ALU_HI_in		: std_logic_vector(31 downto 0)	:=(OTHERS => '0');
+SIGNAL t_readData_0		: std_logic_vector(31 downto 0)	:=(OTHERS => '0');
+SIGNAL t_readData_1		: std_logic_vector(31 downto 0)	:=(OTHERS => '0');
+SIGNAL t_ALU_LO_out		: std_logic_vector(31 downto 0)	:=(OTHERS => '0');
+SIGNAL t_ALU_HI_out 		: std_logic_vector(31 downto 0)	:=(OTHERS => '0');
 
 BEGIN
 
 test_Registers: Registers
 	PORT MAP
 	(
-		clk		=> t_clk,
+		clk		=> clk,
 
 		RegWrite 	=> t_RegWrite,
 		ALU_LOHI_Write 	=> t_ALU_LOHI_Write,
 
 
-		readReg_0 	=> t_readReg_0.
+		readReg_0 	=> t_readReg_0,
 		readReg_1 	=> t_readReg_1,
 		writeReg  	=> t_writeReg,
 		writeData 	=> t_writeData,
@@ -115,7 +114,7 @@ begin
 	REPORT "Testing Register.vhd to read two registers";
 
 	ASSERT (t_readData_0 = "10001000100010001000100010001000")	REPORT "Error in reg 8"		SEVERITY ERROR;
-	ASSERT (t_readData_1 = '11101110111011101110111011101110')	REPORT "Error in reg 10"	SEVERITY ERROR;
+	ASSERT (t_readData_1 = "11101110111011101110111011101110")	REPORT "Error in reg 10"	SEVERITY ERROR;
 
 	wait for 200 ns;
 

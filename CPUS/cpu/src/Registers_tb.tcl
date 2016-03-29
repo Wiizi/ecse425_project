@@ -7,33 +7,28 @@ puts {
 
 proc AddWaves {} \
 {
-
-	;#Add the following signals to the Waves window
-	add wave -position end  -radix binary sim:/Registers/clk
-  
-  	;#These signals will be contained in a group named "Registers"
-	add wave -group "Registers"  
-		#inputs to Registers
-		-radix hex sim:/Registers_tb/clk\
-                -radix hex sim:/Registers_tb/regWrite \
-		-radix binary sim:/Registers_tb/ALU_LOHI_Write \
-		-radix binary sim:/Registers_tb/readReg_0 \
-		-radix binary sim:/Registers_tb/readReg_1 \
-		-radix binary sim:/Registers_tb/writeReg \
-		-radix binary sim:/Registers_tb/writeData \
-		-radix binary sim:/Registers_tb/ALU_LO_in  \
-		-radix binary sim:/Registers_tb/ALU_HI_in   \
-							
-		#outputs of Registers
-		-radix binary sim:/Registers_tb/readData_0   \
-		-radix binary sim:/Registers_tb/readData_1   \
-		-radix binary sim:/Registers_tb/ALU_LO_out   \
-		-radix binary sim:/Registers_tb/ALU_HI_out 
+ 
+	#inputs to Registers
+	add wave -radix hex sim:/Registers_tb/clk
+        add wave -radix hex sim:/Registers_tb/t_regWrite 
+	add wave -radix binary sim:/Registers_tb/t_ALU_LOHI_Write 
+	add wave -radix binary sim:/Registers_tb/t_readReg_0 
+	add wave -radix binary sim:/Registers_tb/t_readReg_1 
+	add wave -radix binary sim:/Registers_tb/t_writeReg 
+	add wave -radix binary sim:/Registers_tb/t_writeData 
+	add wave -radix binary sim:/Registers_tb/t_ALU_LO_in  
+	add wave -radix binary sim:/Registers_tb/t_ALU_HI_in
+					
+	#outputs of Registers
+	add wave -radix binary sim:/Registers_tb/t_readData_0   
+	add wave -radix binary sim:/Registers_tb/t_readData_1   
+	add wave -radix binary sim:/Registers_tb/t_ALU_LO_out   
+	add wave -radix binary sim:/Registers_tb/t_ALU_HI_out 
 
 
-  		#Set some formating options to make the Waves window more legible
-		configure wave -namecolwidth 250
-		WaveRestoreZoom {0 ns} {8 ns}
+  	#Set some formating options to make the Waves window more legible
+	configure wave -namecolwidth 250
+	WaveRestoreZoom {0 ns} {8 ns}
 }
 
 vlib work
