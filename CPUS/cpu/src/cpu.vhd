@@ -419,6 +419,7 @@ signal ID_EX_RegDest_out : std_logic;
 --Signals for ALU
 signal ALU_data0, t_ALU_data1, ALU_data1, ALU_data_out : std_logic_vector(31 downto 0);
 signal EX_ALU_result : std_logic_vector(31 downto 0);
+signal zero : std_logic;
 
 --for EX_MEM stage to MEM_WB stage
 signal ID_EX_MemWrite, EX_MEM_MemWrite : std_logic;
@@ -440,7 +441,7 @@ BEGIN
 Program_counter: PC
 	PORT MAP( 
          	clk         => clk,
-         	addr_in     => Imem_addr_in, --should be jump_mux_out
+         	addr_in     => after_Jump, --should be jump_mux_out
          	PC_write    => haz_PC_write,-- from hazard detection
          	addr_out    => PC_addr_out
       );
@@ -610,8 +611,8 @@ Hazard_Control: Haz_mux
 -----------------------------
 -- BRANCH LOGIC                --TODO
 -----------------------------
-PC_Branch <= Branch;
---PC_Branch <= Branch and (t_zero xor BNE);
+--PC_Branch <= Branch;
+PC_Branch <= Branch and (zero xor BNE);
 --t-zero from ALU
 --Note: ALU zero should not be accordding to all data_out, it should only consider the subtraction result
 Branch_addr <= IF_ID_addr_out + ID_SignExtend(29 downto 0) & "00";
@@ -620,7 +621,7 @@ Branch_logic: Mux_2to1
   GENERIC MAP(WIDTH_IN =>  32)
   PORT MAP(
     sel      => PC_Branch,
-    in1      => Imem_inst_in, --assuming that PC+4 since it is currently at ID stage
+    in1      => InstMem_address, --address from memory.vhd? or from whatever logic that incremetns PC and send new address
     in2      => Branch_addr,
     dataOut  => after_Branch
   );
@@ -745,7 +746,7 @@ main_ALU: ALU
     data_out  => ALU_data_out, --signal
     HI        => ALU_HI, --signal
     LO        => ALU_LO, --signal
-    zero      => t_zero --signal
+    zero      => zero --signal
 	);
 
 EX_MEM_stage: EX_MEM

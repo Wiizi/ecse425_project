@@ -21,15 +21,14 @@ ENTITY ALU IS
 		HI 	: out std_logic_vector (31 downto 0);
 		LO 	: out std_logic_vector (31 downto 0);
 		zero	: out std_logic
-		--overflow: out std_logic;
-		--carryout: out std_logic
+	
 	);
 END ENTITY;
 
 ARCHITECTURE BEHAVIOR OF ALU IS
 
 signal temp_data_out : std_logic_vector (31 downto 0);
-signal div, remainder : std_logic_vector (31 downto 0);
+signal temp_zero : std_logic;
 signal hilo : std_logic_vector (63 downto 0);
 
 BEGIN
@@ -37,9 +36,16 @@ BEGIN
 HI <= hilo (63 downto 32);
 LO <= hilo (31 downto 0);
 data_out <= temp_data_out;
+zero <= temp_zero;
 
 alu: process(clk)
+
 begin
+
+if opcode /= "0110" then
+	temp_zero <= 'X';
+end if;
+
 if(rising_edge(clk))then
 	case opcode is
 		when "0000" =>
@@ -48,6 +54,12 @@ if(rising_edge(clk))then
 			temp_data_out <= data0 OR data1;
 		when "0110" =>
 			temp_data_out <= std_logic_vector(unsigned(data0) - unsigned(data1));
+			if(to_integer(signed(temp_data_out)) = 0)then
+				temp_zero <= '1';
+			else
+				temp_zero <= '0';
+			end if;
+
 		when "0010" =>
 			temp_data_out <= std_logic_vector(unsigned(data0) + unsigned(data1));
 		when "0111" => --set less than
@@ -76,13 +88,6 @@ if(rising_edge(clk))then
 		when others =>
 			temp_data_out <= (others => 'X');
 	end case;
-
-	if(to_integer(signed(temp_data_out)) = 0)then
-		zero <= '1';
-	else
-		zero <= '0';
-	end if;
-
 
 
 end if;

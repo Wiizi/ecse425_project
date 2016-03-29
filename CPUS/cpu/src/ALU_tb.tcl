@@ -15,6 +15,7 @@ proc AddWaves {} \
 	add wave -radix binary -position end sim:/ALU_tb/t_data_out
 	add wave -radix decimal -position end sim:/ALU_tb/t_HI
 	add wave -radix decimal -position end sim:/ALU_tb/t_LO
+	add wave -radix decimal -position end sim:/ALU_tb/t_zero
 }
 
 vlib work
