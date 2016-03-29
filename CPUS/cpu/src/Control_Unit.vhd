@@ -208,6 +208,7 @@ MemtoReg 		<= temp_MemtoReg;
 			--J-Type
 			--jal
 			when "000011" =>
+				temp_RegWrite 	<= '1';
 				temp_ALUOpCode 	<= "0010";
 				temp_Jump 		<= '1';
 			--j

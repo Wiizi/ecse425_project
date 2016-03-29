@@ -383,6 +383,7 @@ signal ALUOpcode: std_logic_vector(3 downto 0);
 signal RegDest, Branch, BNE, Jump, LUI, ALU_LOHI_Write, ALUSrc : std_logic;
 signal ALU_LOHI_Read: std_logic_vector(1 downto 0);
 signal MemWrite, MemRead, MemtoReg: std_logic;
+signal PC_Branch : std_logic;
 
 --signals from last pipeline stage
 signal temp_MEM_WB_RD : std_logic_vector (4 downto 0);
@@ -602,6 +603,19 @@ Hazard_Control: Haz_mux
 		
 		);
 
+-----------------------------
+-- BRANCH LOGIC
+-----------------------------
+PC_Branch <= Branch --and ( xor BNE);
+
+Branch_logic: Mux_2to1
+  PORT MAP(
+    sel      => PC_Branch,: in std_logic;
+    in1      => Imem_inst_in,: in std_logic_vector(31 downto 0);
+    in2      => IF_ID_addr_out + ID_SignExtend(29 downto 0) & "00",
+    dataOout => Branch_addr: out std_logic_vector(31 downto 0)
+  );
+
 ID_EX_stage: ID_EX
 	PORT MAP(
     clk               => clk,
@@ -610,7 +624,7 @@ ID_EX_stage: ID_EX
     Addr_in           => IF_ID_addr_out,
     RegData0_in       => data0, --from registers, forwards to ALU
     RegData1_in       => data1,
-    SignExtended_in   => ID_signExtend,	--sign extended needs to be implemented
+    SignExtended_in   => ID_SignExtend,	--sign extended needs to be implemented
    
     --Register inputs (5 bits each)
     Rs_in             => IF_ID_inst_out(25 downto 21),--rs 
