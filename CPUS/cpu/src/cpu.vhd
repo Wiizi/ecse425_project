@@ -383,7 +383,10 @@ signal ALUOpcode: std_logic_vector(3 downto 0);
 signal RegDest, Branch, BNE, Jump, LUI, ALU_LOHI_Write, ALUSrc : std_logic;
 signal ALU_LOHI_Read: std_logic_vector(1 downto 0);
 signal MemWrite, MemRead, MemtoReg: std_logic;
+
+--For Branch
 signal PC_Branch : std_logic;
+signal Branch_addr, After_Branch : std_logic_vector(31 downto 0);
 
 --signals from last pipeline stage
 signal temp_MEM_WB_RD : std_logic_vector (4 downto 0);
@@ -607,13 +610,14 @@ Hazard_Control: Haz_mux
 -- BRANCH LOGIC
 -----------------------------
 PC_Branch <= Branch --and ( xor BNE);
+Branch_addr <= IF_ID_addr_out + ID_SignExtend(29 downto 0) & "00";
 
 Branch_logic: Mux_2to1
   PORT MAP(
-    sel      => PC_Branch,: in std_logic;
-    in1      => Imem_inst_in,: in std_logic_vector(31 downto 0);
-    in2      => IF_ID_addr_out + ID_SignExtend(29 downto 0) & "00",
-    dataOout => Branch_addr: out std_logic_vector(31 downto 0)
+    sel      => PC_Branch,
+    in1      => Imem_inst_in,
+    in2      => Branch_addr,
+    dataOout => After_Branch
   );
 
 ID_EX_stage: ID_EX
