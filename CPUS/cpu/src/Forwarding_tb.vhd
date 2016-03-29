@@ -27,9 +27,9 @@ SIGNAL t_MEM_WB_RegWrite : std_logic;
 SIGNAL t_ID_EX_Rs        : std_logic_vector(4 downto 0);
 SIGNAL t_ID_EX_Rt        : std_logic_vector(4 downto 0);
 SIGNAL t_EX_MEM_Rd       : std_logic_vector(4 downto 0);
-SIGNAL t_MEM_WB_Rd       : std_logic_vector(4 downto 0);
-SIGNAL t_F0_EX         : std_logic_vector(1 downto 0);
-SIGNAL t_F1_EX         : std_logic_vector(1 downto 0);
+SIGNAL t_MEM_WB_Rd	 : std_logic_vector(4 downto 0);
+SIGNAL t_F0_EX         	 : std_logic_vector(1 downto 0);
+SIGNAL t_F1_EX           : std_logic_vector(1 downto 0);
 
 begin
 
@@ -50,7 +50,7 @@ forward : Forwarding
 test : process
 begin
 
-  wait for 20ns;
+  wait for 20 ns;
 
   t_EX_MEM_RegWrite <= '1';
   t_MEM_WB_RegWrite <= '1';
@@ -59,7 +59,7 @@ begin
   t_EX_MEM_Rd <= "00011";
   t_MEM_WB_Rd <= "00001";
 
-  wait for 20ns;
+  wait for 20 ns;
   -- example assert statement
   REPORT "Testing - 1";
   ASSERT (t_F0_EX = "01") REPORT "Forward0_EX is not correct." SEVERITY ERROR;
@@ -72,7 +72,7 @@ begin
   t_EX_MEM_Rd <= "00001";
   t_MEM_WB_Rd <= "00011";
 
-  wait for 20ns;
+  wait for 20 ns;
   -- example assert statement
   REPORT "Testing - 2";
   ASSERT (t_F0_EX = "10") REPORT "Forward0_EX is not correct." SEVERITY ERROR;
@@ -85,7 +85,7 @@ begin
   t_EX_MEM_Rd <= "00011";
   t_MEM_WB_Rd <= "00001";
 
-  wait for 20ns;
+  wait for 20 ns;
   -- example assert statement
   REPORT "Testing - 3";
   ASSERT (t_F0_EX = "00") REPORT "Forward0_EX is not correct." SEVERITY ERROR;
@@ -98,7 +98,7 @@ begin
   t_EX_MEM_Rd <= "00010";
   t_MEM_WB_Rd <= "00001";
 
-  wait for 20ns;
+  wait for 20 ns;
   -- example assert statement
   REPORT "Testing - 4";
   ASSERT (t_F0_EX = "00") REPORT "Forward0_EX is not correct." SEVERITY ERROR;
@@ -111,7 +111,7 @@ begin
   t_EX_MEM_Rd <= "00001";
   t_MEM_WB_Rd <= "00011";
 
-  wait for 20ns;
+  wait for 20 ns;
   -- example assert statement
   REPORT "Testing - 5";
   ASSERT (t_F0_EX = "10") REPORT "Forward0_EX is not correct." SEVERITY ERROR;
@@ -124,7 +124,7 @@ begin
   t_EX_MEM_Rd <= "00001";
   t_MEM_WB_Rd <= "00010";
 
-  wait for 20ns;
+  wait for 20 ns;
   -- example assert statement
   REPORT "Testing - 6";
   ASSERT (t_F0_EX = "00") REPORT "Forward0_EX is not correct." SEVERITY ERROR;
@@ -137,7 +137,7 @@ begin
   t_EX_MEM_Rd <= "00001";
   t_MEM_WB_Rd <= "00011";
 
-  wait for 20ns;
+  wait for 20 ns;
   -- example assert statement
   REPORT "Testing - 7";
   ASSERT (t_F0_EX = "00") REPORT "Forward0_EX is not correct." SEVERITY ERROR;
@@ -150,7 +150,7 @@ begin
   t_EX_MEM_Rd <= "00001";
   t_MEM_WB_Rd <= "00010";
 
-  wait for 20ns;
+  wait for 20 ns;
   -- example assert statement
   REPORT "Testing - 8";
   ASSERT (t_F0_EX = "00") REPORT "Forward0_EX is not correct." SEVERITY ERROR;
@@ -163,7 +163,7 @@ begin
   t_EX_MEM_Rd <= "00011";
   t_MEM_WB_Rd <= "00010";
 
-  wait for 20ns;
+  wait for 20 ns;
   -- example assert statement
   REPORT "Testing - 9";
   ASSERT (t_F0_EX = "01") REPORT "Forward0_EX is not correct." SEVERITY ERROR;
@@ -176,7 +176,7 @@ begin
   t_EX_MEM_Rd <= "00110";
   t_MEM_WB_Rd <= "00101";
 
-  wait for 20ns;
+  wait for 20 ns;
   -- example assert statement
   REPORT "Testing - 10";
   ASSERT (t_F0_EX = "10") REPORT "Forward0_EX is not correct." SEVERITY ERROR;
