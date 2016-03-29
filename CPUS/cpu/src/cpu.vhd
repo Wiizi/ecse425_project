@@ -52,6 +52,10 @@ COMPONENT memory IS
 GENERIC 
 (
     File_Address_Read   : string    := "Init.dat";
+    File_Address_Read0  : string    := "Init0.dat";
+    File_Address_Read1  : string    := "Init1.dat";
+    File_Address_Read2  : string    := "Init2.dat";
+    File_Address_Read3  : string    := "Init3.dat";
     File_Address_Write  : string    := "MemCon.dat";
     Mem_Size_in_Word    : integer   := 2048;
     Num_Bytes_in_Word   : integer   := NUM_BYTES_IN_WORD;
@@ -89,6 +93,7 @@ END COMPONENT;
 
    COMPONENT ALU
       PORT( 
+        clk            : in std_logic;
         opcode         : in std_logic_vector(3 downto 0);
         data0, data1   : in std_logic_vector(31 downto 0);
         shamt          : in std_logic_vector (4 downto 0);
@@ -155,7 +160,7 @@ END COMPONENT;
         MemRead_in        : in std_logic;
         Branch_in         : in std_logic;
 	      LUI_in		        : in std_logic;
-        ALU_op_in         : in std_logic_vector(2 downto 0);
+        ALU_op_in         : in std_logic_vector(3 downto 0);
         ALU_src_in        : in std_logic;
         Reg_dest_in       : in std_logic;
 
@@ -175,7 +180,7 @@ END COMPONENT;
         MemRead_out       : out std_logic;
         Branch_out        : out std_logic;
 	      LUI_out		        : out std_logic;
-        ALU_op_out        : out std_logic_vector(2 downto 0);
+        ALU_op_out        : out std_logic_vector(3 downto 0);
         ALU_src_out       : out std_logic;
         Reg_dest_out      : out std_logic
       );
@@ -208,7 +213,7 @@ END COMPONENT;
         ALU_LO_in      : in std_logic_vector (31 downto 0);
         ALU_zero_in    : in std_logic;
         --Register
-        Rd_in          : in std_logic;
+        Rd_in          : in std_logic_vector (4 downto 0);
 
         --Control Unit
         MemtoReg_out   : out std_logic;
@@ -222,7 +227,7 @@ END COMPONENT;
         ALU_LO_out     : out std_logic_vector (31 downto 0);
         ALU_zero_out   : out std_logic;
          --Register
-        Rd_out         : out std_logic
+        Rd_out         : out std_logic_vector (4 downto 0)
       );
    END COMPONENT;
 
@@ -267,7 +272,7 @@ PORT(
 	in5 : in std_logic;
 	in6 : in std_logic;
 	in7 : in std_logic;
-	in8 : in std_logic_vector(3 downto 0);
+	in8 : in std_logic;
 
 	out1 : out std_logic;
 	out2 : out std_logic;
@@ -276,44 +281,41 @@ PORT(
 	out5 : out std_logic;
 	out6 : out std_logic;
 	out7 : out std_logic;
-	out8 : out std_logic_vector(3 downto 0)
+	out8 : out std_logic
 	);
 
 		
 END COMPONENT;
 
+  COMPONENT PC
+     PORT(
+       clk         : in std_logic;
+       addr_in     : in std_logic_vector(31 downto 0);
+       PC_write    : in std_logic := '1'; --For hazard dectection, always1 unless hazard detection    unit changes it
+       addr_out    : out std_logic_vector(31 downto 0)
+     );
+  END COMPONENT;
 
-
-   COMPONENT PC
-      PORT(
-        clk         : in std_logic;
-        addr_in     : in std_logic_vector(31 downto 0);
-        PC_write    : in std_logic := '1'; --For hazard dectection, always 1 unless hazard detection    unit changes it
-        addr_out    : out std_logic_vector(31 downto 0)
-      );
-   END COMPONENT;
-
-   COMPONENT Registers
-      PORT(
-        clk            : in std_logic;
-	      --control
-	      RegWrite       : in std_logic;
-	      ALU_LOHI_Write : in std_logic;
-        --Register file inputs
-	      readReg_0      : in std_logic_vector(4 downto 0);
-	      readReg_1      : in std_logic_vector(4 downto 0);
-	      writeReg       :  in std_logic_vector(4 downto 0);
-	      writeData      : in std_logic_vector(31 downto 0);
-	      ALU_LO_in      : in std_logic_vector(31 downto 0);
-	      ALU_HI_in      : in std_logic_vector(31 downto 0);
-
-        --Register file outputs
-	      readData_0     : out std_logic_vector(31 downto 0);
-	      readData_1     : out std_logic_vector(31 downto 0);
-	      ALU_LO_out     : out std_logic_vector(31 downto 0);
-	      ALU_HI_out     : out std_logic_vector(31 downto 0)
-      );
-   END COMPONENT;
+  COMPONENT Registers
+    PORT(
+       clk            : in std_logic;
+	     --control
+	     RegWrite       : in std_logic;
+	     ALU_LOHI_Write : in std_logic;
+       --Register file inputs
+	     readReg_0      : in std_logic_vector(4 downto 0);
+	     readReg_1      : in std_logic_vector(4 downto 0);
+	     writeReg       :  in std_logic_vector(4 downto 0);
+	     writeData      : in std_logic_vector(31 downto 0);
+	     ALU_LO_in      : in std_logic_vector(31 downto 0);
+	     ALU_HI_in      : in std_logic_vector(31 downto 0);
+       --Register file outputs
+	     readData_0     : out std_logic_vector(31 downto 0);
+	     readData_1     : out std_logic_vector(31 downto 0);
+	     ALU_LO_out     : out std_logic_vector(31 downto 0);
+	     ALU_HI_out     : out std_logic_vector(31 downto 0)
+    );
+  END COMPONENT;
 
   COMPONENT Control_Unit IS
 	    PORT(
@@ -375,7 +377,7 @@ signal PC_addr_out : std_logic_vector(31 downto 0);
 
 signal Imem_inst_in, Imem_addr_in : std_logic_vector(31 downto 0);
   
-signal IF_ID_inst_out, IF_ID_addr_out : std_logic_vector(31 downto 0); 
+signal IF_ID_inst_out, IF_ID_addr_out : std_logic_vector(31 downto 0) := (others => '0');; 
 signal haz_IF_ID_write, haz_PC_write : std_logic;
 
 signal regWrite: std_logic;
@@ -393,10 +395,6 @@ signal Jump_addr, after_Jump : std_logic_vector(31 downto 0) := (others => '0');
 signal temp_MEM_WB_RD : std_logic_vector (4 downto 0);
 signal temp_Result_W : std_logic_vector(31 downto 0);
 
-signal ALU_LO, ALU_HI : std_logic_vector(31 downto 0) := (others => '0');
-signal data0, data1 : std_logic_vector(31 downto 0);
-signal ALU_LO_out, ALU_HI_out : std_logic_vector(31 downto 0);
-
 signal ID_EX_RegRt : std_logic_vector(4 downto 0);
 signal ID_EX_MemRead : std_logic;
 signal ID_SignExtend, ID_EX_SignExtend, EX_SignExtend : std_logic_vector(31 downto 0);
@@ -409,24 +407,32 @@ signal IF_ID_regWrite,IF_ID_RegDest,IF_ID_Branch,IF_ID_BNE,IF_ID_Jump,IF_ID_MemW
 signal ID_EX_data0_out, ID_EX_data1_out : std_logic_vector(31 downto 0);
 signal ID_EX_Rs_out, ID_EX_Rt_out : std_logic_vector(4 downto 0);
 signal ID_EX_addr_out : std_logic_vector(31 downto 0);
-
+signal ID_EX_RegWrite : std_logic;
 signal ID_EX_ALU_op_out : std_logic_vector(3 downto 0);
 signal ID_EX_ALU_src_out : std_logic;
 signal ID_EX_Branch_out : std_logic;
 signal ID_EX_LUI : std_logic;
 signal ID_EX_RegDest_out : std_logic;
+signal low_ID_EX_SignExtend: std_logic_vector(31 downto 0);
 
 --Signals for ALU
+signal ALU_LO, ALU_HI : std_logic_vector(31 downto 0) := (others => '0');
+signal data0, data1 : std_logic_vector(31 downto 0);
+signal ALU_LO_out, ALU_HI_out : std_logic_vector(31 downto 0);
+
 signal ALU_data0, t_ALU_data1, ALU_data1, ALU_data_out : std_logic_vector(31 downto 0);
 signal EX_ALU_result : std_logic_vector(31 downto 0);
 signal zero : std_logic;
+signal ALU_shamt : std_logic_vector (4 downto 0);
 
 --for EX_MEM stage to MEM_WB stage
 signal ID_EX_MemWrite, EX_MEM_MemWrite : std_logic;
 signal ID_EX_MemRead, EX_MEM_MemRead : std_logic;
+signal EX_MEM_RegWrite, MEM_WB_RegWrite : std_logic;
 signal ID_EX_MemtoReg, EX_MEM_MemtoReg, MEM_WB_MemtoReg : std_logic;
 signal EX_MEM_ALU_result, EX_MEM_ALU_HI, EX_MEM_ALU_LO : std_logic_vector(31 downto 0);
 signal EX_MEM_ALU_zero : std_logic;
+signal MEM_WB_ALU_zero, MEM_WB_busy : std_logic;
 signal MEM_WB_ALU_zero : std_logic;
 signal MEM_WB_ALU_result, MEM_WB_ALU_HI, MEM_WB_ALU_LO : std_logic_vector(31 downto 0);
 signal ID_EX_Rd, EX_MEM_Rd, MEM_WB_Rd : std_logic_vector(4 downto 0);
@@ -453,6 +459,10 @@ Instruction_Memory : memory
 GENERIC MAP
 (
     File_Address_Read   => "Init.dat",
+    File_Address_Read0  => "Init0.dat",
+    File_Address_Read1  => "Init1.dat",
+    File_Address_Read2  => "Init2.dat",
+    File_Address_Read3  => "Init3.dat",
     File_Address_Write  => "InstDump.dat",
     Mem_Size_in_Word    => 2048,
     Num_Bytes_in_Word   => 4,
@@ -476,7 +486,11 @@ PORT MAP
 Data_Memory : memory
 GENERIC MAP
 (
-    File_Address_Read   => "InitData.dat",
+    File_Address_Read   => "InitData.dat";
+    File_Address_Read0  => "Init4.dat";
+    File_Address_Read1  => "Init5.dat";
+    File_Address_Read2  => "Init6.dat";
+    File_Address_Read3  => "Init7.dat";
     File_Address_Write  => "DataDump.dat",
     Mem_Size_in_Word    => 2048,
     Num_Bytes_in_Word   => 4,
@@ -569,7 +583,9 @@ MFLO_MFHI : Mux_3to1
     dataOut  => EX_ALU_result
     );
 
-ID_SignExtend <= ((others => IF_ID_inst_out(15)) & IF_ID_inst_out(15 downto 0));
+-- sign extend to 0s instead?
+--ID_SignExtend <= ((others => IF_ID_inst_out(15)) & IF_ID_inst_out(15 downto 0));
+  ID_SignExtend <= ("0000000000000000" & IF_ID_inst_out(15 downto 0));
 
 Hazard : HazardDetectionControl
 	PORT MAP (
@@ -586,7 +602,7 @@ Hazard : HazardDetectionControl
 
 Hazard_Control: Haz_mux
 	PORT MAP(
-		sel => stall,
+		sel => CPU_stall,
 
 		in1 => regWrite,
 		in2 => RegDest,
@@ -664,7 +680,7 @@ ID_EX_stage: ID_EX
     LUI_in	          => LUI,
     ALU_op_in         => ALUOpcode,
     ALU_src_in        => ALUSrc,
-    Reg_dest_in       => IFID_RegDest,
+    Reg_dest_in       => IF_ID_RegDest,
 
     --Data Outputs
     Addr_out          => ID_EX_addr_out,
@@ -687,25 +703,29 @@ ID_EX_stage: ID_EX
     Reg_dest_out      => ID_EX_RegDest_out
 	);
 
-LUI_mux: Mux_2to1
-  GENERIC MAP(WIDTH_IN => 32)
-  PORT MAP(
-    sel      => LUI,
-    in1      => ID_EX_SignExtend,
-    in2      => (ID_EX_SignExtend(15 downto 0) & (others => '0')),
-    dataOut  => EX_SignExtend
+  low_ID_EX_SignExtend <= ID_EX_SignExtend(15 downto 0) & "0000000000000000";
+
+  LUI_mux: Mux_2to1
+    GENERIC MAP(
+      WIDTH_IN => 32
+    )
+    PORT MAP(
+      sel      => LUI,
+      in1      => ID_EX_SignExtend,
+      in2      => low_ID_EX_SignExtend,
+      dataOut  => EX_SignExtend
     );
 
 Forwarding_unit: Forwarding
   PORT MAP(
     EX_MEM_RegWrite => EX_MEM_RegWrite;
     MEM_WB_RegWrite	=> MEM_WB_RegWrite;
-    ID_EX_Rs	=> ID_EX_Rs_out,
-    ID_EX_Rt	=> ID_EX_Rt_out,
-    EX_MEM_Rd	=> EX_MEM_Rd,
-    MEM_WB_Rd	=> MEM_WB_Rd,
-    Forward0_EX 	=> Forward0_EX,
-    Forward1_EX	=> Forward1_EX
+    ID_EX_Rs	      => ID_EX_Rs_out,
+    ID_EX_Rt	      => ID_EX_Rt_out,
+    EX_MEM_Rd	      => EX_MEM_Rd,
+    MEM_WB_Rd	       => MEM_WB_Rd,
+    Forward0_EX 	   => Forward0_EX,
+    Forward1_EX	     => Forward1_EX
 	);
 
 ALU_data0_Forward_Mux : Mux_3to1
@@ -737,12 +757,14 @@ ALU_data1_Mux : Mux_2to1
     dataOut  => ALU_data1,
   );
 
+ALU_shamt <= EX_SignExtend(10 downto 6);
+
 main_ALU: ALU
 	PORT MAP(
     opcode    => ALUOpcode, --from control
     data0     => ALU_data0, --from ID_EX
     data1     => ALU_data1, --from ID_EX
-    shamt     => EX_SignExtend(10 downto 6), --from insttruction
+    shamt     => ALU_shamt, --from instruction
     data_out  => ALU_data_out, --signal
     HI        => ALU_HI, --signal
     LO        => ALU_LO, --signal
@@ -820,7 +842,7 @@ Mem_to_Reg_Mux : Mux_2to1
     sel      => MEM_WB_MemtoReg,
     in1      => MEM_WB_ALU_result,
     in2      => MEM_WB_data,
-    dataOut  => Result_W,
+    dataOut  => Result_W
   );
 
 END rtl;
