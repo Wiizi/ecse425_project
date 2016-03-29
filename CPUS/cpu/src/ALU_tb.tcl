@@ -13,15 +13,16 @@ proc AddWaves {} \
 	add wave -radix binary -position end sim:/ALU_tb/t_data0
 	add wave -radix binary -position end sim:/ALU_tb/t_data1
 	add wave -radix binary -position end sim:/ALU_tb/t_data_out
-
+	add wave -radix decimal -position end sim:/ALU_tb/t_HI
+	add wave -radix decimal -position end sim:/ALU_tb/t_LO
 }
 
 vlib work
 
 # compile ALU and testbench
 
-vcom -reportprogress 300 -work work ALU.vhd
-vcom -reportprogress 300 -work work ALU_tb.vhd
+#vcom -reportprogress 300 -work work ALU.vhd
+#vcom -reportprogress 300 -work work ALU_tb.vhd
 
 # start simulation
 vsim ALU_tb
