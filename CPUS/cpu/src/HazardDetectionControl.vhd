@@ -24,8 +24,8 @@ hzrdDetection: process (IDEX_MemRead, IDEX_RegRt, IFID_RegRs, IFID_RegRt)
 begin
 	-- check for hazards and stall if hazard is detected
 	if ((BRANCH = '1' or IDEX_MemRead = '1') and 
-	 	((IDEX_RegRt = IFID_RegRs) or (IDEX_RegRt = IFID_RegRt)) and
-	 	(not (IDEX_RegRt = "00000")))
+	 	((IDEX_RegRt = IFID_RegRs) or (IDEX_RegRt = IFID_RegRt))) and
+	 	(not (IDEX_RegRt = "00000"))
 	 	then
 	 		CPU_Stall <= '1';
 			IFID_Write <= '0';

@@ -413,6 +413,7 @@ signal ID_EX_Branch_out : std_logic;
 signal ID_EX_LUI : std_logic;
 signal ID_EX_RegDest_out : std_logic;
 signal low_ID_EX_SignExtend: std_logic_vector(31 downto 0);
+signal ID_Extend: std_logic_vector(15 downto 0);
 
 --Signals for ALU
 signal ALU_LO, ALU_HI : std_logic_vector(31 downto 0) := (others => '0');
@@ -591,8 +592,10 @@ MFLO_MFHI : Mux_3to1
 --------------------------------
 -- sign extend to 0s instead?
 -- Sign Extend simply repeat the most significant bit until you have the right number of bits
+
 --ID_SignExtend <= ((others => IF_ID_inst_out(15)) & IF_ID_inst_out(15 downto 0));
-  ID_SignExtend <= ("0000000000000000" & IF_ID_inst_out(15 downto 0));
+  ID_Extend <= (others => IF_ID_inst_out(15));
+  ID_SignExtend <= (ID_Extend & IF_ID_inst_out(15 downto 0));
 
 Hazard : HazardDetectionControl
 	PORT MAP (

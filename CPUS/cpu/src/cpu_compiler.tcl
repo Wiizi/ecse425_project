@@ -35,7 +35,8 @@ proc AddWaves {} {
                               -radix binary sim:/cpu/ALU_LOHI_Read\
                               -radix binary sim:/cpu/MemWrite\
                               -radix binary sim:/cpu/MemRead\
-                              -radix binary sim:/cpu/MemtoReg 
+                              -radix binary sim:/cpu/MemtoReg\
+                              -radix binary sim:/cpu/CPU_stall
 
   add wave -group "ALU IN"    -position end -radix binary sim:/cpu/ALUOpcode\
                               -radix decimal sim:/cpu/ALU_data0\
