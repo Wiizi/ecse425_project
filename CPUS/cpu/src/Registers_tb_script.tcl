@@ -26,6 +26,8 @@ proc AddWaves {} \
 	add wave -radix binary sim:/Registers_tb/t_ALU_HI_out 
 
 
+	add wave -radix binary sim:/Registers_tb/test_Registers/regArray
+
   	#Set some formating options to make the Waves window more legible
 	configure wave -namecolwidth 250
 	WaveRestoreZoom {0 ns} {8 ns}

@@ -222,8 +222,8 @@ begin
 	ASSERT (t_readData_1 = "00000000000000000000000000001011")	REPORT "Error in r11"	SEVERITY ERROR;
 	wait for 20 ns;
 
-	t_readReg_0	<= "01000"; --r12
-	t_readReg_1	<= "01001"; --r13
+	t_readReg_0	<= "01100"; --r12
+	t_readReg_1	<= "01101"; --r13
 	wait for 20 ns;
 
 	ASSERT (t_readData_0 = "00000000000000000000000000001100")	REPORT "Error in r12"	SEVERITY ERROR;
