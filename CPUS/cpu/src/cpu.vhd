@@ -35,7 +35,41 @@ ENTITY cpu IS
       assertion            : OUT   STD_LOGIC; --Set this to '1' when an assertion occurs 
       assertion_pc         : OUT   NATURAL;   --Set the assertion's program counter location
       
-      mem_dump:         IN    STD_LOGIC := '0'
+      mem_dump:         IN    STD_LOGIC := '0';
+
+      -- for testing purposes only
+      r0        : out std_logic_vector(31 downto 0);
+      r1        : out std_logic_vector(31 downto 0);
+      r2        : out std_logic_vector(31 downto 0);
+      r3        : out std_logic_vector(31 downto 0);
+      r4        : out std_logic_vector(31 downto 0);
+      r5        : out std_logic_vector(31 downto 0);
+      r6        : out std_logic_vector(31 downto 0);
+      r7        : out std_logic_vector(31 downto 0);
+      r8        : out std_logic_vector(31 downto 0);
+      r9        : out std_logic_vector(31 downto 0);
+      r10       : out std_logic_vector(31 downto 0);
+      r11       : out std_logic_vector(31 downto 0);
+      r12       : out std_logic_vector(31 downto 0);
+      r13       : out std_logic_vector(31 downto 0);
+      r14       : out std_logic_vector(31 downto 0);
+      r15       : out std_logic_vector(31 downto 0);
+      r16       : out std_logic_vector(31 downto 0);
+      r17       : out std_logic_vector(31 downto 0);
+      r18       : out std_logic_vector(31 downto 0);
+      r19       : out std_logic_vector(31 downto 0);
+      r20       : out std_logic_vector(31 downto 0);
+      r21       : out std_logic_vector(31 downto 0);
+      r22       : out std_logic_vector(31 downto 0);
+      r23       : out std_logic_vector(31 downto 0);
+      r24       : out std_logic_vector(31 downto 0);
+      r25       : out std_logic_vector(31 downto 0);
+      r26       : out std_logic_vector(31 downto 0);
+      r27       : out std_logic_vector(31 downto 0);
+      r28       : out std_logic_vector(31 downto 0);
+      r29       : out std_logic_vector(31 downto 0);
+      r30       : out std_logic_vector(31 downto 0);
+      r31       : out std_logic_vector(31 downto 0)
    );
    
 END cpu;
@@ -470,39 +504,6 @@ signal MEM_WB_data, Result_W: std_logic_vector(31 downto 0);
 
 --Signals for Forwarding
 signal Forward0_EX, Forward1_EX : std_logic_vector(1 downto 0);
-
-signal r0        : std_logic_vector(31 downto 0);
-signal r1        : std_logic_vector(31 downto 0);
-signal r2        : std_logic_vector(31 downto 0);
-signal r3        : std_logic_vector(31 downto 0);
-signal r4        : std_logic_vector(31 downto 0);
-signal r5        : std_logic_vector(31 downto 0);
-signal r6        : std_logic_vector(31 downto 0);
-signal r7        : std_logic_vector(31 downto 0);
-signal r8        : std_logic_vector(31 downto 0);
-signal r9        : std_logic_vector(31 downto 0);
-signal r10       : std_logic_vector(31 downto 0);
-signal r11       : std_logic_vector(31 downto 0);
-signal r12       : std_logic_vector(31 downto 0);
-signal r13       : std_logic_vector(31 downto 0);
-signal r14       : std_logic_vector(31 downto 0);
-signal r15       : std_logic_vector(31 downto 0);
-signal r16       : std_logic_vector(31 downto 0);
-signal r17       : std_logic_vector(31 downto 0);
-signal r18       : std_logic_vector(31 downto 0);
-signal r19       : std_logic_vector(31 downto 0);
-signal r20       : std_logic_vector(31 downto 0);
-signal r21       : std_logic_vector(31 downto 0);
-signal r22       : std_logic_vector(31 downto 0);
-signal r23       : std_logic_vector(31 downto 0);
-signal r24       : std_logic_vector(31 downto 0);
-signal r25       : std_logic_vector(31 downto 0);
-signal r26       : std_logic_vector(31 downto 0);
-signal r27       : std_logic_vector(31 downto 0);
-signal r28       : std_logic_vector(31 downto 0);
-signal r29       : std_logic_vector(31 downto 0);
-signal r30       : std_logic_vector(31 downto 0);
-signal r31       : std_logic_vector(31 downto 0);
 
 BEGIN
 
