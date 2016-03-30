@@ -1,3 +1,9 @@
+-- ECSE 425 - Comp Organization & Architecture - Final Project
+-- Group 5: Andrei Chubarau, Luis Gallet Zambrano, Aidan Petit, Wei Wang
+--
+-- HazardDetectionControl.vhd
+-- This module is used to detect read after writing (RAW) and Branch hazards in our MIPS pipelined processor.
+-- The module outputs control signals to the PC, the IF_ID buffer, and Haz_mux to insert bubbles in the pipeline.
 LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 USE ieee.numeric_std.all;
