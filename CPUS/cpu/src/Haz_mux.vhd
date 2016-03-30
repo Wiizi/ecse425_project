@@ -1,3 +1,9 @@
+-- ECSE 425 - Comp Organization & Architecture - Final Project
+-- Group 5: Andrei Chubarau, Luis Gallet Zambrano, Aidan Petit, Wei Wang
+--
+-- Haz_mux.vhd
+-- This module is used to insert stalls (bubbles) into the pipeline. Depending on the value of `sel` the unit will either 
+-- forward its input signal to the output or will assrt zeros on its output to insert a stall in the IF_ID interstage buffer.
 library ieee;
 use ieee.std_logic_1164.all;
 
