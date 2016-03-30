@@ -2,7 +2,10 @@
 --File: Control_Unit.vhd
 --Author: Wei Wang
 --Date: 2016-03-25
---Version 1.0
+--
+-- Description: Control_Unit.vhd is responcible for controlling the operation of our MIPS processor.
+-- Control_Unit takes the current instruction opCode and funct bits as inputs and outputs a series of control signals that 
+-- interface with other modules in the processor. opCode determines whether we have an R-, I-, or J-type instruction and funct is used for R-type instruction to determine what ALU operation mist be performed.
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.all;
