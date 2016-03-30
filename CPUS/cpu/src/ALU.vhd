@@ -54,7 +54,7 @@ if(rising_edge(clk))then
 			temp_data_out <= data0 OR data1;
 		when "0110" =>
 			temp_data_out <= std_logic_vector(unsigned(data0) - unsigned(data1));
-			if(to_integer(signed(temp_data_out)) = 0)then
+			if(to_integer(unsigned(temp_data_out)) = 0)then
 				temp_zero <= '1';
 			else
 				temp_zero <= '0';
