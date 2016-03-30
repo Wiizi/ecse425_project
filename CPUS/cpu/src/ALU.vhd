@@ -2,11 +2,13 @@
 -- Author: Luis Gallet
 -- Contact: luis.galletzambrano@mail.mcgill.ca
 -- Date: March 21th, 2016
--- Description:
+--
+-- Description: ALU.vhd is a MIPS instruction based Arithmetic Logic Unit that supports the following operations: AND, OR, sub, add, 
+-- slt, XOR, NOR, sll, srl, sra, mult, and div.
+-- The operation to be performed is determined by opCode, an input to the ALU. 
+-- The output will be data0 op data1
 
---TODO: not sure if needs to cast signals to integers when adding or substracting. Implemented it for I-type instructions
--- Not sure if LUI operation logic must be in here or outside as the example.
--- Not sure if overflow and carryout logic detection needs to be implemented.
+
 
 LIBRARY ieee;
 USE IEEE.std_logic_1164.all;
