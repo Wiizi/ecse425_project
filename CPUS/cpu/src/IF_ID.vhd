@@ -3,7 +3,7 @@
 -- Author: Luis Gallet
 -- Date: March 18th, 2016
 --
--- ID_EX.vhd
+-- IF_ID.vhd
 -- Instruction Fetch/Instruction Decode interstage buffer. Forwards inputs to the output on a rising clock edge
 LIBRARY ieee;
 USE IEEE.std_logic_1164.all;
