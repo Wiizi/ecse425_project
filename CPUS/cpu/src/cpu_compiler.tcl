@@ -14,7 +14,8 @@ proc AddWaves {} {
 
   add wave -group "SIGNALS"   -position end -radix decimal sim:/cpu/PC_addr_out\
 
-  add wave -group "INSTMEM"   -position end -radix decimal sim:/cpu/InstMem_address\
+  add wave -group "INSTMEM"   -position end -radix decimal sim:/cpu/InstMem_counter\
+                              -radix decimal sim:/cpu/InstMem_IntegerAddr\
                               -radix binary sim:/cpu/Imem_inst_in
 
   add wave -group "DATAMEM"   -position end -radix decimal sim:/cpu/DataMem_addr\
@@ -23,39 +24,51 @@ proc AddWaves {} {
                               -radix binary sim:/cpu/MEM_WB_data\
                               -radix binary sim:/cpu/DataMem_data\
                               -radix binary sim:/cpu/DataMem_busy
+  add wave -group "RegIn"     -position end -radix decimal sim:/cpu/rs\
+                              -radix decimal sim:/cpu/rt\
+                              -radix decimal sim:/cpu/MEM_WB_Rd\
+                              -radix decimal sim:/cpu/Result_W\
+                              -radix decimal sim:/cpu/ALU_LO\
+                              -radix decimal sim:/cpu/ALU_HI\
+                              -radix decimal sim:/cpu/data0\
+                              -radix decimal sim:/cpu/data1\
+                              -radix decimal sim:/cpu/ALU_LO_out\
+                              -radix decimal sim:/cpu/ALU_HI_out
 
-  add wave -group "Registers" -position end -radix binary sim:/cpu/r0\
-                              -radix binary sim:/cpu/r1\
-                              -radix binary sim:/cpu/r2\
-                              -radix binary sim:/cpu/r3\
-                              -radix binary sim:/cpu/r4\
-                              -radix binary sim:/cpu/r5\
-                              -radix binary sim:/cpu/r6\
-                              -radix binary sim:/cpu/r7\
-                              -radix binary sim:/cpu/r8\
-                              -radix binary sim:/cpu/r9\
-                              -radix binary sim:/cpu/r10\
-                              -radix binary sim:/cpu/r11\
-                              -radix binary sim:/cpu/r12\
-                              -radix binary sim:/cpu/r13\
-                              -radix binary sim:/cpu/r14\
-                              -radix binary sim:/cpu/r15\
-                              -radix binary sim:/cpu/r16\
-                              -radix binary sim:/cpu/r17\
-                              -radix binary sim:/cpu/r18\
-                              -radix binary sim:/cpu/r19\
-                              -radix binary sim:/cpu/r20\
-                              -radix binary sim:/cpu/r21\
-                              -radix binary sim:/cpu/r22\
-                              -radix binary sim:/cpu/r23\
-                              -radix binary sim:/cpu/r24\
-                              -radix binary sim:/cpu/r25\
-                              -radix binary sim:/cpu/r26\
-                              -radix binary sim:/cpu/r27\
-                              -radix binary sim:/cpu/r28\
-                              -radix binary sim:/cpu/r29\
-                              -radix binary sim:/cpu/r30\
-                              -radix binary sim:/cpu/r31
+  add wave -group "Registers" -position end -radix decimal sim:/cpu/r0\
+                              -radix decimal sim:/cpu/r1\
+                              -radix decimal sim:/cpu/r2\
+                              -radix decimal sim:/cpu/r3\
+                              -radix decimal sim:/cpu/r4\
+                              -radix decimal sim:/cpu/r5\
+                              -radix decimal sim:/cpu/r6\
+                              -radix decimal sim:/cpu/r7\
+                              -radix decimal sim:/cpu/r8\
+                              -radix decimal sim:/cpu/r9\
+                              -radix decimal sim:/cpu/r10\
+                              -radix decimal sim:/cpu/r11\
+                              -radix decimal sim:/cpu/r12\
+                              -radix decimal sim:/cpu/r13\
+                              -radix decimal sim:/cpu/r14\
+                              -radix decimal sim:/cpu/r15\
+                              -radix decimal sim:/cpu/r16\
+                              -radix decimal sim:/cpu/r17\
+                              -radix decimal sim:/cpu/r18\
+                              -radix decimal sim:/cpu/r19\
+                              -radix decimal sim:/cpu/r20\
+                              -radix decimal sim:/cpu/r21\
+                              -radix decimal sim:/cpu/r22\
+                              -radix decimal sim:/cpu/r23\
+                              -radix decimal sim:/cpu/r24\
+                              -radix decimal sim:/cpu/r25\
+                              -radix decimal sim:/cpu/r26\
+                              -radix decimal sim:/cpu/r27\
+                              -radix decimal sim:/cpu/r28\
+                              -radix decimal sim:/cpu/r29\
+                              -radix decimal sim:/cpu/r30\
+                              -radix decimal sim:/cpu/r31
+  add wave -group "CONTROLIN" -position end -radix binary sim:/cpu/IF_ID_opCode\
+                              -radix binary sim:/cpu/IF_ID_funct
 
   add wave -group "CONTROL"   -position end -radix binary sim:/cpu/ALUOpcode\
                               -radix binary sim:/cpu/RegDest\
@@ -69,7 +82,8 @@ proc AddWaves {} {
                               -radix binary sim:/cpu/MemWrite\
                               -radix binary sim:/cpu/MemRead\
                               -radix binary sim:/cpu/MemtoReg\
-                              -radix binary sim:/cpu/CPU_stall
+                              -radix binary sim:/cpu/CPU_stall\
+                              -radix binary sim:/cpu/regWrite
 
   add wave -group "ALU IN"    -position end -radix binary sim:/cpu/ALUOpcode\
                               -radix decimal sim:/cpu/ALU_data0\
