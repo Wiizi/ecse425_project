@@ -2,7 +2,10 @@
 --File: Forwarding.vhd
 --Author: Wei Wang
 --Date: 2016-03-27
---Version 1.0
+--
+-- Description: Forward.vhd is the forwarding unit responcible for selecting the inputs to the ALU. 
+-- Each input to the ALU come from a multiplexer which selects whether the data should come from the current execution stage, 
+-- the Memory Access stage, or the Writeback stage. This is determined by examining the register Rs, Rt, and Rd to detect Read after Write (RAW) hazards.
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.all;
