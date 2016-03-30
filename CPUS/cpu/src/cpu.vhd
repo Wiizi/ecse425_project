@@ -389,7 +389,7 @@ END COMPONENT;
 
 
 ----------Memory module default signals----------------
-SIGNAL InstMem_counter, InstMem_IntegerAddr	  : integer   := 0;
+SIGNAL InstMem_counter    : integer   := 0;
 SIGNAL InstMem_re 		    : std_logic := '1';
 
 SIGNAL DataMem_addr       : integer    := 0;

@@ -15,7 +15,6 @@ proc AddWaves {} {
   add wave -group "SIGNALS"   -position end -radix decimal sim:/cpu/PC_addr_out\
 
   add wave -group "INSTMEM"   -position end -radix decimal sim:/cpu/InstMem_counter\
-                              -radix decimal sim:/cpu/InstMem_IntegerAddr\
                               -radix binary sim:/cpu/Imem_inst_in
 
   add wave -group "DATAMEM"   -position end -radix decimal sim:/cpu/DataMem_addr\
