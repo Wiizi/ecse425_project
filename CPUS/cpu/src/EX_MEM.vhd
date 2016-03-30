@@ -2,7 +2,9 @@
 --File: EX_MEM.vhd
 --Author: Wei Wang
 --Date: 2016-03-23
---Version 1.0
+--
+-- Decription: EX_MEM.vhd is an interstage buffer between the execution and memory access stages in our MIPS pipeline. 
+-- EX_MEM takes several inputs from the ALU and the previous stage (EX) and forwards them to the outputs on the next rising clock edge.
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.all;
