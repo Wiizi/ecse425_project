@@ -1,9 +1,10 @@
--- Entity name: IF_ID.vhd
+-- ECSE 425 - Comp Organization & Architecture - Final Project
+-- Group 5: Andrei Chubarau, Luis Gallet Zambrano, Aidan Petit, Wei Wang
 -- Author: Luis Gallet
--- Contact: luis.galletzambrano@mail.mcgill.ca
 -- Date: March 18th, 2016
--- Description:
-
+--
+-- ID_EX.vhd
+-- Instruction Fetch/Instruction Decode interstage buffer. Forwards inputs to the output on a rising clock edge
 LIBRARY ieee;
 USE IEEE.std_logic_1164.all;
 USE IEEE.numeric_std.all;
