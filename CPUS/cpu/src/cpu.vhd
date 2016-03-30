@@ -586,7 +586,11 @@ MFLO_MFHI : Mux_3to1
     dataOut  => EX_ALU_result
     );
 
+--------------------------------
+-- Sign Extend                TO BE DISCUSSED
+--------------------------------
 -- sign extend to 0s instead?
+-- Sign Extend simply repeat the most significant bit until you have the right number of bits
 --ID_SignExtend <= ((others => IF_ID_inst_out(15)) & IF_ID_inst_out(15 downto 0));
   ID_SignExtend <= ("0000000000000000" & IF_ID_inst_out(15 downto 0));
 
@@ -628,12 +632,9 @@ Hazard_Control: Haz_mux
 		);
 
 -----------------------------
--- BRANCH LOGIC                --TODO
+-- BRANCH LOGIC
 -----------------------------
---PC_Branch <= Branch;
 PC_Branch <= Branch and (zero xor BNE);
---t-zero from ALU
---Note: ALU zero should not be accordding to all data_out, it should only consider the subtraction result
 Branch_addr <= std_logic_vector(to_unsigned((to_integer(unsigned(IF_ID_addr_out)) + to_integer((unsigned(ID_SignExtend(29 downto 0) & "00")))), 32));
 
 InstMem_Address_Vector <= std_logic_vector(to_unsigned(InstMem_address, 32));
