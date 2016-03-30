@@ -79,13 +79,13 @@ END COMPONENT;
 
    COMPONENT HazardDetectionControl
       PORT (
-        IDEX_RegRt     : in std_logic_vector(4 downto 0);
-        IFID_RegRs     : in std_logic_vector(4 downto 0);
-        IFID_RegRt     : in std_logic_vector(4 downto 0);
-        IDEX_MemRead   : in std_logic;
+        ID_Rs     : in std_logic_vector(4 downto 0);
+        ID_Rt     : in std_logic_vector(4 downto 0);
+        EX_Rt     : in std_logic_vector(4 downto 0);
+        ID_EX_MemRead   : in std_logic;
         BRANCH         : in std_logic;
    
-        IFID_Write     : out std_logic;
+        IF_ID_Write     : out std_logic;
         PC_Update      : out std_logic;
         CPU_Stall      : out std_logic
       );
@@ -381,10 +381,10 @@ COMPONENT Forwarding IS
 	PORT(
 		EX_MEM_RegWrite : in std_logic;
 		MEM_WB_RegWrite	: in std_logic;
-		ID_EX_Rs		: in std_logic_vector(4 downto 0);
-		ID_EX_Rt		: in std_logic_vector(4 downto 0);
-		EX_MEM_Rd		: in std_logic_vector(4 downto 0);
-		MEM_WB_Rd		: in std_logic_vector(4 downto 0);
+		EX_Rs		: in std_logic_vector(4 downto 0);
+		EX_Rt		: in std_logic_vector(4 downto 0);
+		MEM_Rd		: in std_logic_vector(4 downto 0);
+		WB_Rd		: in std_logic_vector(4 downto 0);
 
 		Forward0_EX 	: out std_logic_vector(1 downto 0) := "00";
 		Forward1_EX		: out std_logic_vector(1 downto 0) := "00"
@@ -698,13 +698,13 @@ MFLO_MFHI : Mux_3to1
 
 Hazard : HazardDetectionControl
 	PORT MAP (
-    IDEX_RegRt     	=> ID_EX_RegRt,
-    IFID_RegRs     	=> IF_ID_inst_out(25 downto 21),
-    IFID_RegRt     	=> IF_ID_inst_out(20 downto 16),
-    IDEX_MemRead   	=> ID_EX_MemRead, --create
+    EX_Rt     	=> ID_EX_RegRt,
+    ID_Rs     	=> IF_ID_inst_out(25 downto 21),
+    ID_Rt     	=> IF_ID_inst_out(20 downto 16),
+    ID_EX_MemRead   	=> ID_EX_MemRead, --create
     BRANCH         	=> Branch,
 
-    IFID_Write     	=> haz_IF_ID_write,
+    IF_ID_Write     	=> haz_IF_ID_write,
     PC_Update      	=> haz_PC_write,
     CPU_Stall      	=> CPU_stall
 	);
@@ -830,10 +830,10 @@ Forwarding_unit: Forwarding
   PORT MAP(
     EX_MEM_RegWrite => EX_MEM_RegWrite,
     MEM_WB_RegWrite	=> MEM_WB_RegWrite,
-    ID_EX_Rs	      => ID_EX_Rs_out,
-    ID_EX_Rt	      => ID_EX_Rt_out,
-    EX_MEM_Rd	      => EX_MEM_Rd,
-    MEM_WB_Rd	       => MEM_WB_Rd,
+    EX_Rs	      => ID_EX_Rs_out,
+    EX_Rt	      => ID_EX_Rt_out,
+    MEM_Rd	      => EX_MEM_Rd,
+    WB_Rd	       => MEM_WB_Rd,
     Forward0_EX 	   => Forward0_EX,
     Forward1_EX	     => Forward1_EX
 	);
