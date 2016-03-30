@@ -2,7 +2,7 @@ library ieee;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 
-Entity forwarding_tb is
+Entity Forwarding_tb is
 
 end Forwarding_tb;
 
