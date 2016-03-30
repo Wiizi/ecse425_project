@@ -422,8 +422,6 @@ signal Branch_addr, after_Branch : std_logic_vector(31 downto 0) := (others => '
 signal Jump_addr, after_Jump : std_logic_vector(31 downto 0) := (others => '0');
 
 --signals from last pipeline stage
-signal temp_MEM_WB_RD : std_logic_vector (4 downto 0);
-signal temp_Result_W : std_logic_vector(31 downto 0);
 signal ID_SignExtend, ID_EX_SignExtend, EX_SignExtend : std_logic_vector(31 downto 0);
 
 --hazard detection signal
@@ -464,7 +462,7 @@ signal EX_MEM_ALU_result, EX_MEM_ALU_HI, EX_MEM_ALU_LO : std_logic_vector(31 dow
 signal EX_MEM_ALU_zero : std_logic;
 signal MEM_WB_ALU_zero, MEM_WB_busy : std_logic;
 signal MEM_WB_ALU_result, MEM_WB_ALU_HI, MEM_WB_ALU_LO : std_logic_vector(31 downto 0);
-signal ID_EX_Rd, EX_MEM_Rd, MEM_WB_Rd : std_logic_vector(4 downto 0);
+signal ID_EX_Rd, EX_MEM_Rd, MEM_WB_Rd, EX_rd : std_logic_vector(4 downto 0);
 signal EX_MEM_Data1, EX_MEM_data: std_logic_vector(31 downto 0);
 signal MEM_WB_data, Result_W: std_logic_vector(31 downto 0);
 
@@ -606,8 +604,8 @@ Control: Control_Unit
     RegDest         => RegDest, --todo
     Branch          => Branch, --if theres a branch, signal
     ALUSrc          => ALUSrc,
-    BNE             => BNE,--signal
-    Jump            => Jump,--signal
+    BNE             => BNE, --signal
+    Jump            => Jump, --signal
     LUI             => LUI, --signal
     ALU_LOHI_Write  => ALU_LOHI_Write, --input for register
     ALU_LOHI_Read   => ALU_LOHI_Read, --mux somewhere, signal
@@ -713,7 +711,7 @@ Hazard : HazardDetectionControl
 
 Hazard_Control: Haz_mux
   PORT MAP(
-    sel => '1',
+    sel => CPU_stall,
 
     in1 => regWrite,
     in2 => RegDest,
@@ -760,13 +758,31 @@ Branch_logic: Mux_2to1
 Jump_addr <= IF_ID_inst_out(31 downto 28) & IF_ID_addr_out(25 downto 0) & "00";
 
 Jump_logic: Mux_2to1
-  GENERIC MAP(WIDTH_IN =>  32)
+  GENERIC MAP(
+    WIDTH_IN => 32
+  )
   PORT MAP(
     sel      => Jump,
     in1      => after_Branch, --from branch mux
     in2      => Jump_addr,
     dataOut  => after_Jump
   );
+
+--DestRd: Mux_2to1
+--  GENERIC MAP(
+--    WIDTH_IN => 5
+--  )
+--  PORT MAP(
+--    sel      => ID_EX_RegDest_out,
+--    in1      => ID_EX_Rt_out,
+--    in2      => ID_EX_Rd,
+--    dataOut  => EX_rd
+--  );
+
+with ID_EX_RegDest_out select EX_rd <=
+  ID_EX_Rt_out when '0',
+  ID_EX_Rd when '1',
+  "ZZZZZ" when others;
 
 ID_EX_stage: ID_EX
   PORT MAP(
@@ -781,7 +797,7 @@ ID_EX_stage: ID_EX
     --Register inputs (5 bits each)
     Rs_in             => IF_ID_inst_out(25 downto 21),--rs
     Rt_in             => IF_ID_inst_out(20 downto 16),--rt
-    Rd_in             => IF_ID_inst_out(15 downto 11),
+    Rd_in             => IF_ID_inst_out(15 downto 11),--rd
 
     --Control inputs (8 of them?)
     RegWrite_in       => IF_ID_regWrite,
@@ -901,7 +917,7 @@ EX_MEM_stage: EX_MEM
     --Read Data
     Data1_in       => ID_EX_data1_out,
     --Register
-    Rd_in          => ID_EX_Rd,
+    Rd_in          => EX_rd,
 
     --Control Unit
     MemWrite_out   => DataMem_we,
