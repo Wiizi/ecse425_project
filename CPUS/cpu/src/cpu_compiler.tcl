@@ -24,9 +24,11 @@ proc AddWaves {} {
                               -radix binary sim:/cpu/MEM_WB_data\
                               -radix binary sim:/cpu/DataMem_data\
                               -radix binary sim:/cpu/DataMem_busy
+
   add wave -group "RegIn"     -position end -radix decimal sim:/cpu/rs\
                               -radix decimal sim:/cpu/rt\
                               -radix decimal sim:/cpu/MEM_WB_Rd\
+                              -radix decimal sim:/cpu/MEM_WB_RegWrite\
                               -radix decimal sim:/cpu/Result_W\
                               -radix decimal sim:/cpu/ALU_LO\
                               -radix decimal sim:/cpu/ALU_HI\

@@ -10,6 +10,7 @@ use ieee.std_logic_1164.all;
 entity Haz_mux is
 
 port( 
+	clk : in std_logic;
 	sel : in std_logic;
 
 	in1 : in std_logic;
@@ -38,7 +39,7 @@ architecture behavior of Haz_mux is
 
 begin
 
-	process(sel)
+	process(clk)
 		begin
 			case sel is
 				
@@ -53,8 +54,8 @@ begin
 		out7 <= '0';
 		out8 <= '0';
 
-				
-				when '0' =>
+				when others =>
+
 		out1 <= in1;
 		out2 <= in2;
 		out3 <= in3;
@@ -62,10 +63,7 @@ begin
 		out5 <= in5;
 		out6 <= in6;
 		out7 <= in7;
-		out8 <= in8;		
-			
-				when others =>
-			
+		out8 <= in8;	
 			end case;
 	end process;
 			
