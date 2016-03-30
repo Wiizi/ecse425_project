@@ -2,7 +2,7 @@ library ieee;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 
-Entity forwarding_tb is
+Entity Forwarding_tb is
 
 end Forwarding_tb;
 
@@ -12,10 +12,10 @@ COMPONENT Forwarding
   port(
     EX_MEM_RegWrite : in std_logic;
     MEM_WB_RegWrite : in std_logic;
-    ID_EX_Rs        : in std_logic_vector(4 downto 0);
-    ID_EX_Rt        : in std_logic_vector(4 downto 0);
-    EX_MEM_Rd       : in std_logic_vector(4 downto 0);
-    MEM_WB_Rd       : in std_logic_vector(4 downto 0);
+    EX_Rs        : in std_logic_vector(4 downto 0);
+    EX_Rt        : in std_logic_vector(4 downto 0);
+    MEM_Rd       : in std_logic_vector(4 downto 0);
+    WB_Rd       : in std_logic_vector(4 downto 0);
 
     Forward0_EX     : out std_logic_vector(1 downto 0) := "00";
     Forward1_EX     : out std_logic_vector(1 downto 0) := "00"
@@ -38,10 +38,10 @@ forward : Forwarding
   (
     EX_MEM_RegWrite => t_EX_MEM_RegWrite,
     MEM_WB_RegWrite => t_MEM_WB_RegWrite,
-    ID_EX_Rs        => t_ID_EX_Rs,
-    ID_EX_Rt        => t_ID_EX_Rt,
-    EX_MEM_Rd       => t_EX_MEM_Rd,
-    MEM_WB_Rd       => t_MEM_WB_Rd,
+    EX_Rs        => t_ID_EX_Rs,
+    EX_Rt        => t_ID_EX_Rt,
+    MEM_Rd       => t_EX_MEM_Rd,
+    WB_Rd       => t_MEM_WB_Rd,
 
     Forward0_EX     => t_F0_EX,
     Forward1_EX     => t_F1_EX
