@@ -1,10 +1,9 @@
 --ECSE 425 - Computer Organization and Architecture
---File: MEM_WB.vhd
 --Author: Wei Wang
 --Date: 2016-03-20
---Version 1.0
-
-
+--
+-- MEM_WB.vhd
+-- Memory Access/Writeback interstage buffer. Forwards inputs to the output on a rising clock edge.
 library ieee;
 use ieee.std_logic_1164.all; -- allows use of the std_logic_vector type
 use ieee.numeric_std.all; -- allows use of the unsigned type
