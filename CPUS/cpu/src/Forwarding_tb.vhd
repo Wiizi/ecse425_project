@@ -1,3 +1,9 @@
+-- ECSE 425 - Comp Organization & Architecture - Final Project
+-- Group 5: Andrei Chubarau, Luis Gallet Zambrano, Aidan Petit, Wei Wang
+--
+-- Forwarding_tb.vhd
+-- Contains test cases to check the operation of the forwarding unit.
+
 library ieee;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
