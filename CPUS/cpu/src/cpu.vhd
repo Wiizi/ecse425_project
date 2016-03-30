@@ -47,7 +47,7 @@ END cpu;
 
 ARCHITECTURE rtl OF cpu IS
      -- COMPONENTS 
-   
+
 COMPONENT memory IS
 GENERIC 
 (
@@ -298,22 +298,55 @@ END COMPONENT;
 
   COMPONENT Registers
     PORT(
-       clk            : in std_logic;
-	     --control
-	     RegWrite       : in std_logic;
-	     ALU_LOHI_Write : in std_logic;
-       --Register file inputs
-	     readReg_0      : in std_logic_vector(4 downto 0);
-	     readReg_1      : in std_logic_vector(4 downto 0);
-	     writeReg       :  in std_logic_vector(4 downto 0);
-	     writeData      : in std_logic_vector(31 downto 0);
-	     ALU_LO_in      : in std_logic_vector(31 downto 0);
-	     ALU_HI_in      : in std_logic_vector(31 downto 0);
-       --Register file outputs
-	     readData_0     : out std_logic_vector(31 downto 0);
-	     readData_1     : out std_logic_vector(31 downto 0);
-	     ALU_LO_out     : out std_logic_vector(31 downto 0);
-	     ALU_HI_out     : out std_logic_vector(31 downto 0)
+      clk            : in std_logic;
+	    --control
+	    RegWrite       : in std_logic;
+	    ALU_LOHI_Write : in std_logic;
+      --Register file inputs
+	    readReg_0      : in std_logic_vector(4 downto 0);
+	    readReg_1      : in std_logic_vector(4 downto 0);
+	    writeReg       :  in std_logic_vector(4 downto 0);
+	    writeData      : in std_logic_vector(31 downto 0);
+	    ALU_LO_in      : in std_logic_vector(31 downto 0);
+	    ALU_HI_in      : in std_logic_vector(31 downto 0);
+      --Register file outputs
+	    readData_0     : out std_logic_vector(31 downto 0);
+	    readData_1     : out std_logic_vector(31 downto 0);
+	    ALU_LO_out     : out std_logic_vector(31 downto 0);
+	    ALU_HI_out     : out std_logic_vector(31 downto 0);
+
+      r0        : out std_logic_vector(31 downto 0);
+      r1        : out std_logic_vector(31 downto 0);
+      r2        : out std_logic_vector(31 downto 0);
+      r3        : out std_logic_vector(31 downto 0);
+      r4        : out std_logic_vector(31 downto 0);
+      r5        : out std_logic_vector(31 downto 0);
+      r6        : out std_logic_vector(31 downto 0);
+      r7        : out std_logic_vector(31 downto 0);
+      r8        : out std_logic_vector(31 downto 0);
+      r9        : out std_logic_vector(31 downto 0);
+      r10       : out std_logic_vector(31 downto 0);
+      r11       : out std_logic_vector(31 downto 0);
+      r12       : out std_logic_vector(31 downto 0);
+      r13       : out std_logic_vector(31 downto 0);
+      r14       : out std_logic_vector(31 downto 0);
+      r15       : out std_logic_vector(31 downto 0);
+      r16       : out std_logic_vector(31 downto 0);
+      r17       : out std_logic_vector(31 downto 0);
+      r18       : out std_logic_vector(31 downto 0);
+      r19       : out std_logic_vector(31 downto 0);
+      r20       : out std_logic_vector(31 downto 0);
+      r21       : out std_logic_vector(31 downto 0);
+      r22       : out std_logic_vector(31 downto 0);
+      r23       : out std_logic_vector(31 downto 0);
+      r24       : out std_logic_vector(31 downto 0);
+      r25       : out std_logic_vector(31 downto 0);
+      r26       : out std_logic_vector(31 downto 0);
+      r27       : out std_logic_vector(31 downto 0);
+      r28       : out std_logic_vector(31 downto 0);
+      r29       : out std_logic_vector(31 downto 0);
+      r30       : out std_logic_vector(31 downto 0);
+      r31       : out std_logic_vector(31 downto 0)
     );
   END COMPONENT;
 
@@ -440,6 +473,39 @@ signal MEM_WB_data, Result_W: std_logic_vector(31 downto 0);
 
 --Signals for Forwarding
 signal Forward0_EX, Forward1_EX : std_logic_vector(1 downto 0);
+
+signal r0        : std_logic_vector(31 downto 0);
+signal r1        : std_logic_vector(31 downto 0);
+signal r2        : std_logic_vector(31 downto 0);
+signal r3        : std_logic_vector(31 downto 0);
+signal r4        : std_logic_vector(31 downto 0);
+signal r5        : std_logic_vector(31 downto 0);
+signal r6        : std_logic_vector(31 downto 0);
+signal r7        : std_logic_vector(31 downto 0);
+signal r8        : std_logic_vector(31 downto 0);
+signal r9        : std_logic_vector(31 downto 0);
+signal r10       : std_logic_vector(31 downto 0);
+signal r11       : std_logic_vector(31 downto 0);
+signal r12       : std_logic_vector(31 downto 0);
+signal r13       : std_logic_vector(31 downto 0);
+signal r14       : std_logic_vector(31 downto 0);
+signal r15       : std_logic_vector(31 downto 0);
+signal r16       : std_logic_vector(31 downto 0);
+signal r17       : std_logic_vector(31 downto 0);
+signal r18       : std_logic_vector(31 downto 0);
+signal r19       : std_logic_vector(31 downto 0);
+signal r20       : std_logic_vector(31 downto 0);
+signal r21       : std_logic_vector(31 downto 0);
+signal r22       : std_logic_vector(31 downto 0);
+signal r23       : std_logic_vector(31 downto 0);
+signal r24       : std_logic_vector(31 downto 0);
+signal r25       : std_logic_vector(31 downto 0);
+signal r26       : std_logic_vector(31 downto 0);
+signal r27       : std_logic_vector(31 downto 0);
+signal r28       : std_logic_vector(31 downto 0);
+signal r29       : std_logic_vector(31 downto 0);
+signal r30       : std_logic_vector(31 downto 0);
+signal r31       : std_logic_vector(31 downto 0);
 
 BEGIN
 
@@ -572,7 +638,40 @@ Register_bank: Registers
     readData_1 	=> data1, --data1 for alu
 
 	 	ALU_LO_out 	=> ALU_LO_out, --simple signal
-	 	ALU_HI_out 	=> ALU_HI_out --simple signal
+	 	ALU_HI_out 	=> ALU_HI_out, --simple signal
+
+    r0              => r0 ,
+    r1              => r1 ,
+    r2              => r2 ,
+    r3              => r3 ,
+    r4              => r4 ,
+    r5              => r5 ,
+    r6              => r6 ,
+    r7              => r7 ,
+    r8              => r8 ,
+    r9              => r9 ,
+    r10             => r10,
+    r11             => r11,
+    r12             => r12,
+    r13             => r13,
+    r14             => r14,
+    r15             => r15,
+    r16             => r16,
+    r17             => r17,
+    r18             => r18,
+    r19             => r19,
+    r20             => r20,
+    r21             => r21,
+    r22             => r22,
+    r23             => r23,
+    r24             => r24,
+    r25             => r25,
+    r26             => r26,
+    r27             => r27,
+    r28             => r28,
+    r29             => r29,
+    r30             => r30,
+    r31             => r31
 		);
 ----------------------------------
 --add mux for mflo and mfhi logic

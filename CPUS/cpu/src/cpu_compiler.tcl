@@ -24,6 +24,39 @@ proc AddWaves {} {
                               -radix binary sim:/cpu/DataMem_data\
                               -radix binary sim:/cpu/DataMem_busy
 
+  add wave -group "Registers" -position end -radix binary sim:/cpu/r0\
+                              -radix binary sim:/cpu/r1\
+                              -radix binary sim:/cpu/r2\
+                              -radix binary sim:/cpu/r3\
+                              -radix binary sim:/cpu/r4\
+                              -radix binary sim:/cpu/r5\
+                              -radix binary sim:/cpu/r6\
+                              -radix binary sim:/cpu/r7\
+                              -radix binary sim:/cpu/r8\
+                              -radix binary sim:/cpu/r9\
+                              -radix binary sim:/cpu/r10\
+                              -radix binary sim:/cpu/r11\
+                              -radix binary sim:/cpu/r12\
+                              -radix binary sim:/cpu/r13\
+                              -radix binary sim:/cpu/r14\
+                              -radix binary sim:/cpu/r15\
+                              -radix binary sim:/cpu/r16\
+                              -radix binary sim:/cpu/r17\
+                              -radix binary sim:/cpu/r18\
+                              -radix binary sim:/cpu/r19\
+                              -radix binary sim:/cpu/r20\
+                              -radix binary sim:/cpu/r21\
+                              -radix binary sim:/cpu/r22\
+                              -radix binary sim:/cpu/r23\
+                              -radix binary sim:/cpu/r24\
+                              -radix binary sim:/cpu/r25\
+                              -radix binary sim:/cpu/r26\
+                              -radix binary sim:/cpu/r27\
+                              -radix binary sim:/cpu/r28\
+                              -radix binary sim:/cpu/r29\
+                              -radix binary sim:/cpu/r30\
+                              -radix binary sim:/cpu/r31
+
   add wave -group "CONTROL"   -position end -radix binary sim:/cpu/ALUOpcode\
                               -radix binary sim:/cpu/RegDest\
                               -radix binary sim:/cpu/Branch\
