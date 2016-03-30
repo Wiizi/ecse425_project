@@ -97,7 +97,18 @@ BEGIN
 		REPORT "Testing ALU - SUB";
 		ASSERT (t_data_out = "00000000000000000000000000000011") 		REPORT "ERROR with SUB"	SEVERITY ERROR; --3
 
-		wait for 200 ns;	
+		wait for 200 ns;
+		
+--sub 2
+		t_opCode	<= "0110" ; 
+		t_data0		<= "00000000000000000000000000001000";	--8
+		t_data1		<= "00000000000000000000000000001001";  --9
+		wait for 20 ns;	
+
+		REPORT "Testing ALU - SUB 2";
+		ASSERT (t_data_out = "11111111111111111111111111111111") 		REPORT "ERROR with SUB 2"	SEVERITY ERROR; 
+
+		wait for 200 ns;
 
 --add
 		t_opCode	<= "0010" ; 
@@ -107,6 +118,17 @@ BEGIN
 
 		REPORT "Testing ALU - ADD";
 		ASSERT (t_data_out = "00000000000000000000000000001101") 		REPORT "ERROR with ADD"	SEVERITY ERROR; --13
+
+		wait for 200 ns;
+		
+--add 2
+		t_opCode	<= "0010" ; 
+		t_data0		<= "01111111111111111111111111111111";	--2147483647
+		t_data1		<= "00000000000000000000000000000001";  --1
+		wait for 20 ns;	
+
+		REPORT "Testing ALU - ADD 2";
+		ASSERT (t_data_out = "10000000000000000000000000000000") 		REPORT "ERROR with ADD 2"	SEVERITY ERROR;
 
 		wait for 200 ns;
 
