@@ -2,11 +2,6 @@
 --
 -- entity name: cpu
 
---Last edited: 25/03/2016
---TODO: Finish conecting the signals to ID_EX stage. Create ALUsrc output for HazardControl mux. This signal needs to be an output from the
--- Control module because it is use for I-type signals. Check sandobx.vhd on github line 732. Also, ID_EX stage contains signals
--- that are meant to be used for fowarding and early branch resolution.
-
 --2016-03-27
 --TODO: JUMP ADDRESS, BRANCH ADDRESS
 
@@ -393,14 +388,14 @@ END COMPONENT;
 
 
 ----------Memory module default signals----------------
-SIGNAL InstMem_address	  : integer   := 0;
+SIGNAL InstMem_counter, InstMem_IntegerAddr	  : integer   := 0;
 SIGNAL InstMem_re 		    : std_logic := '1';
 
 SIGNAL DataMem_addr       : integer    := 0;
 SIGNAL DataMem_re         : std_logic  := '1';
 SIGNAL DataMem_we         : std_logic  := '0';
 SIGNAL DataMem_data       : std_logic_vector (31 downto 0)  := (others => 'Z');
-SIGNAL InstMem_Address_Vector : std_logic_vector (31 downto 0)  := (others => '0'); 
+SIGNAL InstMem_counterVector : std_logic_vector (31 downto 0)  := (others => '0'); 
 
 SIGNAL InstMem_busy       : std_logic  := '0';
 SIGNAL DataMem_busy       : std_logic  := '0';
@@ -419,19 +414,20 @@ signal RegDest, Branch, BNE, Jump, LUI, ALU_LOHI_Write, ALUSrc : std_logic;
 signal ALU_LOHI_Read: std_logic_vector(1 downto 0);
 signal MemWrite, MemRead, MemtoReg: std_logic;
 
+signal rs, rt : std_logic_vector ( 4 downto 0);
+
 --For Branch and Jump
 signal PC_Branch : std_logic;
 signal Branch_addr, after_Branch : std_logic_vector(31 downto 0) := (others => '0');
 signal Jump_addr, after_Jump : std_logic_vector(31 downto 0) := (others => '0');
 
 --signals from last pipeline stage
-signal temp_MEM_WB_RD : std_logic_vector (4 downto 0);
-signal temp_Result_W : std_logic_vector(31 downto 0);
 signal ID_SignExtend, ID_EX_SignExtend, EX_SignExtend : std_logic_vector(31 downto 0);
 
 --hazard detection signal
 signal CPU_stall : std_logic;
 signal IF_ID_regWrite,IF_ID_RegDest,IF_ID_Branch,IF_ID_BNE,IF_ID_Jump,IF_ID_MemWrite,IF_ID_MemRead,IF_ID_MemtoReg : std_logic;
+signal IF_ID_opCode, IF_ID_funct : std_logic_vector (5 downto 0);
 
 --ID_EX output signals
 signal ID_EX_RegRt : std_logic_vector(4 downto 0);
@@ -467,7 +463,7 @@ signal EX_MEM_ALU_result, EX_MEM_ALU_HI, EX_MEM_ALU_LO : std_logic_vector(31 dow
 signal EX_MEM_ALU_zero : std_logic;
 signal MEM_WB_ALU_zero, MEM_WB_busy : std_logic;
 signal MEM_WB_ALU_result, MEM_WB_ALU_HI, MEM_WB_ALU_LO : std_logic_vector(31 downto 0);
-signal ID_EX_Rd, EX_MEM_Rd, MEM_WB_Rd : std_logic_vector(4 downto 0);
+signal ID_EX_Rd, EX_MEM_Rd, MEM_WB_Rd, EX_rd : std_logic_vector(4 downto 0);
 signal EX_MEM_Data1, EX_MEM_data: std_logic_vector(31 downto 0);
 signal MEM_WB_data, Result_W: std_logic_vector(31 downto 0);
 
@@ -519,10 +515,12 @@ Program_counter: PC
 
 pc_increment : process (clk)
 begin
-  if (rising_edge(clk)) then
-      InstMem_address <= InstMem_address + 4;
+  if (falling_edge(clk)) then
+      InstMem_counter <= to_integer(unsigned(PC_addr_out)) + 4;
   end if;
 end process;
+
+InstMem_counterVector <= std_logic_vector(to_unsigned(InstMem_counter,32));
 
 --Instantiation of the main memory component
 Instruction_Memory : memory
@@ -543,7 +541,7 @@ GENERIC MAP
 PORT MAP
 (
     clk           => clk_mem,
-    addr          => InstMem_address,
+    addr          => InstMem_counter,
     wordbyte      => '1',
     re            => InstMem_re,
     we            => '0', -- instMem never writes
@@ -552,6 +550,29 @@ PORT MAP
     dataOut       => Imem_inst_in,
     busy          => InstMem_busy
 );
+
+-----------------------------
+-- BRANCH LOGIC
+-----------------------------
+PC_Branch <= IF_ID_Branch and (zero xor IF_ID_BNE);
+Branch_addr <= std_logic_vector(to_unsigned((to_integer(unsigned(IF_ID_addr_out)) + to_integer((unsigned(ID_SignExtend(29 downto 0) & "00")))), 32));
+
+with PC_Branch select after_Branch <=
+  Branch_addr when '1',
+  InstMem_counterVector when others;
+
+----------------------------
+-- JUMP LOGIC
+----------------------------
+Jump_addr <= IF_ID_inst_out(31 downto 28) & IF_ID_addr_out(25 downto 0) & "00";
+
+with IF_ID_Jump select after_Jump <=
+  Jump_addr when '1',
+  after_Branch when others;
+
+with ID_EX_RegDest_out select EX_rd <=
+  ID_EX_Rd when '1',
+  ID_EX_Rt_out when others;
 
 Data_Memory : memory
 GENERIC MAP
@@ -593,12 +614,17 @@ IF_ID_stage: IF_ID
     addr_out 	    => IF_ID_addr_out
 		);
 
+IF_ID_opCode <= IF_ID_inst_out(31 downto 26);
+IF_ID_funct <= IF_ID_inst_out(5 downto 0);
+
 Control: Control_Unit
 	PORT MAP(
+    -- inputs
 		clk 		  => clk,
-		opCode 		=> IF_ID_inst_out(31 downto 26),
-		funct 		=> IF_ID_inst_out(5 downto 0),
+		opCode 		=> IF_ID_opCode,
+		funct 		=> IF_ID_funct,
 
+    -- outputs
 		--ID (Registers)
 		RegWrite	=> regWrite,
 
@@ -607,8 +633,8 @@ Control: Control_Unit
 		RegDest 	      => RegDest, --todo
 		Branch 		      => Branch, --if theres a branch, signal
     ALUSrc          => ALUSrc,
-		BNE 		        => BNE,--signal
-		Jump            => Jump,--signal
+		BNE 		        => BNE, --signal
+		Jump            => Jump, --signal
 		LUI 		        => LUI, --signal
 		ALU_LOHI_Write 	=> ALU_LOHI_Write, --input for register
 		ALU_LOHI_Read 	=> ALU_LOHI_Read, --mux somewhere, signal
@@ -619,16 +645,19 @@ Control: Control_Unit
 		MemtoReg      	=> MemtoReg --signal, for mux
 		);
 
+rs <= IF_ID_inst_out(25 downto 21);
+rt <= IF_ID_inst_out(20 downto 16);
+
 Register_bank: Registers
 	PORT MAP(
 		clk 		=> clk,
 
-    RegWrite 	=> regWrite,
+    RegWrite 	=> MEM_WB_RegWrite,
     ALU_LOHI_Write	=> ALU_LOHI_Write, --control
 
-    readReg_0 	=> IF_ID_inst_out(25 downto 21),--rs
-    readReg_1 	=> IF_ID_inst_out(20 downto 16),--rt
-    writeReg 	  => temp_MEM_WB_RD, --mem/wb rd
+    readReg_0 	=> rs,
+    readReg_1 	=> rt,
+    writeReg 	  => MEM_WB_Rd, --mem/wb rd
     writeData 	=> Result_W,--wb(mux) rd
 
 	 	ALU_LO_in 	=> ALU_LO, --from alu
@@ -722,49 +751,15 @@ Hazard_Control: Haz_mux
 		in7 => MemRead,
 		in8 => MemtoReg,
 
-		out1 =>IF_ID_regWrite,
-		out2 =>IF_ID_RegDest,
-		out3 =>IF_ID_Branch,
-		out4 =>IF_ID_BNE,
-		out5 =>IF_ID_Jump,
-		out6 =>IF_ID_MemWrite,
-		out7 =>IF_ID_MemRead,
-		out8 =>IF_ID_MemtoReg
-
+		out1 => IF_ID_regWrite,
+		out2 => IF_ID_RegDest,
+		out3 => IF_ID_Branch,
+		out4 => IF_ID_BNE,
+		out5 => IF_ID_Jump,
+		out6 => IF_ID_MemWrite,
+		out7 => IF_ID_MemRead,
+		out8 => IF_ID_MemtoReg
 		);
-
------------------------------
--- BRANCH LOGIC
------------------------------
-PC_Branch <= Branch and (zero xor BNE);
-Branch_addr <= std_logic_vector(to_unsigned((to_integer(unsigned(IF_ID_addr_out)) + to_integer((unsigned(ID_SignExtend(29 downto 0) & "00")))), 32));
-
-InstMem_Address_Vector <= std_logic_vector(to_unsigned(InstMem_address, 32));
-
-Branch_logic: Mux_2to1
-  GENERIC MAP(
-    WIDTH_IN => 32
-  )
-  PORT MAP(
-    sel      => PC_Branch,
-    in1      => InstMem_Address_Vector, --address from memory.vhd? or from whatever logic that incremetns PC and send new address
-    in2      => Branch_addr,
-    dataOut  => after_Branch
-  );
-
-----------------------------
--- JUMP LOGIC
-----------------------------
-Jump_addr <= IF_ID_inst_out(31 downto 28) & IF_ID_addr_out(25 downto 0) & "00";
-
-Jump_logic: Mux_2to1
-  GENERIC MAP(WIDTH_IN =>  32)
-  PORT MAP(
-    sel      => Jump,
-    in1      => after_Branch, --from branch mux
-    in2      => Jump_addr,
-    dataOut  => after_Jump
-  );
 
 ID_EX_stage: ID_EX
 	PORT MAP(
@@ -779,7 +774,7 @@ ID_EX_stage: ID_EX
     --Register inputs (5 bits each)
     Rs_in             => IF_ID_inst_out(25 downto 21),--rs
     Rt_in             => IF_ID_inst_out(20 downto 16),--rt
-    Rd_in             => IF_ID_inst_out(15 downto 11),
+    Rd_in             => IF_ID_inst_out(15 downto 11),--rd
 
     --Control inputs (8 of them?)
     RegWrite_in       => IF_ID_regWrite,
@@ -899,7 +894,7 @@ EX_MEM_stage: EX_MEM
     --Read Data
     Data1_in       => ID_EX_data1_out,
     --Register
-    Rd_in          => ID_EX_Rd,
+    Rd_in          => EX_rd,
 
     --Control Unit
     MemWrite_out   => DataMem_we,
