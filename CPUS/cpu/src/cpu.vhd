@@ -922,7 +922,7 @@ MEM_WB_stage: MEM_WB
     busy_in        => DataMem_busy,
     Data_in        => DataMem_data,
     --ALU
-    ALU_Result_in  => EX_MEM_ALU_result,
+    ALU_Result_in  => EX_MEM_data,
     ALU_HI_in      => EX_MEM_ALU_HI,
     ALU_LO_in      => EX_MEM_ALU_LO,
     ALU_zero_in    => EX_MEM_ALU_zero,
