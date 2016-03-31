@@ -12,7 +12,7 @@ proc AddWaves {} {
   ;#These signals will be contained in a group
   ;# add wave -group "SIGNALS" -radix hex sim:/memory/addr\
 
-  add wave -group "SIGNALS"   -position end -radix decimal sim:/cpu/PC_addr_out\
+  add wave -group "SIGNALS"   -position end -radix decimal sim:/cpu/PC_addr_out
 
   add wave -group "INSTMEM"   -position end -radix decimal sim:/cpu/InstMem_counter\
                               -radix binary sim:/cpu/Imem_inst_in
@@ -68,6 +68,7 @@ proc AddWaves {} {
                               -radix decimal sim:/cpu/r29\
                               -radix decimal sim:/cpu/r30\
                               -radix decimal sim:/cpu/r31
+
   add wave -group "CONTROLIN" -position end -radix binary sim:/cpu/IF_ID_opCode\
                               -radix binary sim:/cpu/IF_ID_funct
 
@@ -95,6 +96,24 @@ proc AddWaves {} {
                               -radix decimal sim:/cpu/ALU_HI\
                               -radix decimal sim:/cpu/ALU_LO\
                               -radix binary sim:/cpu/zero
+
+  add wave -group "Wr - Rd"   -position end -radix decimal sim:/cpu/ID_EX_Rd\
+                              -radix decimal sim:/cpu/ID_EX_Rt_out\
+                              -radix decimal sim:/cpu/EX_rd\
+                              -radix decimal sim:/cpu/EX_MEM_Rd\
+                              -radix binary sim:/cpu/MEM_WB_Rd
+
+  add wave -group "Write Sign" -position end -radix decimal sim:/cpu/regWrite\
+                              -radix decimal sim:/cpu/IF_ID_regWrite\
+                              -radix decimal sim:/cpu/ID_EX_RegWrite\
+                              -radix decimal sim:/cpu/EX_MEM_RegWrite\
+                              -radix binary sim:/cpu/MEM_WB_RegWrite
+
+  add wave -group "Result Sign" -position end -radix decimal sim:/cpu/MemtoReg\
+                              -radix decimal sim:/cpu/IF_ID_MemtoReg\
+                              -radix decimal sim:/cpu/ID_EX_MemtoReg\
+                              -radix decimal sim:/cpu/EX_MEM_MemtoReg\
+                              -radix binary sim:/cpu/MEM_WB_MemtoReg
 
   ;#Set some formating options to make the Waves window more legible
   configure wave -namecolwidth 250
