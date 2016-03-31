@@ -101,8 +101,19 @@ BEGIN
 		
 --sub 2
 		t_opCode	<= "0110" ; 
-		t_data0		<= "00000000000000000000000000001000";	--8
+		t_data0		<= "00000000000000000000000000001010";	--8
 		t_data1		<= "00000000000000000000000000001001";  --9
+		wait for 20 ns;	
+
+		REPORT "Testing ALU - SUB 2";
+		ASSERT (t_data_out = "11111111111111111111111111111111") 		REPORT "ERROR with SUB 2"	SEVERITY ERROR; 
+		t_opCode <= "XXXX";
+		wait for 210 ns;
+
+--sub 3
+		t_opCode	<= "0110" ; 
+		t_data0		<= "00000000000000000000000000001000";	--8
+		t_data1		<= "00000000000000000000000000001000";  --8
 		wait for 20 ns;	
 
 		REPORT "Testing ALU - SUB 2";

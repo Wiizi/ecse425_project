@@ -22,8 +22,8 @@ vlib work
 
 # compile ALU and testbench
 
-#vcom -reportprogress 300 -work work ALU.vhd
-#vcom -reportprogress 300 -work work ALU_tb.vhd
+#vcom ALU.vhd
+#vcom ALU_tb.vhd
 
 # start simulation
 vsim ALU_tb
