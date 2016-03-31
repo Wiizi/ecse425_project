@@ -151,6 +151,7 @@ proc CompileAndSimulate {} {
   vcom Forwarding.vhd
   vcom Haz_mux.vhd
   vcom MEM_WB.vhd
+  vcom Sync.vhd
   vcom cpu.vhd
   
   ;#Start a simulation session with the cpu component
@@ -192,5 +193,6 @@ proc CompileOnly {} {
   vcom Forwarding.vhd
   vcom Haz_mux.vhd
   vcom MEM_WB.vhd
+  vcom Sync.vhd
   vcom cpu.vhd
 }
