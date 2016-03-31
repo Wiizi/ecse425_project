@@ -95,6 +95,7 @@ MemtoReg 		<= temp_MemtoReg;
 					--mult
 					when "011000" =>
 						temp_ALUOpCode		<= "0011";
+						temp_RegWrite 	<= '0';
 						temp_ALU_LOHI_Write <= '1';
 					--mflo
 					when "010010" =>
@@ -118,6 +119,7 @@ MemtoReg 		<= temp_MemtoReg;
 						temp_ALUOpCode 		<= "0000";
 					--div
 					when "011010" =>
+						temp_RegWrite 		<= '0';
 						temp_ALUOpCode 		<= "0100";
 						temp_ALU_LOHI_Write <= '1';
 					--slt

@@ -69,7 +69,9 @@ ENTITY cpu IS
       r28       : out std_logic_vector(31 downto 0);
       r29       : out std_logic_vector(31 downto 0);
       r30       : out std_logic_vector(31 downto 0);
-      r31       : out std_logic_vector(31 downto 0)
+      r31       : out std_logic_vector(31 downto 0);
+      rLo       : out std_logic_vector(31 downto 0);
+      rHi       : out std_logic_vector(31 downto 0)
    );
    
 END cpu;
@@ -375,7 +377,9 @@ END COMPONENT;
       r28       : out std_logic_vector(31 downto 0);
       r29       : out std_logic_vector(31 downto 0);
       r30       : out std_logic_vector(31 downto 0);
-      r31       : out std_logic_vector(31 downto 0)
+      r31       : out std_logic_vector(31 downto 0);
+      rLo       : out std_logic_vector(31 downto 0);
+      rHi       : out std_logic_vector(31 downto 0)
     );
   END COMPONENT;
 
@@ -710,7 +714,9 @@ Register_bank: Registers
     r28             => r28,
     r29             => r29,
     r30             => r30,
-    r31             => r31
+    r31             => r31,
+    rLo             => rLo,
+    rHi             => rHi
 		);
 ----------------------------------
 -- MFLO and MFHI LOGIC
