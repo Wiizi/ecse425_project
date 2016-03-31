@@ -1,5 +1,10 @@
 MIPS pipelined processor
 
+**Source folder contains the *.vhd files
+**Bin folder contains the assembler and an explanatory README file.
+
+**Before simulating the processor, make sure to copy the assembler output to a file name "Init.dat", which must be in the source folder.
+
 Main components:
 	IF/ID
 	-PC.vhd
@@ -21,7 +26,7 @@ Main components:
 	-Memory.vhd (Data instantiation)
 	-MEM_WB.vhd (pipeline stage)
 	
-All the components were tested individually and passed all the tests. TestScript_readme.txt explains the tests and how to run them.
+Most of the components were tested individually and passed all the tests. TestScript_readme.txt explains the tests and how to run them.
 
 cpu.vhd is the file where all the components are connected in order to make the MIPS processor. Other parts were added directly to the module such as: 
 	-multiplexers 
