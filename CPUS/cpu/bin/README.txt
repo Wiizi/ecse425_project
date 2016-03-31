@@ -12,7 +12,7 @@ Steps:
 
 *************************************************************
 
-OPTION 2 (Manual):
+OPTION 2 (Manual, UNIX):
 
 Requirements:
 1. UNIX environment
