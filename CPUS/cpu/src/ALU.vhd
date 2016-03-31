@@ -7,6 +7,7 @@
 -- slt, XOR, NOR, sll, srl, sra, mult, and div.
 -- The operation to be performed is determined by opCode, an input to the ALU. 
 -- The output will be data0 op data1
+-- 
 
 
 
@@ -44,22 +45,26 @@ alu: process(clk)
 
 begin
 
-if opcode /= "0110" then
-	temp_zero <= 'X';
-end if;
 
 if(rising_edge(clk))then
+temp_zero <= 'X';
+
 	case opcode is
 		when "0000" =>
 			temp_data_out <= data0 AND data1;
 		when "0001" =>
 			temp_data_out <= data0 OR data1;
 		when "0110" =>
-			temp_data_out <= std_logic_vector(unsigned(data0) - unsigned(data1));
-			if(to_integer(unsigned(temp_data_out)) = 0)then
-				temp_zero <= '1';
+			if(data0 >= data1)then		
+				if(to_integer(unsigned(data0) - unsigned(data1)) = 0)then
+					temp_zero <= '1';
+					temp_data_out <= std_logic_vector(unsigned(data0) - unsigned(data1));
+				else
+					temp_zero <= '0';
+					temp_data_out <= std_logic_vector(unsigned(data0) - unsigned(data1));
+				end if;
 			else
-				temp_zero <= '0';
+				temp_data_out <= (others => '0');
 			end if;
 
 		when "0010" =>
