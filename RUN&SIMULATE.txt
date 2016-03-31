@@ -1,0 +1,48 @@
+MIPS pipelined processor
+
+Main components:
+	IF/ID
+	-PC.vhd
+	-Memory.vhd (Instruction instantiation)
+	-IF_ID.vhd (pipeline stage)
+	
+	ID/EX
+	-Registers.vhd
+	-Control_Unit.vhd
+	-HazardDetectionUnit.vhd
+	-ID_EX.vhd (pipeline stage)
+	
+	EX/MEM
+	-ALU.vhd
+	-Forwarding.vhd
+	-EX_MEM.vhd (pipeline stage)
+	
+	MEM/WB
+	-Memory.vhd (Data instantiation)
+	-MEM_WB.vhd (pipeline stage)
+	
+All the components were tested individually and passed all the tests. TestScript_readme.txt explains the tests and how to run them.
+
+cpu.vhd is the file where all the components are connected in order to make the MIPS processor. Other parts were added directly to the module such as: 
+	-multiplexers 
+	-sign extension logic 
+	-branch and jump address calculation
+	
+In order to simulate cpu.vhd, run these commands on the transcript in ModelSim:
+	
+	1) source cpu_compiler.tcl
+	2) CompileAndSimulate
+	
+**What is working so far**
+
+Our MIPS pipelined processor is able to perform the next actions:
+	-Fetch right instruction
+	-Increment address properly
+	-Write and Read to Registers
+	-Calculate branch and jump address
+	-ALU operations
+	
+This processor implementation is not fully capable of performing the next actions:
+	-Hazard Detection
+	-Forwarding
+	-Access Data memory (write or read)
