@@ -61,7 +61,9 @@ entity Registers is
 		r28 			: out std_logic_vector(31 downto 0);
 		r29 			: out std_logic_vector(31 downto 0);
 		r30 			: out std_logic_vector(31 downto 0);
-		r31 			: out std_logic_vector(31 downto 0)
+		r31 			: out std_logic_vector(31 downto 0);
+		rLo 			: out std_logic_vector(31 downto 0);
+		rHi 			: out std_logic_vector(31 downto 0)
 		);
 end Registers;
 
@@ -107,6 +109,8 @@ begin
 	r29 	<= regArray(29);
 	r30 	<= regArray(30);
 	r31 	<= regArray(31);
+	rLo 	<= regArray(32);
+	rHi 	<= regArray(33);
 
 readData_0 <= temp_readData_0;
 readData_1 <= temp_readData_1;
