@@ -565,7 +565,7 @@ with PC_Branch select after_Branch <=
 ----------------------------
 -- JUMP LOGIC
 ----------------------------
-Jump_addr <= IF_ID_inst_out(31 downto 28) & IF_ID_addr_out(25 downto 0) & "00";
+Jump_addr <= "0000" & IF_ID_addr_out(25 downto 0) & "00";
 
 with IF_ID_Jump select after_Jump <=
   Jump_addr when '1',
