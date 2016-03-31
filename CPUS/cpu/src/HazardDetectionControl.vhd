@@ -37,10 +37,9 @@ begin
 		end if;
 	else
 	-- set to defaults
-	CPU_Stall <= '0';
-	IF_ID_Write <= '1';
-	PC_Update <= '1';
-
+		CPU_Stall <= '0';
+		IF_ID_Write <= '1';
+		PC_Update <= '1';
 	end if;
 
 end process;
