@@ -420,6 +420,15 @@ COMPONENT Forwarding IS
 		);
 END COMPONENT;
 
+COMPONENT Sync IS
+  PORT(
+    clk     : in std_logic;
+    Rd      : in std_logic_vector(4 downto 0);
+
+    Rd_W    : out std_logic_vector(4 downto 0)
+    );
+END COMPONENT;
+
 
 ----------Memory module default signals----------------
 SIGNAL InstMem_counter    : integer   := 0;
@@ -497,7 +506,7 @@ signal EX_MEM_ALU_result, EX_MEM_ALU_HI, EX_MEM_ALU_LO : std_logic_vector(31 dow
 signal EX_MEM_ALU_zero : std_logic;
 signal MEM_WB_ALU_zero, MEM_WB_busy : std_logic;
 signal MEM_WB_ALU_result, MEM_WB_ALU_HI, MEM_WB_ALU_LO : std_logic_vector(31 downto 0);
-signal ID_EX_Rd, EX_MEM_Rd, MEM_WB_Rd, EX_rd : std_logic_vector(4 downto 0);
+signal ID_EX_Rd, EX_MEM_Rd, MEM_WB_Rd, EX_rd, Rd_W : std_logic_vector(4 downto 0);
 signal EX_MEM_Data1, EX_MEM_data: std_logic_vector(31 downto 0);
 signal MEM_WB_data, Result_W: std_logic_vector(31 downto 0);
 
@@ -658,7 +667,7 @@ Register_bank: Registers
 
     readReg_0 	=> rs,
     readReg_1 	=> rt,
-    writeReg 	  => MEM_WB_Rd, --mem/wb rd
+    writeReg 	  => Rd_W, --mem/wb rd
     writeData 	=> Result_W,--wb(mux) rd
 
 	 	ALU_LO_in 	=> ALU_LO, --from alu
@@ -939,6 +948,14 @@ MEM_WB_stage: MEM_WB
     --Register
     Rd_out         => MEM_WB_Rd
   );
+
+Sync_Rd : Sync
+  PORT MAP(
+    clk     => clk,
+    Rd      => MEM_WB_Rd,
+
+    Rd_W    => Rd_W
+    );
 
 Mem_to_Reg_Mux : Mux_2to1
   PORT MAP(
