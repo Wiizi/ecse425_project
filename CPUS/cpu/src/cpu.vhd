@@ -292,7 +292,6 @@ END COMPONENT;
 COMPONENT Haz_mux is
 
 PORT( 
-  clk : in std_logic;
 	sel : in std_logic;
 
 	in1 : in std_logic;
@@ -742,7 +741,6 @@ Hazard : HazardDetectionControl
 
 Hazard_Control: Haz_mux
 	PORT MAP(
-    clk => clk,
 		sel => CPU_stall,
 
 		in1 => regWrite,
