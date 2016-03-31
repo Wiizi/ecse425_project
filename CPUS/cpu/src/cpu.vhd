@@ -705,12 +705,12 @@ Register_bank: Registers
     r31             => r31
 		);
 ----------------------------------
---add mux for mflo and mfhi logic
+-- MFLO and MFHI LOGIC
 ----------------------------------
 MFLO_MFHI : Mux_3to1
   GENERIC MAP(WIDTH_IN =>  32)
   PORT MAP(
-    sel      => ALU_LOHI_Read,--Forward Unit: in std_logic_vector(1 downto 0);
+    sel      => ALU_LOHI_Read,
     in1      => ALU_data_out,
     in2      => ALU_LO,
     in3      => ALU_HI,
@@ -718,24 +718,20 @@ MFLO_MFHI : Mux_3to1
     );
 
 --------------------------------
--- Sign Extend                TO BE DISCUSSED
+-- Sign Extend
 --------------------------------
--- sign extend to 0s instead?
--- Sign Extend simply repeat the most significant bit until you have the right number of bits
-
---ID_SignExtend <= ((others => IF_ID_inst_out(15)) & IF_ID_inst_out(15 downto 0));
   ID_Extend <= (others => IF_ID_inst_out(15));
   ID_SignExtend <= (ID_Extend & IF_ID_inst_out(15 downto 0));
 
 Hazard : HazardDetectionControl
 	PORT MAP (
-    EX_Rt     	=> ID_EX_RegRt,
-    ID_Rs     	=> IF_ID_inst_out(25 downto 21),
-    ID_Rt     	=> IF_ID_inst_out(20 downto 16),
-    ID_EX_MemRead   	=> ID_EX_MemRead, --create
+    EX_Rt     	    => ID_EX_RegRt,
+    ID_Rs     	    => IF_ID_inst_out(25 downto 21),
+    ID_Rt     	    => IF_ID_inst_out(20 downto 16),
+    ID_EX_MemRead   => ID_EX_MemRead,
     BRANCH         	=> Branch,
 
-    IF_ID_Write     	=> haz_IF_ID_write,
+    IF_ID_Write     => haz_IF_ID_write,
     PC_Update      	=> haz_PC_write,
     CPU_Stall      	=> CPU_stall
 	);
