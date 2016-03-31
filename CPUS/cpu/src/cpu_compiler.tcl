@@ -115,6 +115,10 @@ proc AddWaves {} {
                               -radix decimal sim:/cpu/EX_MEM_MemtoReg\
                               -radix binary sim:/cpu/MEM_WB_MemtoReg
 
+  add wave -group "Result" -position end -radix decimal sim:/cpu/MEM_WB_ALU_result\
+                              -radix decimal sim:/cpu/MEM_WB_data\
+                              -radix decimal sim:/cpu/Result_W\
+
   ;#Set some formating options to make the Waves window more legible
   configure wave -namecolwidth 250
   WaveRestoreZoom {0 ns} {1100 ns}
@@ -151,6 +155,7 @@ proc CompileAndSimulate {} {
   vcom Forwarding.vhd
   vcom Haz_mux.vhd
   vcom MEM_WB.vhd
+  vcom Sync.vhd
   vcom cpu.vhd
   
   ;#Start a simulation session with the cpu component
@@ -192,5 +197,6 @@ proc CompileOnly {} {
   vcom Forwarding.vhd
   vcom Haz_mux.vhd
   vcom MEM_WB.vhd
+  vcom Sync.vhd
   vcom cpu.vhd
 }
