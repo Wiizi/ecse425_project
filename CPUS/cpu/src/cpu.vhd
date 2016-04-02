@@ -1,9 +1,4 @@
--- This file is a CPU skeleton
---
--- entity name: cpu
-
 --2016-03-27
---TODO: JUMP ADDRESS, BRANCH ADDRESS
 
 library ieee;
 
@@ -13,8 +8,6 @@ use STD.textio.all;
 
 use work.memory_arbiter_lib.all;
 
---Basic CPU interface.
---You may add your own signals, but do not remove the ones that are already there.
 ENTITY cpu IS
    
    GENERIC (
@@ -30,14 +23,9 @@ ENTITY cpu IS
 
       reset                : IN    STD_LOGIC := '0';
       
-      --Signals required by the MIKA testing suite
-      finished_prog        : OUT   STD_LOGIC; --Set this to '1' when program execution is over
-      assertion            : OUT   STD_LOGIC; --Set this to '1' when an assertion occurs 
-      assertion_pc         : OUT   NATURAL;   --Set the assertion's program counter location
-      
-      mem_dump:         IN    STD_LOGIC := '0';
+      mem_dump             : IN    STD_LOGIC := '0';
 
-      -- for testing purposes only
+      -- for testing purposes only (register inspection)
       r0        : out std_logic_vector(31 downto 0);
       r1        : out std_logic_vector(31 downto 0);
       r2        : out std_logic_vector(31 downto 0);
@@ -77,7 +65,8 @@ ENTITY cpu IS
 END cpu;
 
 ARCHITECTURE rtl OF cpu IS
-     -- COMPONENTS 
+
+-- COMPONENTS 
 
 COMPONENT memory IS
 GENERIC 
@@ -108,11 +97,12 @@ PORT
 );
 END COMPONENT;
 
-   COMPONENT HazardDetectionControl
+  -- detects if a stall must be inserted in the execution
+  COMPONENT HazardDetectionControl
       PORT (
-        ID_Rs     : in std_logic_vector(4 downto 0);
-        ID_Rt     : in std_logic_vector(4 downto 0);
-        EX_Rt     : in std_logic_vector(4 downto 0);
+        ID_Rs         : in std_logic_vector(4 downto 0);
+        ID_Rt         : in std_logic_vector(4 downto 0);
+        EX_Rt         : in std_logic_vector(4 downto 0);
         ID_EX_MemRead   : in std_logic;
         BRANCH         : in std_logic;
    
@@ -120,9 +110,10 @@ END COMPONENT;
         PC_Update      : out std_logic;
         CPU_Stall      : out std_logic
       );
-   END COMPONENT;
+  END COMPONENT;
 
-   COMPONENT ALU
+  -- ALU
+  COMPONENT ALU
       PORT( 
         clk            : in std_logic;
         opcode         : in std_logic_vector(3 downto 0);
@@ -133,45 +124,22 @@ END COMPONENT;
         LO             : out std_logic_vector (31 downto 0);
         zero           : out std_logic
       );
-   END COMPONENT;
+  END COMPONENT;
 
-   COMPONENT EX_MEM
+  -- register between IF and ID stages
+  COMPONENT IF_ID
       PORT(
-        clk 		       : in std_logic;
-
-        --Control Unit
-        MemWrite_in    : in STD_LOGIC;
-        MemRead_in     : in STD_LOGIC;
-        MemtoReg_in    : in STD_LOGIC;
-        RegWrite_in    : in std_logic;
-        --ALU
-        ALU_Result_in  : in std_logic_vector(31 downto 0);
-        ALU_HI_in      : in std_logic_vector (31 downto 0);
-        ALU_LO_in      : in std_logic_vector (31 downto 0);
-        ALU_zero_in    : in std_logic;
-        --Read Data
-        Data1_in       : in std_logic_vector(31 downto 0);
-        --Register
-        Rd_in          : in std_logic_vector(4 downto 0);
-
-        --Control Unit
-        MemWrite_out   : out STD_LOGIC;
-        MemRead_out    : out STD_LOGIC;
-        MemtoReg_out   : out STD_LOGIC;
-        RegWrite_out   : out std_logic;
-        --ALU
-        ALU_Result_out : out std_logic_vector(31 downto 0);
-        ALU_HI_out     : out std_logic_vector (31 downto 0);
-        ALU_LO_out     : out std_logic_vector (31 downto 0);
-        ALU_zero_out   : out std_logic;
-        --Read Data
-        Data1_out      : out std_logic_vector(31 downto 0);
-        --Register
-        Rd_out         : out std_logic_vector(4 downto 0)
+        clk         : in std_logic;
+        inst_in     : in std_logic_vector(31 downto 0);
+        addr_in     : in std_logic_vector(31 downto 0);
+        IF_ID_write : in std_logic :='1'; --For hazard dectection. Always 1 unless hazard detecttion    unit changes it.
+        inst_out    : out std_logic_vector(31 downto 0);
+        addr_out    : out std_logic_vector(31 downto 0)
       );
-   END COMPONENT;
+  END COMPONENT;
 
-   COMPONENT ID_EX
+  -- register between ID and EX stages
+  COMPONENT ID_EX
       PORT(
         clk               : in std_logic;
 
@@ -215,19 +183,46 @@ END COMPONENT;
         ALU_src_out       : out std_logic;
         Reg_dest_out      : out std_logic
       );
-   END COMPONENT;
+  END COMPONENT;
 
-   COMPONENT IF_ID
+  -- register between Execution and Memory stages
+  COMPONENT EX_MEM
       PORT(
-        clk         : in std_logic;
-        inst_in     : in std_logic_vector(31 downto 0);
-        addr_in     : in std_logic_vector(31 downto 0);
-        IF_ID_write : in std_logic :='1'; --For hazard dectection. Always 1 unless hazard detecttion    unit changes it.
-        inst_out    : out std_logic_vector(31 downto 0);
-        addr_out    : out std_logic_vector(31 downto 0)
+        clk            : in std_logic;
+
+        --Control Unit
+        MemWrite_in    : in STD_LOGIC;
+        MemRead_in     : in STD_LOGIC;
+        MemtoReg_in    : in STD_LOGIC;
+        RegWrite_in    : in std_logic;
+        --ALU
+        ALU_Result_in  : in std_logic_vector(31 downto 0);
+        ALU_HI_in      : in std_logic_vector (31 downto 0);
+        ALU_LO_in      : in std_logic_vector (31 downto 0);
+        ALU_zero_in    : in std_logic;
+        --Read Data
+        Data1_in       : in std_logic_vector(31 downto 0);
+        --Register
+        Rd_in          : in std_logic_vector(4 downto 0);
+
+        --Control Unit
+        MemWrite_out   : out STD_LOGIC;
+        MemRead_out    : out STD_LOGIC;
+        MemtoReg_out   : out STD_LOGIC;
+        RegWrite_out   : out std_logic;
+        --ALU
+        ALU_Result_out : out std_logic_vector(31 downto 0);
+        ALU_HI_out     : out std_logic_vector (31 downto 0);
+        ALU_LO_out     : out std_logic_vector (31 downto 0);
+        ALU_zero_out   : out std_logic;
+        --Read Data
+        Data1_out      : out std_logic_vector(31 downto 0);
+        --Register
+        Rd_out         : out std_logic_vector(4 downto 0)
       );
    END COMPONENT;
 
+  -- register between MEM and WB stages
    COMPONENT MEM_WB
       port(
         clk            : in std_logic;
@@ -262,6 +257,7 @@ END COMPONENT;
       );
    END COMPONENT;
 
+   -- 2 to 1 multiplexer 
    COMPONENT Mux_2to1
       Port(
         --select line
@@ -276,6 +272,7 @@ END COMPONENT;
       );
    END COMPONENT;
 
+   -- 3 to 1 multiplexer 
    COMPONENT Mux_3to1
       Port (
         --select line
@@ -291,33 +288,32 @@ END COMPONENT;
       );
    END COMPONENT;
 
-COMPONENT Haz_mux is
+  -- used for selecting 'stall bubble' or actual instuction to execute
+  COMPONENT Haz_mux is
+    PORT( 
+    	sel : in std_logic;
+    
+    	in1 : in std_logic;
+    	in2 : in std_logic;
+    	in3 : in std_logic;
+    	in4 : in std_logic;
+    	in5 : in std_logic;
+    	in6 : in std_logic;
+    	in7 : in std_logic;
+    	in8 : in std_logic;
+    
+    	out1 : out std_logic;
+    	out2 : out std_logic;
+    	out3 : out std_logic;
+    	out4 : out std_logic;
+    	out5 : out std_logic;
+    	out6 : out std_logic;
+    	out7 : out std_logic;
+    	out8 : out std_logic
+  	);
+  END COMPONENT;
 
-PORT( 
-	sel : in std_logic;
-
-	in1 : in std_logic;
-	in2 : in std_logic;
-	in3 : in std_logic;
-	in4 : in std_logic;
-	in5 : in std_logic;
-	in6 : in std_logic;
-	in7 : in std_logic;
-	in8 : in std_logic;
-
-	out1 : out std_logic;
-	out2 : out std_logic;
-	out3 : out std_logic;
-	out4 : out std_logic;
-	out5 : out std_logic;
-	out6 : out std_logic;
-	out7 : out std_logic;
-	out8 : out std_logic
-	);
-
-		
-END COMPONENT;
-
+  -- Program Counter 
   COMPONENT PC
      PORT(
        clk         : in std_logic;
@@ -327,6 +323,7 @@ END COMPONENT;
      );
   END COMPONENT;
 
+  -- Registers
   COMPONENT Registers
     PORT(
       clk            : in std_logic;
@@ -346,6 +343,7 @@ END COMPONENT;
 	    ALU_LO_out     : out std_logic_vector(31 downto 0);
 	    ALU_HI_out     : out std_logic_vector(31 downto 0);
 
+      -- for testing purposes only (inspection)
       r0        : out std_logic_vector(31 downto 0);
       r1        : out std_logic_vector(31 downto 0);
       r2        : out std_logic_vector(31 downto 0);
@@ -383,6 +381,7 @@ END COMPONENT;
     );
   END COMPONENT;
 
+  -- Control Unit of the circuit is used to set the relevant control signals
   COMPONENT Control_Unit IS
 	    PORT(
 		    clk             : in std_logic;
@@ -410,20 +409,22 @@ END COMPONENT;
 		  );
 END COMPONENT;
 
+-- used to forward relevant signals to avoid data hazards
 COMPONENT Forwarding IS
 	PORT(
 		EX_MEM_RegWrite : in std_logic;
 		MEM_WB_RegWrite	: in std_logic;
-		EX_Rs		: in std_logic_vector(4 downto 0);
-		EX_Rt		: in std_logic_vector(4 downto 0);
-		MEM_Rd		: in std_logic_vector(4 downto 0);
-		WB_Rd		: in std_logic_vector(4 downto 0);
+		EX_Rs		       : in std_logic_vector(4 downto 0);
+		EX_Rt		       : in std_logic_vector(4 downto 0);
+		MEM_Rd	       	: in std_logic_vector(4 downto 0);
+		WB_Rd		       : in std_logic_vector(4 downto 0);
 
 		Forward0_EX 	: out std_logic_vector(1 downto 0) := "00";
 		Forward1_EX		: out std_logic_vector(1 downto 0) := "00"
 		);
 END COMPONENT;
 
+-- a delay buffer (delays the signal by 1 clock cycle)
 COMPONENT Sync IS
   PORT(
     clk     : in std_logic;
@@ -433,34 +434,31 @@ COMPONENT Sync IS
     );
 END COMPONENT;
 
+------------------------SIGNALS----------------------
 
-----------Memory module default signals----------------
+-- MEMORY
 SIGNAL InstMem_counter    : integer   := 0;
 SIGNAL InstMem_re 		    : std_logic := '1';
-
 SIGNAL DataMem_addr       : integer    := 0;
 SIGNAL DataMem_re         : std_logic  := '1';
 SIGNAL DataMem_we         : std_logic  := '0';
 SIGNAL DataMem_data       : std_logic_vector (31 downto 0)  := (others => 'Z');
 SIGNAL InstMem_counterVector : std_logic_vector (31 downto 0)  := (others => '0'); 
-
 SIGNAL InstMem_busy       : std_logic  := '0';
 SIGNAL DataMem_busy       : std_logic  := '0';
--------------------------------------------------------
 
+-- PC AND memory
 signal PC_addr_out : std_logic_vector(31 downto 0);
-
 signal Imem_inst_in, Imem_addr_in : std_logic_vector(31 downto 0);
-  
 signal IF_ID_inst_out, IF_ID_addr_out : std_logic_vector(31 downto 0) := (others => '0');
 signal haz_IF_ID_write, haz_PC_write : std_logic;
 
+-- CONTROL signals
 signal regWrite: std_logic;
 signal ALUOpcode: std_logic_vector(3 downto 0);
 signal RegDest, Branch, BNE, Jump, LUI, ALU_LOHI_Write, ALUSrc : std_logic;
 signal ALU_LOHI_Read: std_logic_vector(1 downto 0);
 signal MemWrite, MemRead, MemtoReg: std_logic;
-
 signal rs, rt : std_logic_vector ( 4 downto 0);
 
 --For Branch and Jump
@@ -475,6 +473,9 @@ signal ID_SignExtend, ID_EX_SignExtend, EX_SignExtend : std_logic_vector(31 down
 signal CPU_stall : std_logic;
 signal IF_ID_regWrite,IF_ID_RegDest,IF_ID_Branch,IF_ID_BNE,IF_ID_Jump,IF_ID_MemWrite,IF_ID_MemRead,IF_ID_MemtoReg : std_logic;
 signal IF_ID_opCode, IF_ID_funct : std_logic_vector (5 downto 0);
+
+--Signals for Forwarding
+signal Forward0_EX, Forward1_EX : std_logic_vector(1 downto 0);
 
 --ID_EX output signals
 signal ID_EX_RegRt : std_logic_vector(4 downto 0);
@@ -496,12 +497,13 @@ signal ALU_LO, ALU_HI : std_logic_vector(31 downto 0) := (others => '0');
 signal data0, data1 : std_logic_vector(31 downto 0);
 signal ALU_LO_out, ALU_HI_out : std_logic_vector(31 downto 0);
 
+-- multiplexer output signals
 signal ALU_data0, t_ALU_data1, ALU_data1, ALU_data_out : std_logic_vector(31 downto 0);
 signal EX_ALU_result : std_logic_vector(31 downto 0);
 signal zero : std_logic;
 signal ALU_shamt : std_logic_vector (4 downto 0);
 
---for EX_MEM stage to MEM_WB stage
+-- EX_MEM sgianls stage to MEM_WB stage
 signal ID_EX_MemWrite, EX_MEM_MemWrite : std_logic;
 signal EX_MEM_MemRead : std_logic;
 signal EX_MEM_RegWrite, MEM_WB_RegWrite : std_logic;
@@ -514,9 +516,6 @@ signal ID_EX_Rd, EX_MEM_Rd, MEM_WB_Rd, EX_rd, Rd_W : std_logic_vector(4 downto 0
 signal EX_MEM_Data1, EX_MEM_data: std_logic_vector(31 downto 0);
 signal MEM_WB_data, Result_W: std_logic_vector(31 downto 0);
 
---Signals for Forwarding
-signal Forward0_EX, Forward1_EX : std_logic_vector(1 downto 0);
-
 BEGIN
 
 Program_counter: PC
@@ -527,16 +526,16 @@ Program_counter: PC
          	addr_out    => PC_addr_out
       );
 
+-- increments the pc by 4 on every clock cycle
 pc_increment : process (clk)
 begin
   if (falling_edge(clk)) then
       InstMem_counter <= to_integer(unsigned(PC_addr_out)) + 4;
   end if;
 end process;
-
 InstMem_counterVector <= std_logic_vector(to_unsigned(InstMem_counter,32));
 
---Instantiation of the main memory component
+-- Instruction memory component
 Instruction_Memory : memory
 GENERIC MAP
 (
@@ -588,6 +587,7 @@ with ID_EX_RegDest_out select EX_rd <=
   ID_EX_Rd when '1',
   ID_EX_Rt_out when others;
 
+-- Data memory 
 Data_Memory : memory
 GENERIC MAP
 (
@@ -615,9 +615,9 @@ PORT MAP
     dataOut       => DataMem_data,
     busy          => DataMem_busy
 );
-
 DataMem_addr <= to_integer(unsigned(EX_MEM_data));
 
+-- IF_ID stage
 IF_ID_stage: IF_ID
 	PORT MAP(
 		clk 		      => clk,
@@ -627,10 +627,10 @@ IF_ID_stage: IF_ID
     inst_out 	    => IF_ID_inst_out,
     addr_out 	    => IF_ID_addr_out
 		);
-
 IF_ID_opCode <= IF_ID_inst_out(31 downto 26);
 IF_ID_funct <= IF_ID_inst_out(5 downto 0);
 
+-- Control unit declaration
 Control: Control_Unit
 	PORT MAP(
     -- inputs
@@ -658,9 +658,6 @@ Control: Control_Unit
 		--WB
 		MemtoReg      	=> MemtoReg --signal, for mux
 		);
-
-rs <= IF_ID_inst_out(25 downto 21);
-rt <= IF_ID_inst_out(20 downto 16);
 
 Register_bank: Registers
 	PORT MAP(
@@ -718,6 +715,9 @@ Register_bank: Registers
     rLo             => rLo,
     rHi             => rHi
 		);
+rs <= IF_ID_inst_out(25 downto 21);
+rt <= IF_ID_inst_out(20 downto 16);
+
 ----------------------------------
 -- MFLO and MFHI LOGIC
 ----------------------------------
@@ -737,6 +737,7 @@ MFLO_MFHI : Mux_3to1
   ID_Extend <= (others => IF_ID_inst_out(15));
   ID_SignExtend <= (ID_Extend & IF_ID_inst_out(15 downto 0));
 
+-- Hazard detection
 Hazard : HazardDetectionControl
 	PORT MAP (
     EX_Rt     	    => ID_EX_RegRt,
@@ -750,6 +751,7 @@ Hazard : HazardDetectionControl
     CPU_Stall      	=> CPU_stall
 	);
 
+-- stall or execute
 Hazard_Control: Haz_mux
 	PORT MAP(
 		sel => CPU_stall,
@@ -773,6 +775,7 @@ Hazard_Control: Haz_mux
 		out8 => IF_ID_MemtoReg
 		);
 
+-- ID_EX stage register
 ID_EX_stage: ID_EX
 	PORT MAP(
     clk               => clk,
@@ -820,7 +823,6 @@ ID_EX_stage: ID_EX
     Reg_dest_out      => ID_EX_RegDest_out
 	);
 
-  low_ID_EX_SignExtend <= ID_EX_SignExtend(15 downto 0) & "0000000000000000";
 
   LUI_mux: Mux_2to1
     GENERIC MAP(
@@ -832,6 +834,8 @@ ID_EX_stage: ID_EX
       in2      => low_ID_EX_SignExtend,
       dataOut  => EX_SignExtend
     );
+    -- sign extend
+    low_ID_EX_SignExtend <= ID_EX_SignExtend(15 downto 0) & "0000000000000000";
 
 Forwarding_unit: Forwarding
   PORT MAP(
@@ -845,6 +849,7 @@ Forwarding_unit: Forwarding
     Forward1_EX	     => Forward1_EX
 	);
 
+-- select DATA0 input for main ALU
 ALU_data0_Forward_Mux : Mux_3to1
   GENERIC MAP(WIDTH_IN => 32)
   PORT MAP(
@@ -855,6 +860,7 @@ ALU_data0_Forward_Mux : Mux_3to1
     dataOut  => ALU_data0
     );
 
+-- select DATA1 input for main ALU
 ALU_data1_Forward_Mux : Mux_3to1
   GENERIC MAP(WIDTH_IN => 32)
   PORT MAP(
@@ -865,6 +871,7 @@ ALU_data1_Forward_Mux : Mux_3to1
     dataOut  => t_ALU_data1
   );
 
+-- immediate value or data2 for main ALU data1 input
 ALU_data1_Mux : Mux_2to1
   GENERIC MAP(WIDTH_IN => 32)
   PORT MAP(
@@ -874,8 +881,7 @@ ALU_data1_Mux : Mux_2to1
     dataOut  => ALU_data1
   );
 
-ALU_shamt <= EX_SignExtend(10 downto 6);
-
+-- main ALU component
 main_ALU: ALU
 	PORT MAP(
     clk       => clk,
@@ -888,7 +894,9 @@ main_ALU: ALU
     LO        => ALU_LO, --signal
     zero      => zero --signal
 	);
+ALU_shamt <= EX_SignExtend(10 downto 6);
 
+-- EX_MEM stage
 EX_MEM_stage: EX_MEM
   PORT MAP(
     clk            => clk,
@@ -924,6 +932,7 @@ EX_MEM_stage: EX_MEM
     Rd_out         => EX_MEM_Rd
   );
 
+-- MEM_WB stage register
 MEM_WB_stage: MEM_WB
   PORT MAP(
     clk            => clk,
@@ -955,6 +964,7 @@ MEM_WB_stage: MEM_WB
     Rd_out         => MEM_WB_Rd
   );
 
+-- delay write enable for registers
 Rd_Delay : Sync
   PORT MAP(
     clk     => clk,
@@ -962,6 +972,7 @@ Rd_Delay : Sync
     Rd_W    => Rd_W
     );
 
+-- get value to write for registers
 Mem_to_Reg_Mux : Mux_2to1
   PORT MAP(
     sel      => MEM_WB_MemtoReg,

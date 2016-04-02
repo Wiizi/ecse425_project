@@ -46,5 +46,5 @@ Steps:
 		./Assembler.exe filename.asm
 
 
-The assembler implements all instructions (29 MIPS instructions + 3 testing instructions (asrt, asrti, halt)) according to the MIKA testing suite README documentation (although the assembler does not directly work with MIKA). 
+The assembler implements all instructions (29 required MIPS instructions + 3 testing instructions (asrt, asrti, halt)) according to the MIKA testing suite README documentation (although the assembler does not directly work with MIKA). 
 Current Assembler.exe is intended to run only on UNIX environment.

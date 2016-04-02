@@ -162,6 +162,7 @@ proc CompileAndSimulate {} {
   AddWaves
   
   ;#Generate a CPU clock
+  ;#Memory clock must be 5 times faster 
   GenerateClock clk 20
   GenerateClock clk_mem 4
 
