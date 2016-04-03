@@ -106,6 +106,15 @@ proc AddWaves {} {
                               -radix binary sim:/w_cpu/Forward0_EX\
                               -radix binary sim:/w_cpu/Forward1_EX
 
+  add wave -group "Hazard"   -position end -radix decimal sim:/w_cpu/ID_EX_MemRead\
+                              -radix binary sim:/w_cpu/Branch\
+                              -radix decimal sim:/w_cpu/rs\
+                              -radix decimal sim:/w_cpu/rt\
+                              -radix decimal sim:/w_cpu/ID_EX_RegRt\
+                              -radix binary sim:/w_cpu/haz_IF_ID_write\
+                              -radix binary sim:/w_cpu/haz_PC_write\
+                              -radix binary sim:/w_cpu/CPU_stall
+
   ;#Set some formating options to make the Waves window more legible
   configure wave -namecolwidth 250
   WaveRestoreZoom {0 ns} {1100 ns}
