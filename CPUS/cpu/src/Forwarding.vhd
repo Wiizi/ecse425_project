@@ -20,8 +20,8 @@ entity Forwarding is
 		MEM_Rd		: in std_logic_vector(4 downto 0);
 		WB_Rd		: in std_logic_vector(4 downto 0);
 
-		Forward0_EX 	: out std_logic_vector(1 downto 0) := "00";
-		Forward1_EX		: out std_logic_vector(1 downto 0) := "00"
+		Forward0_EX 	: out std_logic_vector(1 downto 0);
+		Forward1_EX		: out std_logic_vector(1 downto 0)
 		);
 end Forwarding;
 
@@ -35,27 +35,22 @@ begin
 	Forward0_EX <= "00";
 	Forward1_EX <= "00";
 
-	if (EX_MEM_RegWrite = '1' and (not(MEM_Rd = "00000"))) then
-		if (MEM_Rd = EX_Rs) then
-			Forward0_EX <= "01";
-		end if;
-
-		if (MEM_Rd = EX_Rt) then
-			Forward1_EX <= "01";
-		end if;
+	if (EX_MEM_RegWrite = '1' and (MEM_Rd /= "00000") and (MEM_Rd = EX_Rs)) then
+		Forward0_EX <= "01";
 	end if;
 
-	if (MEM_WB_RegWrite = '1' and (not(WB_Rd = "00000")) and (not(EX_MEM_RegWrite = '1' and (not(MEM_Rd = "00000")) and (MEM_Rd = EX_Rs)))) then
-		if (WB_Rd = EX_Rs) then
-			Forward0_EX <= "10";
-		end if;
+	if (EX_MEM_RegWrite = '1' and (MEM_Rd /= "00000") and (MEM_Rd = EX_Rt)) then
+		Forward1_EX <= "01";
 	end if;
 
-	if (MEM_WB_RegWrite = '1' and (not(WB_Rd = "00000")) and (not(EX_MEM_RegWrite = '1' and (not(MEM_Rd = "00000")) and (MEM_Rd = EX_Rt)))) then
-		if (WB_Rd = EX_Rt) then
-			Forward1_EX <= "10";
-		end if;
+	if (MEM_WB_RegWrite = '1' and (WB_Rd /= "00000") and (not(EX_MEM_RegWrite = '1' and (MEM_Rd /= "00000") and (MEM_Rd = EX_Rs))) and (WB_Rd = EX_Rs)) then
+		Forward0_EX <= "10";
 	end if;
+
+	if (MEM_WB_RegWrite = '1' and (WB_Rd /= "00000") and (not(EX_MEM_RegWrite = '1' and (MEM_Rd /= "00000") and (MEM_Rd = EX_Rt))) and (WB_Rd = EX_Rt)) then
+		Forward1_EX <= "10";
+	end if;
+
 	end process;
 
 end Behavioural;

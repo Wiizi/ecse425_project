@@ -16,9 +16,9 @@ ENTITY HazardDetectionControl IS
 		ID_EX_MemRead 	: in std_logic;
 		BRANCH			: in std_logic;
 
-		IF_ID_Write 	: out std_logic := '1';
-		PC_Update 		: out std_logic := '1';
-		CPU_Stall 		: out std_logic := '0'
+		IF_ID_Write 	: out std_logic;
+		PC_Update 		: out std_logic;
+		CPU_Stall 		: out std_logic
 	);
 END HazardDetectionControl;
 
@@ -29,8 +29,7 @@ BEGIN
 hzrdDetection: process (ID_EX_MemRead, EX_Rt, ID_Rs, ID_Rt)
 begin
 	-- check for hazards and stall if hazard is detected
-	if ((BRANCH = '1' or ID_EX_MemRead = '1') and ((EX_Rt = ID_Rs) or (EX_Rt = ID_Rt))) then
-		
+	if ((BRANCH = '1' or ID_EX_MemRead = '1') and ((EX_Rt = ID_Rs) or (EX_Rt = ID_Rt))) and (EX_Rt /="00000") then
 	 		CPU_Stall <= '1';
 			IF_ID_Write <= '0';
 			PC_Update <= '0';
