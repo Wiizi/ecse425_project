@@ -10,6 +10,7 @@ USE ieee.numeric_std.all;
 
 ENTITY HazardDetectionControl IS
 	PORT (
+		clk 		: in std_logic;
 		ID_Rs 		: in std_logic_vector(4 downto 0);
 		ID_Rt 		: in std_logic_vector(4 downto 0);
 		EX_Rt 		: in std_logic_vector(4 downto 0);
@@ -23,24 +24,35 @@ ENTITY HazardDetectionControl IS
 END HazardDetectionControl;
 
 ARCHITECTURE behaviour OF HazardDetectionControl IS
-
+signal state : integer range 0 to 1 := 0;
 BEGIN
 
-hzrdDetection: process (ID_EX_MemRead, EX_Rt, ID_Rs, ID_Rt)
+with state select CPU_Stall <=
+	'1' when 1,
+	'0' when others; 
+
+with state select IF_ID_Write <=
+	'0' when 1,
+	'1' when others; 
+
+with state select PC_Update <=
+	'0' when 1,
+	'1' when others; 
+
+hzrdDetection: process (clk)
 begin
-	-- check for hazards and stall if hazard is detected
-	if ((BRANCH = '1' or ID_EX_MemRead = '1') and ((EX_Rt = ID_Rs) or (EX_Rt = ID_Rt))) and (EX_Rt /="00000") then
-	 		CPU_Stall <= '1';
-			IF_ID_Write <= '0';
-			PC_Update <= '0';
-
-	else
-	-- set to defaults
-		CPU_Stall <= '0';
-		IF_ID_Write <= '1';
-		PC_Update <= '1';
+	if (rising_edge(clk)) then
+		-- check for hazards and stall if hazard is detected
+		case state is 
+			when 0 =>
+				if (BRANCH = '1' or ID_EX_MemRead = '1' or (((EX_Rt = ID_Rs) or (EX_Rt = ID_Rt)) and EX_Rt /="00000") ) then
+					state <= 1;
+				end if;
+			when 1 =>
+				state <= 0;
+			when others => 
+				null;
+		end case;
 	end if;
-
 end process;
-
 END behaviour;

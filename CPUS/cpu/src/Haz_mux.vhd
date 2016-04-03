@@ -8,7 +8,6 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 entity Haz_mux is
-
 port( 
 	sel : in std_logic;
 
@@ -20,6 +19,8 @@ port(
 	in6 : in std_logic;
 	in7 : in std_logic;
 	in8 : in std_logic;
+	in9 : in std_logic;
+	in10 : in std_logic_vector (3 downto 0);
 
 	out1 : out std_logic;
 	out2 : out std_logic;
@@ -28,9 +29,10 @@ port(
 	out5 : out std_logic;
 	out6 : out std_logic;
 	out7 : out std_logic;
-	out8 : out std_logic
-	);
-
+	out8 : out std_logic;
+	out9 : out std_logic;
+	out10 : out std_logic_vector (3 downto 0)
+);
 		
 end Haz_mux;
 
@@ -39,35 +41,43 @@ architecture behavior of Haz_mux is
 begin
 
 	with sel select out1 <= 
-		'0' when '1',
+		--'0' when '1',
 		in1 when others;
 
 	with sel select out2 <= 
-		'0' when '1',
+		--'0' when '1',
 		in2 when others;
 
 	with sel select out3 <= 
-		'0' when '1',
+		--'0' when '1',
 		in3 when others;
 
 	with sel select out4 <= 
-		'0' when '1',
+		--'0' when '1',
 		in4 when others;
 
 	with sel select out5 <= 
-		'0' when '1',
+		--'0' when '1',
 		in5 when others;
 
 	with sel select out6 <= 
-		'0' when '1',
+		--'0' when '1',
 		in6 when others;
 
 	with sel select out7 <= 
-		'0' when '1',
+		--'0' when '1',
 		in7 when others;
 
 	with sel select out8 <= 
-		'0' when '1',
+		--'0' when '1',
 		in8 when others;
+
+	with sel select out9 <= 
+		--'0' when '1',
+		in9 when others;
+
+	with sel select out10 <= 
+		--"XXXX" when '1',
+		in10 when others;
 
 end behavior;

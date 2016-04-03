@@ -100,6 +100,7 @@ END COMPONENT;
   -- detects if a stall must be inserted in the execution
   COMPONENT HazardDetectionControl
       PORT (
+        clk           : in std_logic;
         ID_Rs         : in std_logic_vector(4 downto 0);
         ID_Rt         : in std_logic_vector(4 downto 0);
         EX_Rt         : in std_logic_vector(4 downto 0);
@@ -291,25 +292,29 @@ END COMPONENT;
   -- used for selecting 'stall bubble' or actual instuction to execute
   COMPONENT Haz_mux is
     PORT( 
-      sel : in std_logic;
-    
-      in1 : in std_logic;
-      in2 : in std_logic;
-      in3 : in std_logic;
-      in4 : in std_logic;
-      in5 : in std_logic;
-      in6 : in std_logic;
-      in7 : in std_logic;
-      in8 : in std_logic;
-    
-      out1 : out std_logic;
-      out2 : out std_logic;
-      out3 : out std_logic;
-      out4 : out std_logic;
-      out5 : out std_logic;
-      out6 : out std_logic;
-      out7 : out std_logic;
-      out8 : out std_logic
+        sel : in std_logic;
+
+        in1 : in std_logic;
+        in2 : in std_logic;
+        in3 : in std_logic;
+        in4 : in std_logic;
+        in5 : in std_logic;
+        in6 : in std_logic;
+        in7 : in std_logic;
+        in8 : in std_logic;
+        in9 : in std_logic;
+        in10 : in std_logic_vector (3 downto 0);
+      
+        out1 : out std_logic;
+        out2 : out std_logic;
+        out3 : out std_logic;
+        out4 : out std_logic;
+        out5 : out std_logic;
+        out6 : out std_logic;
+        out7 : out std_logic;
+        out8 : out std_logic;
+        out9 : out std_logic;
+        out10 : out std_logic_vector (3 downto 0)
     );
   END COMPONENT;
 
@@ -449,7 +454,7 @@ SIGNAL DataMem_busy       : std_logic  := '0';
 
 -- PC AND memory
 signal PC_addr_out : std_logic_vector(31 downto 0);
-signal Imem_inst_in, Imem_addr_in : std_logic_vector(31 downto 0);
+signal Imem_inst_in, Imem_addr_in, IF_ID_Imem_inst_in : std_logic_vector(31 downto 0);
 signal IF_ID_inst_out, IF_ID_addr_out : std_logic_vector(31 downto 0) := (others => '0');
 signal haz_IF_ID_write, haz_PC_write : std_logic;
 
@@ -459,7 +464,7 @@ signal ALUOpcode: std_logic_vector(3 downto 0);
 signal RegDest, Branch, BNE, Jump, LUI, ALU_LOHI_Write, ALUSrc : std_logic;
 signal ALU_LOHI_Read: std_logic_vector(1 downto 0);
 signal MemWrite, MemRead, MemtoReg: std_logic;
-signal rs, rt : std_logic_vector ( 4 downto 0);
+signal rs, rt, Imem_rs, Imem_rt, IF_ID_rt : std_logic_vector ( 4 downto 0);
 
 --For Branch and Jump
 signal PC_Branch : std_logic;
@@ -473,6 +478,9 @@ signal ID_SignExtend, ID_EX_SignExtend, EX_SignExtend : std_logic_vector(31 down
 signal CPU_stall : std_logic;
 signal IF_ID_regWrite,IF_ID_RegDest,IF_ID_Branch,IF_ID_BNE,IF_ID_Jump,IF_ID_MemWrite,IF_ID_MemRead,IF_ID_MemtoReg : std_logic;
 signal IF_ID_opCode, IF_ID_funct : std_logic_vector (5 downto 0);
+signal IF_ID_ALUsrc : std_logic;
+signal IF_ID_ALUOpcode : std_logic_vector(3 downto 0);
+signal haz_instruction : std_logic_vector(31 downto 0);
 
 --Signals for Forwarding
 signal Forward0_EX, Forward1_EX : std_logic_vector(1 downto 0);
@@ -529,7 +537,7 @@ Program_counter: PC
 -- increments the pc by 4 on every clock cycle
 pc_increment : process (clk)
 begin
-  if (falling_edge(clk)) then
+  if (falling_edge(clk) and CPU_stall = '0') then
       InstMem_counter <= to_integer(unsigned(PC_addr_out)) + 4;
   end if;
 end process;
@@ -617,11 +625,30 @@ PORT MAP
 );
 DataMem_addr <= to_integer(unsigned(EX_MEM_data));
 
+process (clk)
+begin
+  if (falling_edge(clk)) then
+    case CPU_stall is
+      when '1' =>
+        IF_ID_Imem_inst_in <= "00100000000000000000000000000000";
+      when others =>
+        IF_ID_Imem_inst_in <= Imem_inst_in;
+    end case;
+  end if;
+end process;
+
+process (clk)
+begin
+  if (rising_edge(clk)) then
+    haz_instruction <= IF_ID_Imem_inst_in;
+  end if;
+end process;
+
 -- IF_ID stage
 IF_ID_stage: IF_ID
   PORT MAP(
     clk           => clk,
-    inst_in       => Imem_inst_in,
+    inst_in       => IF_ID_Imem_inst_in,
     addr_in       => PC_addr_out,
     IF_ID_write   => haz_IF_ID_write,
     inst_out      => IF_ID_inst_out,
@@ -737,13 +764,18 @@ MFLO_MFHI : Mux_3to1
   ID_Extend <= (others => IF_ID_inst_out(15));
   ID_SignExtend <= (ID_Extend & IF_ID_inst_out(15 downto 0));
 
+Imem_rs <= haz_instruction(25 downto 21);
+Imem_rt <= haz_instruction(20 downto 16);
+IF_ID_rt <= ID_EX_Rt_out;
+
 -- Hazard detection
 Hazard : HazardDetectionControl
   PORT MAP (
-    EX_Rt           => ID_EX_Rt_out,
-    ID_Rs           => rs,
-    ID_Rt           => rt,
-    ID_EX_MemRead   => ID_EX_MemRead,
+    clk             => clk,
+    EX_Rt           => IF_ID_rt,
+    ID_Rs           => Imem_rs,
+    ID_Rt           => Imem_rt,
+    ID_EX_MemRead   => MemRead,
     BRANCH          => Branch,
 
     IF_ID_Write     => haz_IF_ID_write,
@@ -764,6 +796,8 @@ Hazard_Control: Haz_mux
     in6 => MemWrite,
     in7 => MemRead,
     in8 => MemtoReg,
+    in9 => ALUSrc,
+    in10 => ALUOpcode,
 
     out1 => IF_ID_regWrite,
     out2 => IF_ID_RegDest,
@@ -772,7 +806,9 @@ Hazard_Control: Haz_mux
     out5 => IF_ID_Jump,
     out6 => IF_ID_MemWrite,
     out7 => IF_ID_MemRead,
-    out8 => IF_ID_MemtoReg
+    out8 => IF_ID_MemtoReg,
+    out9 => IF_ID_ALUsrc,
+    out10 => IF_ID_ALUOpcode
     );
 
 -- ID_EX stage register
@@ -798,8 +834,8 @@ ID_EX_stage: ID_EX
     MemRead_in        => IF_ID_MemRead,
     Branch_in         => IF_ID_Branch,
     LUI_in            => LUI,
-    ALU_op_in         => ALUOpcode,
-    ALU_src_in        => ALUSrc,
+    ALU_op_in         => IF_ID_ALUOpcode,
+    ALU_src_in        => IF_ID_ALUsrc,
     Reg_dest_in       => IF_ID_RegDest,
 
     --Data Outputs
