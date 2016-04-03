@@ -583,7 +583,7 @@ with IF_ID_Jump select after_Jump <=
   Jump_addr when '1',
   after_Branch when others;
 
-with ID_EX_RegDest_out select EX_rd <=
+with IF_ID_RegDest select EX_rd <=
   ID_EX_Rd when '1',
   ID_EX_Rt_out when others;
 
@@ -740,9 +740,9 @@ MFLO_MFHI : Mux_3to1
 -- Hazard detection
 Hazard : HazardDetectionControl
   PORT MAP (
-    EX_Rt           => ID_EX_RegRt,
-    ID_Rs           => IF_ID_inst_out(25 downto 21),
-    ID_Rt           => IF_ID_inst_out(20 downto 16),
+    EX_Rt           => ID_EX_Rt_out,
+    ID_Rs           => rs,
+    ID_Rt           => rt,
     ID_EX_MemRead   => ID_EX_MemRead,
     BRANCH          => Branch,
 
@@ -839,8 +839,8 @@ ID_EX_stage: ID_EX
 
 Forwarding_unit: Forwarding
   PORT MAP(
-    EX_MEM_RegWrite => EX_MEM_RegWrite,
-    MEM_WB_RegWrite => MEM_WB_RegWrite,
+    EX_MEM_RegWrite => ID_EX_RegWrite,
+    MEM_WB_RegWrite => EX_MEM_RegWrite,
     EX_Rs       => ID_EX_Rs_out,
     EX_Rt       => ID_EX_Rt_out,
     MEM_Rd        => EX_MEM_Rd,
@@ -850,42 +850,27 @@ Forwarding_unit: Forwarding
   );
 
 -- select DATA0 input for main ALU
-ALU_data0_Forward_Mux : Mux_3to1
-  GENERIC MAP(WIDTH_IN => 32)
-  PORT MAP(
-    sel      => Forward0_EX, --Forward Unit: in std_logic_vector(1 downto 0);
-    in1      => ID_EX_data0_out,
-    in2      => EX_MEM_data,
-    in3      => Result_W,
-    dataOut  => ALU_data0
-    );
+with Forward0_EX select ALU_data0 <=
+  EX_ALU_result when "01",
+  Result_W when "10",
+  ID_EX_data0_out when others;
 
 -- select DATA1 input for main ALU
-ALU_data1_Forward_Mux : Mux_3to1
-  GENERIC MAP(WIDTH_IN => 32)
-  PORT MAP(
-    sel      => Forward1_EX, --Forward Unit
-    in1      => ID_EX_data1_out,
-    in2      => EX_MEM_data,
-    in3      => Result_W,
-    dataOut  => t_ALU_data1
-  );
+with Forward1_EX select t_ALU_data1 <=
+  EX_ALU_result when "01",
+  Result_W when "10",
+  ID_EX_data1_out when others;
 
 -- immediate value or data2 for main ALU data1 input
-ALU_data1_Mux : Mux_2to1
-  GENERIC MAP(WIDTH_IN => 32)
-  PORT MAP(
-    sel      => ALUSrc,
-    in1      => t_ALU_data1,
-    in2      => EX_SignExtend,--SignExtend
-    dataOut  => ALU_data1
-  );
+with ALUSrc select ALU_data1 <=
+  EX_SignExtend when '1',
+  t_ALU_data1 when others;
 
 -- main ALU component
 main_ALU: ALU
   PORT MAP(
     clk       => clk,
-    opcode    => ID_EX_ALU_op_out, --from control
+    opcode    => ALUOpcode, --from control
     data0     => ALU_data0, --from ID_EX
     data1     => ALU_data1, --from ID_EX
     shamt     => ALU_shamt, --from instruction
@@ -972,13 +957,8 @@ Rd_Delay : Sync
     Rd_W    => Rd_W
     );
 
--- get value to write for registers
-Mem_to_Reg_Mux : Mux_2to1
-  PORT MAP(
-    sel      => MEM_WB_MemtoReg,
-    in1      => MEM_WB_ALU_result,
-    in2      => MEM_WB_data,
-    dataOut  => Result_W
-  );
+with MEM_WB_MemtoReg select Result_W <=
+  MEM_WB_data when '1',
+  MEM_WB_ALU_result when others;
 
 END rtl;

@@ -110,7 +110,7 @@ proc AddWaves {} {
                               -radix binary sim:/w_cpu/Branch\
                               -radix decimal sim:/w_cpu/rs\
                               -radix decimal sim:/w_cpu/rt\
-                              -radix decimal sim:/w_cpu/ID_EX_RegRt\
+                              -radix decimal sim:/w_cpu/ID_EX_Rt_out\
                               -radix binary sim:/w_cpu/haz_IF_ID_write\
                               -radix binary sim:/w_cpu/haz_PC_write\
                               -radix binary sim:/w_cpu/CPU_stall

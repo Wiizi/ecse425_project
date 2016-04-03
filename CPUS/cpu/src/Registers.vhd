@@ -112,31 +112,24 @@ begin
 	rLo 	<= regArray(32);
 	rHi 	<= regArray(33);
 
-readData_0 <= temp_readData_0;
-readData_1 <= temp_readData_1;
-ALU_LO_out <= temp_ALU_LO_out;
-ALU_HI_out <= temp_ALU_HI_out;
+	readData_0 <= regArray(TO_INTEGER(UNSIGNED(readReg_0)));
+	readData_1 <= regArray(TO_INTEGER(UNSIGNED(readReg_1)));
+	ALU_LO_out <= regArray(32);
+	ALU_HI_out <= regArray(33);
 
-	process(clk)
+	process(RegWrite, ALU_LOHI_Write, readReg_0, readReg_1, writeReg, writeData, ALU_LO_in, ALU_HI_in )
 	begin
-		--wait for active clock edge
+		--check whether write signal is active
+		if (RegWrite = '1') then
+			--write the data
+			regArray(TO_INTEGER(UNSIGNED(writeReg))) <= writeData;
+		end if;
+		if (ALU_LOHI_Write = '1') then
+			regArray(32) <= ALU_LO_in;
+			regArray(33) <= ALU_HI_in;
+		end if;
 		--register 0 is hardwired to 0
 		regArray(0) <= (others => '0');
-		if (clk'event and clk = '1') then
-			temp_readData_0 <= regArray(TO_INTEGER(UNSIGNED(readReg_0)));
-			temp_readData_1 <= regArray(TO_INTEGER(UNSIGNED(readReg_1)));
-			temp_ALU_LO_out <= regArray(32);
-			temp_ALU_HI_out <= regArray(33);
-			--check whether write signal is active
-			if (RegWrite = '1') then
-				--write the data
-				regArray(TO_INTEGER(UNSIGNED(writeReg))) <= writeData;
-			end if;
-			if (ALU_LOHI_Write = '1') then
-				regArray(32) <= ALU_LO_in;
-				regArray(33) <= ALU_HI_in;
-			end if;
-		end if;
 	end process;
 
 end Behavioural;

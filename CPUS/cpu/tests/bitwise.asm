@@ -18,7 +18,7 @@ Bitwise:        addi $1, $0, 3
 				add  $13, $11, $12 		# Make data pointer [2000+($10)*4]
 				add $2,$0,$3 
 				sw	 $2, 0($13)
-                beq  $1, $0, False      # branch to False if x = 0
+                bne  $1, $0, False      # branch to False if x = 0
                 beq  $2, $0, False      # branch to False if y = 0
                 addi $4, $0, 1          # x and y are both nonzero, so w = 1
 				addi $10, $0, 1

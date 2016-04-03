@@ -67,9 +67,9 @@ MemWrite 		<= temp_MemWrite;
 MemRead 		<= temp_MemRead;
 MemtoReg 		<= temp_MemtoReg;
 
-	process(opCode, funct)
+	process(clk)
 	begin
-	--if (clk'event and clk = '1') then
+	if (clk'event and clk = '1') then
 		temp_RegWrite			<= '0';
 		temp_ALUSrc				<= '0';
 		temp_ALUOpCode			<= "XXXX";
@@ -245,6 +245,6 @@ MemtoReg 		<= temp_MemtoReg;
 				temp_ALUOpCode 	<= "ZZZZ";
 			when others => null;
 		end case;
-	--end if;
+	end if;
 	end process;
 end Behavioural;

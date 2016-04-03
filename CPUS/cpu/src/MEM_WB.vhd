@@ -50,35 +50,35 @@ signal temp_Rd : std_logic_vector(4 downto 0);
 
 begin
 
-	temp_MemtoReg 	<= MemtoReg_in;
-	temp_RegWrite	<= RegWrite_in;
-
-	temp_busy 		<= busy_in;
-	temp_Data 		<= Data_in;
-
-	temp_ALUResult 	<= ALU_Result_in;
-	temp_ALU_HI 	<= ALU_HI_in;
-	temp_ALU_LO 	<= ALU_LO_in;
-	temp_ALU_zero 	<= ALU_zero_in;
-
-	temp_Rd 		<= Rd_in;
-
-	process(clk)
+	process (clk)
 	begin
-		if (clk'event and clk = '1') then
-			MemtoReg_out 	<= temp_MemtoReg;
-			RegWrite_out	<= temp_RegWrite;
-
-			busy_out		<= temp_busy;
-			Data_out 		<= temp_Data;
-
-			ALU_Result_out 	<= temp_ALUResult;
-			ALU_HI_out 		<= temp_ALU_HI;
-			ALU_LO_out 		<= temp_ALU_LO;
-			ALU_zero_out 	<= temp_ALU_zero;
-
-			Rd_out 			<= temp_Rd;
-		end if;
+	if (rising_edge(clk)) then
+		temp_MemtoReg 	<= MemtoReg_in;
+		temp_RegWrite	<= RegWrite_in;
+	
+		temp_busy 		<= busy_in;
+		temp_Data 		<= Data_in;
+	
+		temp_ALUResult 	<= ALU_Result_in;
+		temp_ALU_HI 	<= ALU_HI_in;
+		temp_ALU_LO 	<= ALU_LO_in;
+		temp_ALU_zero 	<= ALU_zero_in;
+	
+		temp_Rd 		<= Rd_in;
+	end if;
 	end process;
+
+	MemtoReg_out 	<= MemtoReg_in;
+	RegWrite_out	<= RegWrite_in;
+
+	busy_out		<= busy_in;
+	Data_out 		<= Data_in;
+
+	ALU_Result_out 	<= ALU_Result_in;
+	ALU_HI_out 		<= ALU_HI_in;
+	ALU_LO_out 		<= ALU_LO_in;
+	ALU_zero_out 	<= ALU_zero_in;
+
+	Rd_out 			<= Rd_in;
 
 end Behavioural;
