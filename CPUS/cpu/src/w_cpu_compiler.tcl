@@ -15,6 +15,8 @@ proc AddWaves {} {
   add wave -group "SIGNALS"   -position end -radix unsigned sim:/w_cpu/PC_addr_out
 
   add wave -group "INSTMEM"   -position end -radix unsigned sim:/w_cpu/InstMem_address\
+                              -radix binary sim:/w_cpu/InstMem_re\
+                              -radix unsigned sim:/w_cpu/address_counter\
                               -radix binary sim:/w_cpu/Imem_inst_in
 
   add wave -group "INSTR RUN"   -position end -radix binary sim:/w_cpu/IF_ID_Imem_inst_in
@@ -142,6 +144,8 @@ proc AddWaves {} {
                               -radix binary sim:/w_cpu/CPU_stall
 
   add wave -group "Branch&J"   -position end -radix binary sim:/w_cpu/Branch\
+                              -radix unsigned sim:/w_cpu/Branch_data0\
+                              -radix unsigned sim:/w_cpu/Branch_data1\
                               -radix unsigned sim:/w_cpu/Early_Zero\
                               -radix unsigned sim:/w_cpu/zero\
                               -radix binary sim:/w_cpu/BNE\
@@ -150,6 +154,7 @@ proc AddWaves {} {
                               -radix binary sim:/w_cpu/IF_ID_Jump\
                               -radix unsigned sim:/w_cpu/Jump_addr_out\
                               -radix unsigned sim:/w_cpu/after_Jump
+
 
   ;#Set some formating options to make the Waves window more legible
   configure wave -namecolwidth 250

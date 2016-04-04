@@ -552,7 +552,7 @@ Program_counter: PC
 pc_increment : process (clk)
 begin
   if (falling_edge(clk)) then
-    if (CPU_stall = '0') then
+    if (CPU_stall /= '1' or ID_EX_Branch_out = '1') then
       address_counter <= to_integer(unsigned(PC_addr_out)) + 4;
     end if;
   end if;
@@ -563,8 +563,9 @@ InstMem_address <= to_integer(unsigned(PC_addr_out));
 read_instruction_mem : process (clk)
 begin
   if (falling_edge(clk)) then
-    InstMem_re <= '1';
-    if (CPU_stall = '1') then
+    if (CPU_stall /= '1' or ID_EX_Branch_out = '1') then
+      InstMem_re <= '1';
+    else
       InstMem_re <= '0';
     end if;
   end if;
@@ -604,16 +605,16 @@ PORT MAP
 PC_Branch <= Branch and (Early_Zero xor BNE);
 Branch_addr <= (ID_SignExtend(29 downto 0) & "00");
 
--- delay branch address
---branch_delay : Sync
---  PORT MAP(
---    clk     => clk,
---    Rd      => Branch_addr,
---    Rd_W    => Branch_addr_out
---    );
+--delay branch address
+branch_delay : Sync
+  PORT MAP(
+    clk     => clk,
+    Rd      => Branch_addr,
+    Rd_W    => Branch_addr_out
+    );
 
 with PC_Branch select after_Branch <=
-  Branch_addr_out when '1',
+  Branch_addr when '1',
   InstMem_counterVector when others;
 
 ----------------------------
@@ -628,7 +629,7 @@ jump_delay : Sync
     Rd_W    => Jump_addr_out
     );
 
-with JUMP select after_Jump <=
+with Jump select after_Jump <=
   Jump_addr_out when '1',
   after_Branch when others;
 
@@ -825,36 +826,19 @@ Hazard : HazardDetectionControl
     IF_ID_Write     => haz_IF_ID_write,
     PC_Update       => haz_PC_write,
     CPU_Stall       => CPU_stall,
-    state_o     => hazard_state
+    state_o         => hazard_state
   );
 
--- stall or execute
-Hazard_Control: Haz_mux
-  PORT MAP(
-    sel => CPU_stall,
-
-    in1 => regWrite,
-    in2 => RegDest,
-    in3 => Branch,
-    in4 => BNE,
-    in5 => Jump,
-    in6 => MemWrite,
-    in7 => MemRead,
-    in8 => MemtoReg,
-    in9 => ALUSrc,
-    in10 => ALUOpcode,
-
-    out1 => IF_ID_regWrite,
-    out2 => IF_ID_RegDest,
-    out3 => IF_ID_Branch,
-    out4 => IF_ID_BNE,
-    out5 => IF_ID_Jump,
-    out6 => IF_ID_MemWrite,
-    out7 => IF_ID_MemRead,
-    out8 => IF_ID_MemtoReg,
-    out9 => IF_ID_ALUsrc,
-    out10 => IF_ID_ALUOpcode
-    );
+IF_ID_regWrite       <=     regWrite;
+IF_ID_RegDest        <=     RegDest;
+IF_ID_Branch         <=     Branch;
+IF_ID_BNE            <=     BNE;
+IF_ID_Jump           <=     Jump;
+IF_ID_MemWrite       <=     MemWrite;
+IF_ID_MemRead        <=     MemRead;
+IF_ID_MemtoReg       <=     MemtoReg;
+IF_ID_ALUsrc         <=     ALUSrc;
+IF_ID_ALUOpcode      <=     ALUOpcode;
 
 -- ID_EX stage register
 ID_EX_stage: ID_EX
@@ -946,7 +930,7 @@ with Forward1_Branch select
     EX_ALU_result when '1',
     data1     when others;
 
-Zero_ID : process (Branch_data0, Branch_data1)
+Zero_ID : process (clk)
 begin
     if (Branch_data0 = Branch_data1) then
       Early_Zero <= '1';
