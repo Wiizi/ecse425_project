@@ -34,7 +34,7 @@ architecture Behavioural of Forwarding is
 
 begin
 
-	process(Branch, EX_MEM_RegWrite, MEM_WB_RegWrite, ID_Rs, ID_Rt, EX_Rs, EX_Rt, MEM_Rd, WB_eRd)
+	process(Branch, EX_MEM_RegWrite, MEM_WB_RegWrite, ID_Rs, ID_Rt, EX_Rs, EX_Rt, MEM_Rd, WB_Rd)
 	begin
 
 	Forward0_Branch <= "00";
