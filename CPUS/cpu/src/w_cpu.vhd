@@ -430,8 +430,8 @@ COMPONENT Forwarding is
     MEM_Rd      : in std_logic_vector(4 downto 0);
     WB_Rd     : in std_logic_vector(4 downto 0);
 
-    Forward0_Branch : out std_logic_vector(1 downto 0);
-    Forward1_Branch : out std_logic_vector(1 downto 0);
+    Forward0_Branch : out std_logic;
+    Forward1_Branch : out std_logic;
     Forward0_EX   : out std_logic_vector(1 downto 0);
     Forward1_EX   : out std_logic_vector(1 downto 0)
     );
@@ -478,7 +478,7 @@ signal MemWrite, MemRead, MemtoReg: std_logic;
 signal rs, rt, Imem_rs, Imem_rt, IF_ID_rt : std_logic_vector ( 4 downto 0);
 
 --For Branch and Jump
-signal PC_Branch : std_logic;
+signal PC_Branch, Early_Zero : std_logic;
 signal Branch_addr, Branch_addr_out, after_Branch : std_logic_vector(31 downto 0) := (others => '0');
 signal Jump_addr, Jump_addr_out, after_Jump : std_logic_vector(31 downto 0) := (others => '0');
 
@@ -496,6 +496,8 @@ signal hazard_state : integer range 0 to 7;
 
 --Signals for Forwarding
 signal Forward0_EX, Forward1_EX : std_logic_vector(1 downto 0);
+signal Forward0_Branch, Forward1_Branch : std_logic;
+signal Branch_data0, Branch_data1: std_logic_vector(31 downto 0);
 
 --ID_EX output signals
 signal ID_EX_RegRt : std_logic_vector(4 downto 0);
@@ -599,16 +601,16 @@ PORT MAP
 -----------------------------
 -- BRANCH LOGIC
 -----------------------------
-PC_Branch <= Branch and (zero xor BNE);
+PC_Branch <= Branch and (Early_Zero xor BNE);
 Branch_addr <= (ID_SignExtend(29 downto 0) & "00");
 
 -- delay branch address
-branch_delay : Sync
-  PORT MAP(
-    clk     => clk,
-    Rd      => Branch_addr,
-    Rd_W    => Branch_addr_out
-    );
+--branch_delay : Sync
+--  PORT MAP(
+--    clk     => clk,
+--    Rd      => Branch_addr,
+--    Rd_W    => Branch_addr_out
+--    );
 
 with PC_Branch select after_Branch <=
   Branch_addr_out when '1',
@@ -711,44 +713,45 @@ Control: Control_Unit
     RegWrite  => regWrite,
 
     --EX
-    ALUOpCode       => ALUOpcode, --goes to alu
-    RegDest         => RegDest, --todo
-    Branch          => Branch, --if theres a branch, signal
+    ALUOpCode       => ALUOpcode,
+    RegDest         => RegDest,
+    Branch          => Branch,
     ALUSrc          => ALUSrc,
-    BNE             => BNE, --signal
-    Jump            => Jump, --signal
-    LUI             => LUI, --signal
-    ALU_LOHI_Write  => ALU_LOHI_Write, --input for register
-    ALU_LOHI_Read   => ALU_LOHI_Read, --mux somewhere, signal
+    BNE             => BNE,
+    Jump            => Jump,
+    LUI             => LUI,
+    ALU_LOHI_Write  => ALU_LOHI_Write,
+    ALU_LOHI_Read   => ALU_LOHI_Read,
     --MEM (data mem)
-    MemWrite        => MemWrite, --signal
-    MemRead         => MemRead,--signal
+    MemWrite        => MemWrite,
+    MemRead         => MemRead,
     --WB
-    MemtoReg        => MemtoReg --signal, for mux
+    MemtoReg        => MemtoReg
     );
 
 rs <= IF_ID_inst_out(25 downto 21);
 rt <= IF_ID_inst_out(20 downto 16);
+
 Register_bank: Registers
   PORT MAP(
     clk     => clk,
 
     RegWrite  => MEM_WB_RegWrite,
-    ALU_LOHI_Write  => ALU_LOHI_Write, --control
+    ALU_LOHI_Write  => ALU_LOHI_Write,
 
     readReg_0   => rs,
     readReg_1   => rt,
-    writeReg    => Rd_W, --mem/wb rd
-    writeData   => Result_W,--wb(mux) rd
+    writeReg    => Rd_W,
+    writeData   => Result_W,
 
-    ALU_LO_in   => ALU_LO, --from alu
-    ALU_HI_in   => ALU_HI, --from alu
+    ALU_LO_in   => ALU_LO,
+    ALU_HI_in   => ALU_HI,
 
-    readData_0  => data0, --data0 for alu
-    readData_1  => data1, --data1 for alu
+    readData_0  => data0,
+    readData_1  => data1,
 
-    ALU_LO_out  => ALU_LO_out, --simple signal
-    ALU_HI_out  => ALU_HI_out, --simple signal
+    ALU_LO_out  => ALU_LO_out,
+    ALU_HI_out  => ALU_HI_out,
 
     r0              => r0 ,
     r1              => r1 ,
@@ -860,9 +863,9 @@ ID_EX_stage: ID_EX
 
     --Data inputs
     Addr_in           => IF_ID_addr_out,
-    RegData0_in       => data0, --from registers, forwards to ALU
+    RegData0_in       => data0,
     RegData1_in       => data1,
-    SignExtended_in   => ID_SignExtend, --sign extended needs to be implemented
+    SignExtended_in   => ID_SignExtend,
 
     --Register inputs (5 bits each)
     Rs_in             => IF_ID_inst_out(25 downto 21),--rs
@@ -885,7 +888,7 @@ ID_EX_stage: ID_EX
     Addr_out          => ID_EX_addr_out,
     RegData0_out      => ID_EX_data0_out,
     RegData1_out      => ID_EX_data1_out,
-    SignExtended_out  => ID_EX_SignExtend,--missing
+    SignExtended_out  => ID_EX_SignExtend,
     --Register outputs
     Rs_out            => ID_EX_Rs_out,
     Rt_out            => ID_EX_Rt_out,
@@ -903,36 +906,54 @@ ID_EX_stage: ID_EX
     BNE_out           => ID_EX_BNE
   );
 
-
-  LUI_mux: Mux_2to1
-    GENERIC MAP(
-      WIDTH_IN => 32
-    )
-    PORT MAP(
-      sel      => LUI,
-      in1      => ID_EX_SignExtend,
-      in2      => low_ID_EX_SignExtend,
-      dataOut  => EX_SignExtend
-    );
-    -- sign extend
-    low_ID_EX_SignExtend <= ID_EX_SignExtend(15 downto 0) & "0000000000000000";
+LUI_mux: Mux_2to1
+  GENERIC MAP(
+    WIDTH_IN => 32
+  )
+  PORT MAP(
+    sel      => LUI,
+    in1      => ID_EX_SignExtend,
+    in2      => low_ID_EX_SignExtend,
+    dataOut  => EX_SignExtend
+  );
+  -- sign extend
+low_ID_EX_SignExtend <= ID_EX_SignExtend(15 downto 0) & "0000000000000000";
 
 Forwarding_unit: Forwarding
   PORT MAP(
-    Branch        => Branch,
+    Branch          => Branch,
     EX_MEM_RegWrite => ID_EX_RegWrite,
     MEM_WB_RegWrite => EX_MEM_RegWrite,
-    ID_Rs      => (others => '0'),
-    ID_Rt      => (others => '0'),
-    EX_Rs       => ID_EX_Rs_out,
-    EX_Rt       => ID_EX_Rt_out,
-    MEM_Rd        => EX_MEM_Rd,
-    WB_Rd        => MEM_WB_Rd,
-    --Forward0_Branch =>
-    --Forward1_Branch =>
-    Forward0_EX      => Forward0_EX,
-    Forward1_EX      => Forward1_EX
+    ID_Rs           => rs,
+    ID_Rt           => rt,
+    EX_Rs           => ID_EX_Rs_out,
+    EX_Rt           => ID_EX_Rt_out,
+    MEM_Rd          => EX_MEM_Rd,
+    WB_Rd           => MEM_WB_Rd,
+    Forward0_Branch => Forward0_Branch,
+    Forward1_Branch => Forward1_Branch,
+    Forward0_EX     => Forward0_EX,
+    Forward1_EX     => Forward1_EX
   );
+
+with Forward0_Branch select
+  Branch_data0 <=
+    EX_ALU_result when '1',
+    data0     when others;
+
+with Forward1_Branch select
+  Branch_data1 <=
+    EX_ALU_result when '1',
+    data1     when others;
+
+Zero_ID : process (Branch_data0, Branch_data1)
+begin
+    if (Branch_data0 = Branch_data1) then
+      Early_Zero <= '1';
+    else
+      Early_Zero <= '0';
+    end if;
+end process;
 
 -- select DATA0 input for main ALU
 with Forward0_EX select ALU_data0 <=
@@ -955,14 +976,14 @@ with ALUSrc select ALU_data1 <=
 main_ALU: ALU
   PORT MAP(
     clk       => clk,
-    opcode    => ALUOpcode, --from control
-    data0     => ALU_data0, --from ID_EX
-    data1     => ALU_data1, --from ID_EX
-    shamt     => ALU_shamt, --from instruction
-    data_out  => ALU_data_out, --signal
-    HI        => ALU_HI, --signal
-    LO        => ALU_LO, --signal
-    zero      => zero --signal
+    opcode    => ALUOpcode,
+    data0     => ALU_data0,
+    data1     => ALU_data1,
+    shamt     => ALU_shamt,
+    data_out  => ALU_data_out,
+    HI        => ALU_HI,
+    LO        => ALU_LO,
+    zero      => zero
   );
 ALU_shamt <= EX_SignExtend(10 downto 6);
 
@@ -977,10 +998,10 @@ EX_MEM_stage: EX_MEM
     MemtoReg_in    => ID_EX_MemtoReg,
     RegWrite_in    => ID_EX_RegWrite,
     --ALU
-    ALU_Result_in  => EX_ALU_result,-- from ALU t_data_out
+    ALU_Result_in  => EX_ALU_result,
     ALU_HI_in      => ALU_HI,
     ALU_LO_in      => ALU_LO,
-    ALU_zero_in    => zero, --TODO
+    ALU_zero_in    => zero,
     --Read Data
     Data1_in       => ID_EX_data1_out,
     --Register
@@ -992,7 +1013,7 @@ EX_MEM_stage: EX_MEM
     MemtoReg_out   => EX_MEM_MemtoReg,
     RegWrite_out   => EX_MEM_RegWrite,
     --ALU
-    ALU_Result_out => EX_MEM_data,--from ALU t_data_out
+    ALU_Result_out => EX_MEM_data,
     ALU_HI_out     => EX_MEM_ALU_HI,
     ALU_LO_out     => EX_MEM_ALU_LO,
     ALU_zero_out   => EX_MEM_ALU_zero,
