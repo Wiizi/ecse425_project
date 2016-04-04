@@ -109,7 +109,8 @@ END COMPONENT;
    
         IF_ID_Write     : out std_logic;
         PC_Update      : out std_logic;
-        CPU_Stall      : out std_logic
+        CPU_Stall      : out std_logic;
+        state_o       : out integer
       );
   END COMPONENT;
 
@@ -431,6 +432,9 @@ END COMPONENT;
 
 -- a delay buffer (delays the signal by 1 clock cycle)
 COMPONENT Sync IS
+  GENERIC(
+    width : integer := 32
+    )
   PORT(
     clk     : in std_logic;
     Rd      : in std_logic_vector(4 downto 0);
@@ -468,7 +472,7 @@ signal rs, rt, Imem_rs, Imem_rt, IF_ID_rt : std_logic_vector ( 4 downto 0);
 
 --For Branch and Jump
 signal PC_Branch : std_logic;
-signal Branch_addr, after_Branch : std_logic_vector(31 downto 0) := (others => '0');
+signal Branch_addr, Branch_addr_out, after_Branch : std_logic_vector(31 downto 0) := (others => '0');
 signal Jump_addr, after_Jump : std_logic_vector(31 downto 0) := (others => '0');
 
 --signals from last pipeline stage
@@ -481,6 +485,7 @@ signal IF_ID_opCode, IF_ID_funct : std_logic_vector (5 downto 0);
 signal IF_ID_ALUsrc : std_logic;
 signal IF_ID_ALUOpcode : std_logic_vector(3 downto 0);
 signal haz_instruction : std_logic_vector(31 downto 0);
+signal hazard_state : integer range 0 to 2;
 
 --Signals for Forwarding
 signal Forward0_EX, Forward1_EX : std_logic_vector(1 downto 0);
@@ -576,10 +581,18 @@ PORT MAP
 -- BRANCH LOGIC
 -----------------------------
 PC_Branch <= IF_ID_Branch and (zero xor IF_ID_BNE);
-Branch_addr <= std_logic_vector(to_unsigned((to_integer(unsigned(IF_ID_addr_out)) + to_integer((unsigned(ID_SignExtend(29 downto 0) & "00")))), 32));
+Branch_addr <= (ID_SignExtend(29 downto 0) & "00");
+
+-- delay branch address
+branch_delay : Sync
+  PORT MAP(
+    clk     => clk,
+    Rd      => Branch_addr,
+    Rd_W    => Branch_addr_out
+    );
 
 with PC_Branch select after_Branch <=
-  Branch_addr when '1',
+  Branch_addr_out when '1',
   InstMem_counterVector when others;
 
 ----------------------------
@@ -780,7 +793,8 @@ Hazard : HazardDetectionControl
 
     IF_ID_Write     => haz_IF_ID_write,
     PC_Update       => haz_PC_write,
-    CPU_Stall       => CPU_stall
+    CPU_Stall       => CPU_stall,
+    state_o     => hazard_state
   );
 
 -- stall or execute
@@ -987,6 +1001,9 @@ MEM_WB_stage: MEM_WB
 
 -- delay write enable for registers
 Rd_Delay : Sync
+  generic(
+    width => 5
+    )
   PORT MAP(
     clk     => clk,
     Rd      => MEM_WB_Rd,

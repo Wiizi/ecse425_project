@@ -12,64 +12,66 @@ proc AddWaves {} {
   ;#These signals will be contained in a group
   ;# add wave -group "SIGNALS" -radix hex sim:/memory/addr\
 
-  add wave -group "SIGNALS"   -position end -radix decimal sim:/w_cpu/PC_addr_out
+  add wave -group "SIGNALS"   -position end -radix unsigned sim:/w_cpu/PC_addr_out
 
-  add wave -group "INSTMEM"   -position end -radix decimal sim:/w_cpu/InstMem_counter\
+  add wave -group "INSTMEM"   -position end -radix unsigned sim:/w_cpu/InstMem_counter\
                               -radix binary sim:/w_cpu/Imem_inst_in
 
   add wave -group "INSTR RUN"   -position end -radix binary sim:/w_cpu/IF_ID_Imem_inst_in
 
-  add wave -group "DATAMEM"   -position end -radix decimal sim:/w_cpu/DataMem_addr\
+  add wave -group "DATAMEM"   -position end -radix unsigned sim:/w_cpu/DataMem_addr\
                               -radix binary sim:/w_cpu/DataMem_re\
                               -radix binary sim:/w_cpu/DataMem_we\
                               -radix binary sim:/w_cpu/MEM_WB_data\
                               -radix binary sim:/w_cpu/DataMem_data\
                               -radix binary sim:/w_cpu/DataMem_busy
 
-  add wave -group "RegIn"     -position end -radix decimal sim:/w_cpu/rs\
-                              -radix decimal sim:/w_cpu/rt\
-                              -radix decimal sim:/w_cpu/Rd_W\
-                              -radix decimal sim:/w_cpu/MEM_WB_RegWrite\
-                              -radix decimal sim:/w_cpu/Result_W\
-                              -radix decimal sim:/w_cpu/ALU_LO\
-                              -radix decimal sim:/w_cpu/ALU_HI\
-                              -radix decimal sim:/w_cpu/data0\
-                              -radix decimal sim:/w_cpu/data1\
-                              -radix decimal sim:/w_cpu/ALU_LO_out\
-                              -radix decimal sim:/w_cpu/ALU_HI_out
+  add wave -group "RegIn"     -position end -radix unsigned sim:/w_cpu/rs\
+                              -radix unsigned sim:/w_cpu/rt\
+                              -radix unsigned sim:/w_cpu/Rd_W\
+                              -radix unsigned sim:/w_cpu/MEM_WB_RegWrite\
+                              -radix unsigned sim:/w_cpu/Result_W\
+                              -radix unsigned sim:/w_cpu/ALU_LO\
+                              -radix unsigned sim:/w_cpu/ALU_HI\
+                              -radix unsigned sim:/w_cpu/data0\
+                              -radix unsigned sim:/w_cpu/data1\
+                              -radix unsigned sim:/w_cpu/ALU_LO_out\
+                              -radix unsigned sim:/w_cpu/ALU_HI_out
 
-  add wave -group "Registers" -position end -radix decimal sim:/w_cpu/r0\
-                              -radix decimal sim:/w_cpu/r1\
-                              -radix decimal sim:/w_cpu/r2\
-                              -radix decimal sim:/w_cpu/r3\
-                              -radix decimal sim:/w_cpu/r4\
-                              -radix decimal sim:/w_cpu/r5\
-                              -radix decimal sim:/w_cpu/r6\
-                              -radix decimal sim:/w_cpu/r7\
-                              -radix decimal sim:/w_cpu/r8\
-                              -radix decimal sim:/w_cpu/r9\
-                              -radix decimal sim:/w_cpu/r10\
-                              -radix decimal sim:/w_cpu/r11\
-                              -radix decimal sim:/w_cpu/r12\
-                              -radix decimal sim:/w_cpu/r13\
-                              -radix decimal sim:/w_cpu/r14\
-                              -radix decimal sim:/w_cpu/r15\
-                              -radix decimal sim:/w_cpu/r16\
-                              -radix decimal sim:/w_cpu/r17\
-                              -radix decimal sim:/w_cpu/r18\
-                              -radix decimal sim:/w_cpu/r19\
-                              -radix decimal sim:/w_cpu/r20\
-                              -radix decimal sim:/w_cpu/r21\
-                              -radix decimal sim:/w_cpu/r22\
-                              -radix decimal sim:/w_cpu/r23\
-                              -radix decimal sim:/w_cpu/r24\
-                              -radix decimal sim:/w_cpu/r25\
-                              -radix decimal sim:/w_cpu/r26\
-                              -radix decimal sim:/w_cpu/r27\
-                              -radix decimal sim:/w_cpu/r28\
-                              -radix decimal sim:/w_cpu/r29\
-                              -radix decimal sim:/w_cpu/r30\
-                              -radix decimal sim:/w_cpu/r31
+  add wave -group "Registers" -position end -radix unsigned sim:/w_cpu/r0\
+                              -radix unsigned sim:/w_cpu/r1\
+                              -radix unsigned sim:/w_cpu/r2\
+                              -radix unsigned sim:/w_cpu/r3\
+                              -radix unsigned sim:/w_cpu/r4\
+                              -radix unsigned sim:/w_cpu/r5\
+                              -radix unsigned sim:/w_cpu/r6\
+                              -radix unsigned sim:/w_cpu/r7\
+                              -radix unsigned sim:/w_cpu/r8\
+                              -radix unsigned sim:/w_cpu/r9\
+                              -radix unsigned sim:/w_cpu/r10\
+                              -radix unsigned sim:/w_cpu/r11\
+                              -radix unsigned sim:/w_cpu/r12\
+                              -radix unsigned sim:/w_cpu/r13\
+                              -radix unsigned sim:/w_cpu/r14\
+                              -radix unsigned sim:/w_cpu/r15\
+                              -radix unsigned sim:/w_cpu/r16\
+                              -radix unsigned sim:/w_cpu/r17\
+                              -radix unsigned sim:/w_cpu/r18\
+                              -radix unsigned sim:/w_cpu/r19\
+                              -radix unsigned sim:/w_cpu/r20\
+                              -radix unsigned sim:/w_cpu/r21\
+                              -radix unsigned sim:/w_cpu/r22\
+                              -radix unsigned sim:/w_cpu/r23\
+                              -radix unsigned sim:/w_cpu/r24\
+                              -radix unsigned sim:/w_cpu/r25\
+                              -radix unsigned sim:/w_cpu/r26\
+                              -radix unsigned sim:/w_cpu/r27\
+                              -radix unsigned sim:/w_cpu/r28\
+                              -radix unsigned sim:/w_cpu/r29\
+                              -radix unsigned sim:/w_cpu/r30\
+                              -radix unsigned sim:/w_cpu/r31\
+                              -radix unsigned sim:/w_cpu/rLo\
+                              -radix unsigned sim:/w_cpu/rHi
 
   add wave -group "CONTROLIN" -position end -radix binary sim:/w_cpu/IF_ID_opCode\
                               -radix binary sim:/w_cpu/IF_ID_funct
@@ -111,32 +113,42 @@ proc AddWaves {} {
                               -radix binary sim:/w_cpu/IF_ID_ALUOpcode
 
   add wave -group "ALU IN"    -position end -radix binary sim:/w_cpu/ALUOpcode\
-                              -radix decimal sim:/w_cpu/ALU_data0\
-                              -radix decimal sim:/w_cpu/ALU_data1\
-                              -radix decimal sim:/w_cpu/ALU_shamt
+                              -radix unsigned sim:/w_cpu/ALU_data0\
+                              -radix unsigned sim:/w_cpu/ALU_data1\
+                              -radix unsigned sim:/w_cpu/ALU_shamt
 
-  add wave -group "ALU OUT"   -position end -radix decimal sim:/w_cpu/ALU_data_out\
-                              -radix decimal sim:/w_cpu/ALU_HI\
-                              -radix decimal sim:/w_cpu/ALU_LO\
+  add wave -group "ALU OUT"   -position end -radix unsigned sim:/w_cpu/ALU_data_out\
+                              -radix unsigned sim:/w_cpu/ALU_HI\
+                              -radix unsigned sim:/w_cpu/ALU_LO\
                               -radix binary sim:/w_cpu/zero
 
-  add wave -group "Forward"   -position end -radix decimal sim:/w_cpu/ID_EX_Rs_out\
-                              -radix decimal sim:/w_cpu/ID_EX_Rt_out\
-                              -radix decimal sim:/w_cpu/EX_MEM_RegWrite\
-                              -radix decimal sim:/w_cpu/EX_MEM_Rd\
-                              -radix decimal sim:/w_cpu/MEM_WB_RegWrite\
-                              -radix decimal sim:/w_cpu/MEM_WB_Rd\
+  add wave -group "Forward"   -position end -radix unsigned sim:/w_cpu/ID_EX_Rs_out\
+                              -radix unsigned sim:/w_cpu/ID_EX_Rt_out\
+                              -radix unsigned sim:/w_cpu/EX_MEM_RegWrite\
+                              -radix unsigned sim:/w_cpu/EX_MEM_Rd\
+                              -radix unsigned sim:/w_cpu/MEM_WB_RegWrite\
+                              -radix unsigned sim:/w_cpu/MEM_WB_Rd\
                               -radix binary sim:/w_cpu/Forward0_EX\
                               -radix binary sim:/w_cpu/Forward1_EX
 
-  add wave -group "Hazard"   -position end -radix decimal sim:/w_cpu/IF_ID_rt\
-                              -radix decimal sim:/w_cpu/Imem_rs\
-                              -radix decimal sim:/w_cpu/Imem_rt\
-                              -radix decimal sim:/w_cpu/MemRead\
+  add wave -group "Hazard"   -position end -radix unsigned sim:/w_cpu/hazard_state\
+                              -radix unsigned sim:/w_cpu/IF_ID_rt\
+                              -radix unsigned sim:/w_cpu/Imem_rs\
+                              -radix unsigned sim:/w_cpu/Imem_rt\
+                              -radix unsigned sim:/w_cpu/MemRead\
                               -radix binary sim:/w_cpu/Branch\
                               -radix binary sim:/w_cpu/haz_IF_ID_write\
                               -radix binary sim:/w_cpu/haz_PC_write\
                               -radix binary sim:/w_cpu/CPU_stall
+
+  add wave -group "BRANCH"   -position end -radix binary sim:/w_cpu/Branch\
+                              -radix unsigned sim:/w_cpu/zero\
+                              -radix binary sim:/w_cpu/BNE\
+                              -radix binary sim:/w_cpu/PC_Branch\
+                              -radix unsigned sim:/w_cpu/Branch_addr\
+                              -radix binary sim:/w_cpu/IF_ID_Jump\
+                              -radix unsigned sim:/w_cpu/Jump_addr\
+                              -radix unsigned sim:/w_cpu/after_Jump
 
   ;#Set some formating options to make the Waves window more legible
   configure wave -namecolwidth 250
