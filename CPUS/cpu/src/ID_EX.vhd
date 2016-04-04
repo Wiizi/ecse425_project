@@ -34,6 +34,7 @@ ENTITY ID_EX IS
 		ALU_op_in			: in std_logic_vector(3 downto 0);
 		ALU_src_in			: in std_logic;
 		Reg_dest_in			: in std_logic;
+		BNE_in         	    : in std_logic;
 
 
 		--Data Outputs
@@ -56,7 +57,8 @@ ENTITY ID_EX IS
 		LUI_out				: out std_logic;
 		ALU_op_out			: out std_logic_vector(3 downto 0);
 		ALU_src_out			: out std_logic;
-		Reg_dest_out		: out std_logic
+		Reg_dest_out		: out std_logic;
+		BNE_out            : out std_logic
 	);
 END ID_EX;
 
@@ -85,6 +87,7 @@ signal temp_LUI				: std_logic;
 signal temp_ALU_op			: std_logic_vector(3 downto 0);
 signal temp_ALU_src			: std_logic;
 signal temp_Reg_dest		: std_logic;
+signal temp_bne		: std_logic;
 
 BEGIN
 
@@ -105,7 +108,7 @@ BEGIN
 	temp_ALU_op				<= ALU_op_in;
 	temp_ALU_src			<= ALU_src_in;
 	temp_Reg_dest			<= Reg_dest_in;
-		
+	temp_bne 				<= BNE_in;
 
 --Process Block
 process (clk)
@@ -133,6 +136,7 @@ process (clk)
 		ALU_op_out			<= temp_ALU_op;
 		ALU_src_out			<= temp_ALU_src;
 		Reg_dest_out		<= temp_Reg_dest;
+		BNE_out 			<= temp_bne;
 	end if;
 
 end process;
