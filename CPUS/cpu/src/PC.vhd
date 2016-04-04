@@ -14,7 +14,7 @@ ENTITY PC IS
 		clk 		: in std_logic;
 		addr_in 	: in std_logic_vector(31 downto 0);
 		PC_write 	: in std_logic := '1'; --For hazard dectection, always 1 unless hazard detection unit changes it
-		addr_out 	: out std_logic_vector(31 downto 0)
+		addr_out 	: out std_logic_vector(31 downto 0) := (others => '0')
 	);
 END PC;
 

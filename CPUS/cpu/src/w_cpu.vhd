@@ -327,7 +327,7 @@ END COMPONENT;
        clk         : in std_logic;
        addr_in     : in std_logic_vector(31 downto 0);
        PC_write    : in std_logic := '1'; --For hazard dectection, always1 unless hazard detection    unit changes it
-       addr_out    : out std_logic_vector(31 downto 0)
+       addr_out    : out std_logic_vector(31 downto 0) := (others => '0')
      );
   END COMPONENT;
 
@@ -453,8 +453,8 @@ END COMPONENT;
 ------------------------SIGNALS----------------------
 
 -- MEMORY
-SIGNAL InstMem_counter    : integer   := 0;
-SIGNAL InstMem_re         : std_logic := '1';
+SIGNAL address_counter, InstMem_address    : integer   := 0;
+SIGNAL InstMem_re         : std_logic := '0';
 SIGNAL DataMem_addr       : integer    := 0;
 SIGNAL DataMem_re         : std_logic  := '1';
 SIGNAL DataMem_we         : std_logic  := '0';
@@ -542,19 +542,31 @@ Program_counter: PC
   PORT MAP( 
           clk         => clk,
           addr_in     => after_Jump, --should be jump_mux_out
-          PC_write    => haz_PC_write,-- from hazard detection
+          PC_write    => '1',-- from hazard detection
           addr_out    => PC_addr_out
       );
 
 -- increments the pc by 4 on every clock cycle
 pc_increment : process (clk)
 begin
-  if (falling_edge(clk) and CPU_stall = '0' and BRANCH = '0' and JUMP = '0') then
-      InstMem_counter <= to_integer(unsigned(PC_addr_out)) + 4;
+  if (falling_edge(clk)) then
+    if (CPU_stall = '0') then
+      address_counter <= to_integer(unsigned(PC_addr_out)) + 4;
+    end if;
   end if;
 end process;
-InstMem_counterVector <= std_logic_vector(to_unsigned(InstMem_counter,32));
+InstMem_counterVector <= std_logic_vector(to_unsigned(address_counter,32));
+InstMem_address <= to_integer(unsigned(PC_addr_out));
 
+read_instruction_mem : process (clk)
+begin
+  if (falling_edge(clk)) then
+    InstMem_re <= '1';
+    if (CPU_stall = '1') then
+      InstMem_re <= '0';
+    end if;
+  end if;
+end process;
 -- Instruction memory component
 Instruction_Memory : memory
 GENERIC MAP
@@ -574,7 +586,7 @@ GENERIC MAP
 PORT MAP
 (
     clk           => clk_mem,
-    addr          => InstMem_counter,
+    addr          => InstMem_address,
     wordbyte      => '1',
     re            => InstMem_re,
     we            => '0', -- instMem never writes
@@ -622,7 +634,9 @@ with RegDest select EX_rd <=
   ID_EX_Rd when '1',
   ID_EX_Rt_out when others;
 
+----------------------
 -- Data memory 
+----------------------
 Data_Memory : memory
 GENERIC MAP
 (
