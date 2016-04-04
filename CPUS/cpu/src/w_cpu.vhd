@@ -434,12 +434,12 @@ END COMPONENT;
 COMPONENT Sync IS
   GENERIC(
     width : integer := 32
-    )
+    );
   PORT(
     clk     : in std_logic;
-    Rd      : in std_logic_vector(4 downto 0);
+    Rd      : in std_logic_vector(width downto 0);
 
-    Rd_W    : out std_logic_vector(4 downto 0)
+    Rd_W    : out std_logic_vector(width downto 0)
     );
 END COMPONENT;
 
@@ -1001,7 +1001,7 @@ MEM_WB_stage: MEM_WB
 
 -- delay write enable for registers
 Rd_Delay : Sync
-  generic(
+  generic map(
     width => 5
     )
   PORT MAP(
