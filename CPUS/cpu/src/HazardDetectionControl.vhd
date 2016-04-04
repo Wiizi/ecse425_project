@@ -25,7 +25,7 @@ ENTITY HazardDetectionControl IS
 END HazardDetectionControl;
 
 ARCHITECTURE behaviour OF HazardDetectionControl IS
-signal state : integer range 0 to 2 := 0;
+signal state : integer range 0 to 3 := 0;
 BEGIN
 
 state_o <= state;
@@ -33,16 +33,19 @@ state_o <= state;
 with state select CPU_Stall <=
 	'1' when 1,
 	'1' when 2,
+	'1' when 3,
 	'0' when others; 
 
 with state select IF_ID_Write <=
 	'0' when 1,
 	'0' when 2,
+	'0' when 3,
 	'1' when others; 
 
 with state select PC_Update <=
 	'0' when 1,
 	'0' when 2,
+	'0' when 3,
 	'1' when others; 
 
 hzrdDetection: process (clk)
@@ -51,20 +54,30 @@ begin
 		-- check for hazards and stall if any hazard is detected
 		case state is 
 			when 0 =>
-				if (BRANCH = '1' or ID_EX_MemRead = '1' or (((EX_Rt = ID_Rs) or (EX_Rt = ID_Rt)) and EX_Rt /= "00000" and EX_Rt /= "UUUUU") ) then
+				if (BRANCH = '1') then 
+					state <= 3; -- insert 3 delay slots
+				elsif (ID_EX_MemRead = '1' or (((EX_Rt = ID_Rs) or (EX_Rt = ID_Rt)) and EX_Rt /= "00000" and EX_Rt /= "UUUUU" and (ID_Rs /= "UUUUU" or ID_Rt /= "UUUUU")) ) then
 					state <= 1; -- insert 1 delay slot
 				end if;
-			-- case 1: 1 delay slot
+			-- case 1: 1 delay slot; used for structural hazards
 			when 1 =>
 				state <= 0;
-				if (BRANCH = '1' or ID_EX_MemRead = '1' or (((EX_Rt = ID_Rs) or (EX_Rt = ID_Rt)) and EX_Rt /= "00000" and EX_Rt /= "UUUUU") ) then
+				if (BRANCH = '1') then 
+					state <= 3; -- insert 3 delay slots
+				elsif (ID_EX_MemRead = '1' or (((EX_Rt = ID_Rs) or (EX_Rt = ID_Rt)) and EX_Rt /= "00000" and EX_Rt /= "UUUUU" and (ID_Rs /= "UUUUU" or ID_Rt /= "UUUUU")) ) then
 					state <= 1; -- insert 1 delay slot
 				end if;
 			-- case 2: 2 delay slots
 			when 2 =>
 				state <= 1;
+				if (BRANCH = '1') then 
+					state <= 3; -- insert 3 delay slots
+				end if;
+			-- case 3: 3 delay slots
+			when 3 =>
+				state <= 2;
 			when others => 
-				null;
+				state <= 0;
 		end case;
 	end if;
 end process;

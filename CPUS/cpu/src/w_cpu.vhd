@@ -485,7 +485,7 @@ signal IF_ID_opCode, IF_ID_funct : std_logic_vector (5 downto 0);
 signal IF_ID_ALUsrc : std_logic;
 signal IF_ID_ALUOpcode : std_logic_vector(3 downto 0);
 signal haz_instruction : std_logic_vector(31 downto 0);
-signal hazard_state : integer range 0 to 2;
+signal hazard_state : integer range 0 to 7;
 
 --Signals for Forwarding
 signal Forward0_EX, Forward1_EX : std_logic_vector(1 downto 0);
@@ -663,7 +663,7 @@ IF_ID_stage: IF_ID
     clk           => clk,
     inst_in       => IF_ID_Imem_inst_in,
     addr_in       => PC_addr_out,
-    IF_ID_write   => haz_IF_ID_write,
+    IF_ID_write   => '1',
     inst_out      => IF_ID_inst_out,
     addr_out      => IF_ID_addr_out
     );
@@ -699,6 +699,8 @@ Control: Control_Unit
     MemtoReg        => MemtoReg --signal, for mux
     );
 
+rs <= IF_ID_inst_out(25 downto 21);
+rt <= IF_ID_inst_out(20 downto 16);
 Register_bank: Registers
   PORT MAP(
     clk     => clk,
@@ -755,8 +757,6 @@ Register_bank: Registers
     rLo             => rLo,
     rHi             => rHi
     );
-rs <= IF_ID_inst_out(25 downto 21);
-rt <= IF_ID_inst_out(20 downto 16);
 
 ----------------------------------
 -- MFLO and MFHI LOGIC
