@@ -164,6 +164,7 @@ END COMPONENT;
         ALU_op_in         : in std_logic_vector(3 downto 0);
         ALU_src_in        : in std_logic;
         Reg_dest_in       : in std_logic;
+        BNE_in            : in std_logic;
 
         --Data Outputs
         Addr_out          : out std_logic_vector(31 downto 0);
@@ -183,7 +184,8 @@ END COMPONENT;
         LUI_out           : out std_logic;
         ALU_op_out        : out std_logic_vector(3 downto 0);
         ALU_src_out       : out std_logic;
-        Reg_dest_out      : out std_logic
+        Reg_dest_out      : out std_logic;
+        BNE_out            : out std_logic
       );
   END COMPONENT;
 
@@ -416,19 +418,24 @@ END COMPONENT;
 END COMPONENT;
 
 -- used to forward relevant signals to avoid data hazards
-COMPONENT Forwarding IS
-  PORT(
+COMPONENT Forwarding is
+  port(
+    Branch      : in std_logic;
     EX_MEM_RegWrite : in std_logic;
     MEM_WB_RegWrite : in std_logic;
-    EX_Rs          : in std_logic_vector(4 downto 0);
-    EX_Rt          : in std_logic_vector(4 downto 0);
-    MEM_Rd          : in std_logic_vector(4 downto 0);
-    WB_Rd          : in std_logic_vector(4 downto 0);
+    ID_Rs     : in std_logic_vector(4 downto 0);
+    ID_Rt     : in std_logic_vector(4 downto 0);
+    EX_Rs     : in std_logic_vector(4 downto 0);
+    EX_Rt     : in std_logic_vector(4 downto 0);
+    MEM_Rd      : in std_logic_vector(4 downto 0);
+    WB_Rd     : in std_logic_vector(4 downto 0);
 
-    Forward0_EX   : out std_logic_vector(1 downto 0) := "00";
-    Forward1_EX   : out std_logic_vector(1 downto 0) := "00"
+    Forward0_Branch : out std_logic_vector(1 downto 0);
+    Forward1_Branch : out std_logic_vector(1 downto 0);
+    Forward0_EX   : out std_logic_vector(1 downto 0);
+    Forward1_EX   : out std_logic_vector(1 downto 0)
     );
-END COMPONENT;
+end COMPONENT;
 
 -- a delay buffer (delays the signal by 1 clock cycle)
 COMPONENT Sync IS
@@ -473,14 +480,14 @@ signal rs, rt, Imem_rs, Imem_rt, IF_ID_rt : std_logic_vector ( 4 downto 0);
 --For Branch and Jump
 signal PC_Branch : std_logic;
 signal Branch_addr, Branch_addr_out, after_Branch : std_logic_vector(31 downto 0) := (others => '0');
-signal Jump_addr, after_Jump : std_logic_vector(31 downto 0) := (others => '0');
+signal Jump_addr, Jump_addr_out, after_Jump : std_logic_vector(31 downto 0) := (others => '0');
 
 --signals from last pipeline stage
 signal ID_SignExtend, ID_EX_SignExtend, EX_SignExtend : std_logic_vector(31 downto 0);
 
 --hazard detection signal
 signal CPU_stall : std_logic;
-signal IF_ID_regWrite,IF_ID_RegDest,IF_ID_Branch,IF_ID_BNE,IF_ID_Jump,IF_ID_MemWrite,IF_ID_MemRead,IF_ID_MemtoReg : std_logic;
+signal IF_ID_regWrite,IF_ID_RegDest,IF_ID_Branch,IF_ID_BNE, ID_EX_BNE, IF_ID_Jump,IF_ID_MemWrite,IF_ID_MemRead,IF_ID_MemtoReg : std_logic;
 signal IF_ID_opCode, IF_ID_funct : std_logic_vector (5 downto 0);
 signal IF_ID_ALUsrc : std_logic;
 signal IF_ID_ALUOpcode : std_logic_vector(3 downto 0);
@@ -542,7 +549,7 @@ Program_counter: PC
 -- increments the pc by 4 on every clock cycle
 pc_increment : process (clk)
 begin
-  if (falling_edge(clk) and CPU_stall = '0') then
+  if (falling_edge(clk) and CPU_stall = '0' and BRANCH = '0' and JUMP = '0') then
       InstMem_counter <= to_integer(unsigned(PC_addr_out)) + 4;
   end if;
 end process;
@@ -580,7 +587,7 @@ PORT MAP
 -----------------------------
 -- BRANCH LOGIC
 -----------------------------
-PC_Branch <= IF_ID_Branch and (zero xor IF_ID_BNE);
+PC_Branch <= Branch and (zero xor BNE);
 Branch_addr <= (ID_SignExtend(29 downto 0) & "00");
 
 -- delay branch address
@@ -598,13 +605,20 @@ with PC_Branch select after_Branch <=
 ----------------------------
 -- JUMP LOGIC
 ----------------------------
-Jump_addr <= "0000" & IF_ID_addr_out(25 downto 0) & "00";
+Jump_addr <= "0000" & IF_ID_inst_out(25 downto 0) & "00";
 
-with IF_ID_Jump select after_Jump <=
-  Jump_addr when '1',
+jump_delay : Sync
+  PORT MAP(
+    clk     => clk,
+    Rd      => Jump_addr,
+    Rd_W    => Jump_addr_out
+    );
+
+with JUMP select after_Jump <=
+  Jump_addr_out when '1',
   after_Branch when others;
 
-with IF_ID_RegDest select EX_rd <=
+with RegDest select EX_rd <=
   ID_EX_Rd when '1',
   ID_EX_Rt_out when others;
 
@@ -851,6 +865,7 @@ ID_EX_stage: ID_EX
     ALU_op_in         => IF_ID_ALUOpcode,
     ALU_src_in        => IF_ID_ALUsrc,
     Reg_dest_in       => IF_ID_RegDest,
+    BNE_in            => IF_ID_BNE,
 
     --Data Outputs
     Addr_out          => ID_EX_addr_out,
@@ -870,7 +885,8 @@ ID_EX_stage: ID_EX
     LUI_out           => ID_EX_LUI,
     ALU_op_out        => ID_EX_ALU_op_out,
     ALU_src_out       => ID_EX_ALU_src_out,
-    Reg_dest_out      => ID_EX_RegDest_out
+    Reg_dest_out      => ID_EX_RegDest_out,
+    BNE_out           => ID_EX_BNE
   );
 
 
@@ -889,12 +905,17 @@ ID_EX_stage: ID_EX
 
 Forwarding_unit: Forwarding
   PORT MAP(
+    Branch        => Branch,
     EX_MEM_RegWrite => ID_EX_RegWrite,
     MEM_WB_RegWrite => EX_MEM_RegWrite,
+    ID_Rs      => (others => '0'),
+    ID_Rt      => (others => '0'),
     EX_Rs       => ID_EX_Rs_out,
     EX_Rt       => ID_EX_Rt_out,
     MEM_Rd        => EX_MEM_Rd,
     WB_Rd        => MEM_WB_Rd,
+    --Forward0_Branch =>
+    --Forward1_Branch =>
     Forward0_EX      => Forward0_EX,
     Forward1_EX      => Forward1_EX
   );

@@ -145,7 +145,7 @@ proc AddWaves {} {
                               -radix unsigned sim:/w_cpu/zero\
                               -radix binary sim:/w_cpu/BNE\
                               -radix binary sim:/w_cpu/PC_Branch\
-                              -radix unsigned sim:/w_cpu/Branch_addr_out\
+                              -radix unsigned sim:/w_cpu/Branch_addr\
                               -radix binary sim:/w_cpu/IF_ID_Jump\
                               -radix unsigned sim:/w_cpu/Jump_addr\
                               -radix unsigned sim:/w_cpu/after_Jump

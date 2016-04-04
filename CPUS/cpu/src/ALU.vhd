@@ -68,6 +68,7 @@ begin
 					temp_data_out <= std_logic_vector(unsigned(data0) - unsigned(data1));
 				else
 					temp_data_out <= (others => '0');
+					temp_zero <= '0';
 				end if;
 			-- add
 			when "0010" =>
