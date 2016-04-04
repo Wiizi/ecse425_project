@@ -3,7 +3,7 @@
 --Author: Wei Wang
 --Date: 2016-03-27
 --
--- Description: Forward.vhd is the forwarding unit responcible for selecting the inputs to the ALU. 
+-- Description: Forward.vhd is the forwarding unit responsible for selecting the inputs to the ALU. 
 -- Each input to the ALU come from a multiplexer which selects whether the data should come from the current execution stage, 
 -- the Memory Access stage, or the Writeback stage. This is determined by examining the register Rs, Rt, and Rd to detect Read after Write (RAW) hazards.
 
@@ -34,60 +34,47 @@ architecture Behavioural of Forwarding is
 
 begin
 
-	process(Branch, EX_MEM_RegWrite, MEM_WB_RegWrite, ID_Rs, ID_Rt, EX_Rs, EX_Rt, MEM_Rd, WB_Rd)
+	process(Branch, EX_MEM_RegWrite, MEM_WB_RegWrite, ID_Rs, ID_Rt, EX_Rs, EX_Rt, MEM_Rd, WB_eRd)
 	begin
 
 	Forward0_Branch <= "00";
 	Forward1_Branch <= "00";
+
 	Forward0_EX 	<= "00";
 	Forward1_EX 	<= "00";
 
-	if (EX_MEM_RegWrite = '1' and (MEM_Rd /= "00000")) then
-		if (MEM_Rd = EX_Rs) then
-			Forward0_EX <= "01";
+	if (Branch = '1') then
+		if (EX_MEM_RegWrite = '1' and (MEM_Rd /= "00000") and (MEM_Rd = ID_Rs)) then
+			Forward0_Branch <= "01";
 		end if;
 
-		if (Branch = '1') then
-			if (MEM_Rd = ID_Rs) then
-				Forward0_Branch <= "01";
-			end if;
+		if (EX_MEM_RegWrite = '1' and (MEM_Rd /= "00000") and (MEM_Rd = ID_Rt)) then
+			Forward1_Branch <= "01";
+		end if;
+
+		if (MEM_WB_RegWrite = '1' and (WB_Rd /= "00000") and (not(EX_MEM_RegWrite = '1' and (MEM_Rd /= "00000") and (MEM_Rd = ID_Rs))) and (WB_Rd = ID_Rs)) then
+			Forward0_Branch <= "10";
+		end if;
+
+		if (MEM_WB_RegWrite = '1' and (WB_Rd /= "00000") and (not(EX_MEM_RegWrite = '1' and (MEM_Rd /= "00000") and (MEM_Rd = ID_Rt))) and (WB_Rd = ID_Rt)) then
+			Forward1_Branch <= "10";
 		end if;
 	end if;
 
-	if (EX_MEM_RegWrite = '1' and (MEM_Rd /= "00000")) then
-		if (MEM_Rd = EX_Rt) then
-			Forward1_EX <= "01";
-		end if;
-
-		if (Branch = '1') then
-			if (MEM_Rd = EX_Rt) then
-				Forward1_Branch <= "01";
-			end if;
-		end if;
+	if (EX_MEM_RegWrite = '1' and (MEM_Rd /= "00000") and (MEM_Rd = EX_Rs)) then
+		Forward0_EX <= "01";
 	end if;
 
-	if (MEM_WB_RegWrite = '1' and (WB_Rd /= "00000") and (not(EX_MEM_RegWrite = '1' and (MEM_Rd /= "00000") and (MEM_Rd = EX_Rs)))) then
-		if (WB_Rd = EX_Rs) then
-			Forward0_EX <= "10";
-		end if;
-
-		if (Branch = '1') then
-			if (WB_Rd = ID_Rs) then
-				Forward0_Branch <= "10";
-			end if;
-		end if;
+	if (EX_MEM_RegWrite = '1' and (MEM_Rd /= "00000") and (MEM_Rd = EX_Rt)) then
+		Forward1_EX <= "01";
 	end if;
 
-	if (MEM_WB_RegWrite = '1' and (WB_Rd /= "00000") and (not(EX_MEM_RegWrite = '1' and (MEM_Rd /= "00000") and (MEM_Rd = EX_Rt)))) then
-		if (WB_Rd = EX_Rt) then
-			Forward1_EX <= "10";
-		end if;
+	if (MEM_WB_RegWrite = '1' and (WB_Rd /= "00000") and (not(EX_MEM_RegWrite = '1' and (MEM_Rd /= "00000") and (MEM_Rd = EX_Rs))) and (WB_Rd = EX_Rs)) then
+		Forward0_EX <= "10";
+	end if;
 
-		if (Branch = '1') then
-			if (WB_Rd = ID_Rt) then
-				Forward1_Branch <= "10";
-			end if;
-		end if;
+	if (MEM_WB_RegWrite = '1' and (WB_Rd /= "00000") and (not(EX_MEM_RegWrite = '1' and (MEM_Rd /= "00000") and (MEM_Rd = EX_Rt))) and (WB_Rd = EX_Rt)) then
+		Forward1_EX <= "10";
 	end if;
 
 	end process;
