@@ -22,9 +22,10 @@ proc AddWaves {} {
   add wave -group "INSTR RUN"   -position end -radix binary sim:/w_cpu/IF_ID_Imem_inst_in
 
   add wave -group "DATAMEM"   -position end -radix unsigned sim:/w_cpu/DataMem_addr\
-                              -radix binary \sim:/w_cpu/DataMem_re\
+                              -radix binary sim:/w_cpu/DataMem_re\
                               -radix binary sim:/w_cpu/DataMem_we\
-                              -radix binary sim:/w_cpu/MEM_WB_data\
+                              -radix binary sim:/w_cpu/EX_MEM_Data1\
+                              -radix binary sim:/w_cpu/EX_MEM_data\
                               -radix binary sim:/w_cpu/DataMem_data\
                               -radix binary sim:/w_cpu/DataMem_busy
 
@@ -144,6 +145,7 @@ proc AddWaves {} {
                               -radix unsigned sim:/w_cpu/EX_ALU_result\
                               -radix unsigned sim:/w_cpu/Result_W
 
+
   ;#Set some formating options to make the Waves window more legible
   configure wave -namecolwidth 250
   WaveRestoreZoom {0 ns} {1100 ns}
@@ -181,6 +183,7 @@ proc CompileAndSimulate {} {
   vcom Haz_mux.vhd
   vcom MEM_WB.vhd
   vcom Sync.vhd
+  vcom Earlybranching.vhd
   vcom w_cpu.vhd
   
   ;#Start a simulation session with the w_cpu component
@@ -223,5 +226,6 @@ proc CompileOnly {} {
   vcom Haz_mux.vhd
   vcom MEM_WB.vhd
   vcom Sync.vhd
+  vcom Earlybranching.vhd
   vcom w_cpu.vhd
 }

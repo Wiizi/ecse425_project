@@ -411,8 +411,8 @@ COMPONENT EarlyBranching is
     MEM_Rd      : in std_logic_vector(4 downto 0);
     WB_Rd     : in std_logic_vector(4 downto 0);
 
-    Forward0_Branch : out std_logic;
-    Forward1_Branch : out std_logic
+    Forward0_Branch : out std_logic_vector(1 downto 0);
+    Forward1_Branch : out std_logic_vector(1 downto 0)
     );
 end COMPONENT;
 
@@ -475,7 +475,7 @@ signal hazard_state : integer range 0 to 7;
 
 --Signals for Forwarding
 signal Forward0_EX, Forward1_EX : std_logic_vector(1 downto 0);
-signal Forward0_Branch, Forward1_Branch : std_logic;
+signal Forward0_Branch, Forward1_Branch : std_logic_vector(1 downto 0);
 signal Branch_data0, Branch_data1: std_logic_vector(31 downto 0);
 
 --ID_EX output signals
@@ -611,11 +611,13 @@ BRANCH_ID : EarlyBranching
     );
 
 with Forward0_Branch select Branch_data0 <=
-  EX_ALU_result when '1',
+  EX_ALU_result when "01",
+  Result_W when "10",
   data0     when others;
 
 with Forward1_Branch select Branch_data1 <=
-  EX_ALU_result when '1',
+  EX_ALU_result when "01",
+  Result_W when "10",
   data1     when others;
 
 Equal <= (Branch_data0 = Branch_data1);
@@ -670,7 +672,7 @@ PORT MAP
     re            => DataMem_re,
     we            => DataMem_we,
     dump          => mem_dump,
-    dataIn        => EX_MEM_data, -- TODO: ADD CORRECT DATAIN HERE
+    dataIn        => EX_MEM_Data1, -- TODO: ADD CORRECT DATAIN HERE
     dataOut       => DataMem_data,
     busy          => DataMem_busy
 );
