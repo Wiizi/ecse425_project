@@ -9,8 +9,6 @@
 -- The output will be data0 op data1
 -- 
 
-
-
 LIBRARY ieee;
 USE IEEE.std_logic_1164.all;
 USE IEEE.numeric_std.all;

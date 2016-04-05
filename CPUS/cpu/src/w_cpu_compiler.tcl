@@ -22,7 +22,7 @@ proc AddWaves {} {
   add wave -group "INSTR RUN"   -position end -radix binary sim:/w_cpu/IF_ID_Imem_inst_in
 
   add wave -group "DATAMEM"   -position end -radix unsigned sim:/w_cpu/DataMem_addr\
-                              -radix binary sim:/w_cpu/DataMem_re\
+                              -radix binary \sim:/w_cpu/DataMem_re\
                               -radix binary sim:/w_cpu/DataMem_we\
                               -radix binary sim:/w_cpu/MEM_WB_data\
                               -radix binary sim:/w_cpu/DataMem_data\
@@ -93,27 +93,6 @@ proc AddWaves {} {
                               -radix binary sim:/w_cpu/CPU_stall\
                               -radix binary sim:/w_cpu/regWrite
 
-  add wave -group "HAZMUX"   -position end -radix binary sim:/w_cpu/regWrite\
-                              -radix binary sim:/w_cpu/RegDest\
-                              -radix binary sim:/w_cpu/Branch\
-                              -radix binary sim:/w_cpu/BNE\
-                              -radix binary sim:/w_cpu/Jump\
-                              -radix binary sim:/w_cpu/MemWrite\
-                              -radix binary sim:/w_cpu/MemRead\
-                              -radix binary sim:/w_cpu/MemtoReg\
-                              -radix binary sim:/w_cpu/ALUSrc\
-                              -radix binary sim:/w_cpu/ALUOpcode\
-                              -radix binary sim:/w_cpu/IF_ID_regWrite\
-                              -radix binary sim:/w_cpu/IF_ID_RegDest\
-                              -radix binary sim:/w_cpu/IF_ID_Branch\
-                              -radix binary sim:/w_cpu/IF_ID_BNE\
-                              -radix binary sim:/w_cpu/IF_ID_Jump\
-                              -radix binary sim:/w_cpu/IF_ID_MemWrite\
-                              -radix binary sim:/w_cpu/IF_ID_MemRead\
-                              -radix binary sim:/w_cpu/IF_ID_MemtoReg\
-                              -radix binary sim:/w_cpu/IF_ID_ALUsrc\
-                              -radix binary sim:/w_cpu/IF_ID_ALUOpcode
-
   add wave -group "ALU IN"    -position end -radix binary sim:/w_cpu/ALUOpcode\
                               -radix unsigned sim:/w_cpu/ALU_data0\
                               -radix unsigned sim:/w_cpu/ALU_data1\
@@ -139,8 +118,6 @@ proc AddWaves {} {
                               -radix unsigned sim:/w_cpu/Imem_rt\
                               -radix unsigned sim:/w_cpu/MemRead\
                               -radix binary sim:/w_cpu/Branch\
-                              -radix binary sim:/w_cpu/haz_IF_ID_write\
-                              -radix binary sim:/w_cpu/haz_PC_write\
                               -radix binary sim:/w_cpu/CPU_stall
 
   add wave -group "Branch&J"   -position end -radix binary sim:/w_cpu/Branch\

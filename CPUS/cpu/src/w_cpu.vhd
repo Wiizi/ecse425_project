@@ -107,8 +107,6 @@ END COMPONENT;
         ID_EX_MemRead   : in std_logic;
         BRANCH         : in std_logic;
    
-        IF_ID_Write     : out std_logic;
-        PC_Update      : out std_logic;
         CPU_Stall      : out std_logic;
         state_o       : out integer
       );
@@ -292,35 +290,6 @@ END COMPONENT;
       );
    END COMPONENT;
 
-  -- used for selecting 'stall bubble' or actual instuction to execute
-  COMPONENT Haz_mux is
-    PORT( 
-        sel : in std_logic;
-
-        in1 : in std_logic;
-        in2 : in std_logic;
-        in3 : in std_logic;
-        in4 : in std_logic;
-        in5 : in std_logic;
-        in6 : in std_logic;
-        in7 : in std_logic;
-        in8 : in std_logic;
-        in9 : in std_logic;
-        in10 : in std_logic_vector (3 downto 0);
-      
-        out1 : out std_logic;
-        out2 : out std_logic;
-        out3 : out std_logic;
-        out4 : out std_logic;
-        out5 : out std_logic;
-        out6 : out std_logic;
-        out7 : out std_logic;
-        out8 : out std_logic;
-        out9 : out std_logic;
-        out10 : out std_logic_vector (3 downto 0)
-    );
-  END COMPONENT;
-
   -- Program Counter 
   COMPONENT PC
      PORT(
@@ -477,7 +446,6 @@ SIGNAL DataMem_busy       : std_logic  := '0';
 signal PC_addr_out : std_logic_vector(31 downto 0);
 signal Imem_inst_in, Imem_addr_in, IF_ID_Imem_inst_in : std_logic_vector(31 downto 0);
 signal IF_ID_inst_out, IF_ID_addr_out : std_logic_vector(31 downto 0) := (others => '0');
-signal haz_IF_ID_write, haz_PC_write : std_logic;
 
 -- CONTROL signals
 signal regWrite: std_logic;
@@ -862,8 +830,6 @@ Hazard : HazardDetectionControl
     ID_EX_MemRead   => MemRead,
     BRANCH          => Branch,
 
-    IF_ID_Write     => haz_IF_ID_write,
-    PC_Update       => haz_PC_write,
     CPU_Stall       => CPU_stall,
     state_o         => hazard_state
   );

@@ -17,8 +17,6 @@ ENTITY HazardDetectionControl IS
 		ID_EX_MemRead 	: in std_logic;
 		BRANCH			: in std_logic;
 
-		IF_ID_Write 	: out std_logic;
-		PC_Update 		: out std_logic;
 		CPU_Stall 		: out std_logic;
 		state_o 			: out integer := 0
 	);
@@ -35,18 +33,6 @@ with state select CPU_Stall <=
 	'1' when 2,
 	'1' when 3,
 	'0' when others; 
-
-with state select IF_ID_Write <=
-	'0' when 1,
-	'0' when 2,
-	'0' when 3,
-	'1' when others; 
-
-with state select PC_Update <=
-	'0' when 1,
-	'0' when 2,
-	'0' when 3,
-	'1' when others; 
 
 hzrdDetection: process (clk)
 begin
