@@ -13,18 +13,13 @@ USE ieee.numeric_std.all;
 
 entity Forwarding is
 	port(
-		Branch 			: in std_logic;
 		EX_MEM_RegWrite : in std_logic;
 		MEM_WB_RegWrite	: in std_logic;
-		ID_Rs			: in std_logic_vector(4 downto 0);
-		ID_Rt			: in std_logic_vector(4 downto 0);
 		EX_Rs			: in std_logic_vector(4 downto 0);
 		EX_Rt			: in std_logic_vector(4 downto 0);
 		MEM_Rd			: in std_logic_vector(4 downto 0);
 		WB_Rd			: in std_logic_vector(4 downto 0);
 
-		Forward0_Branch	: out std_logic;
-		Forward1_Branch	: out std_logic;
 		Forward0_EX 	: out std_logic_vector(1 downto 0);
 		Forward1_EX		: out std_logic_vector(1 downto 0)
 		);
@@ -34,24 +29,11 @@ architecture Behavioural of Forwarding is
 
 begin
 
-	process(Branch, EX_MEM_RegWrite, MEM_WB_RegWrite, ID_Rs, ID_Rt, EX_Rs, EX_Rt, MEM_Rd, WB_Rd)
+	process(EX_MEM_RegWrite, MEM_WB_RegWrite, EX_Rs, EX_Rt, MEM_Rd, WB_Rd)
 	begin
-
-	Forward0_Branch <= '0';
-	Forward1_Branch <= '0';
 
 	Forward0_EX 	<= "00";
 	Forward1_EX 	<= "00";
-
-	if (Branch = '1') then
-		if (EX_MEM_RegWrite = '1' and (MEM_Rd /= "00000") and (MEM_Rd = ID_Rs)) then
-			Forward0_Branch <= '1';
-		end if;
-
-		if (EX_MEM_RegWrite = '1' and (MEM_Rd /= "00000") and (MEM_Rd = ID_Rt)) then
-			Forward1_Branch <= '1';
-		end if;
-	end if;
 
 	if (EX_MEM_RegWrite = '1' and (MEM_Rd /= "00000") and (MEM_Rd = EX_Rs)) then
 		Forward0_EX <= "01";

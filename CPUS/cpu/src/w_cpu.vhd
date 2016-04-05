@@ -420,20 +420,30 @@ END COMPONENT;
 -- used to forward relevant signals to avoid data hazards
 COMPONENT Forwarding is
   port(
-    Branch      : in std_logic;
     EX_MEM_RegWrite : in std_logic;
     MEM_WB_RegWrite : in std_logic;
-    ID_Rs     : in std_logic_vector(4 downto 0);
-    ID_Rt     : in std_logic_vector(4 downto 0);
     EX_Rs     : in std_logic_vector(4 downto 0);
     EX_Rt     : in std_logic_vector(4 downto 0);
     MEM_Rd      : in std_logic_vector(4 downto 0);
     WB_Rd     : in std_logic_vector(4 downto 0);
 
-    Forward0_Branch : out std_logic;
-    Forward1_Branch : out std_logic;
     Forward0_EX   : out std_logic_vector(1 downto 0);
     Forward1_EX   : out std_logic_vector(1 downto 0)
+    );
+end COMPONENT;
+
+COMPONENT EarlyBranching is
+  port(
+    Branch      : in std_logic;
+    EX_MEM_RegWrite : in std_logic;
+    MEM_WB_RegWrite : in std_logic;
+    ID_Rs     : in std_logic_vector(4 downto 0);
+    ID_Rt     : in std_logic_vector(4 downto 0);
+    MEM_Rd      : in std_logic_vector(4 downto 0);
+    WB_Rd     : in std_logic_vector(4 downto 0);
+
+    Forward0_Branch : out std_logic;
+    Forward1_Branch : out std_logic
     );
 end COMPONENT;
 
@@ -481,6 +491,7 @@ signal rs, rt, Imem_rs, Imem_rt, IF_ID_rt : std_logic_vector ( 4 downto 0);
 signal PC_Branch, Early_Zero : std_logic;
 signal Branch_addr, Branch_addr_out, after_Branch : std_logic_vector(31 downto 0) := (others => '0');
 signal Jump_addr, Jump_addr_out, after_Jump : std_logic_vector(31 downto 0) := (others => '0');
+signal Equal : boolean;
 
 --signals from last pipeline stage
 signal ID_SignExtend, ID_EX_SignExtend, EX_SignExtend : std_logic_vector(31 downto 0);
@@ -616,6 +627,34 @@ branch_delay : Sync
 with PC_Branch select after_Branch <=
   Branch_addr_out when '1',
   InstMem_counterVector when others;
+
+BRANCH_ID : EarlyBranching
+  PORT MAP(
+    Branch          => Branch,
+    EX_MEM_RegWrite => ID_EX_RegWrite,
+    MEM_WB_RegWrite => EX_MEM_RegWrite,
+    ID_Rs           => rs,
+    ID_Rt           => rt,
+    MEM_Rd          => EX_MEM_Rd,
+    WB_Rd           => MEM_WB_Rd,
+
+    Forward0_Branch => Forward0_Branch,
+    Forward1_Branch => Forward1_Branch
+    );
+
+with Forward0_Branch select Branch_data0 <=
+  EX_ALU_result when '1',
+  data0     when others;
+
+with Forward1_Branch select Branch_data1 <=
+  EX_ALU_result when '1',
+  data1     when others;
+
+Equal <= (Branch_data0 = Branch_data1);
+
+with Equal select Early_Zero <=
+  '1' when TRUE,
+  '0' when others;
 
 ----------------------------
 -- JUMP LOGIC
@@ -905,41 +944,16 @@ low_ID_EX_SignExtend <= ID_EX_SignExtend(15 downto 0) & "0000000000000000";
 
 Forwarding_unit: Forwarding
   PORT MAP(
-    Branch          => Branch,
     EX_MEM_RegWrite => ID_EX_RegWrite,
     MEM_WB_RegWrite => EX_MEM_RegWrite,
-    ID_Rs           => rs,
-    ID_Rt           => rt,
     EX_Rs           => ID_EX_Rs_out,
     EX_Rt           => ID_EX_Rt_out,
     MEM_Rd          => EX_MEM_Rd,
     WB_Rd           => MEM_WB_Rd,
-    Forward0_Branch => Forward0_Branch,
-    Forward1_Branch => Forward1_Branch,
+
     Forward0_EX     => Forward0_EX,
     Forward1_EX     => Forward1_EX
   );
-
-with Forward0_Branch select
-  Branch_data0 <=
-    EX_ALU_result when '1',
-    data0     when others;
-
-with Forward1_Branch select
-  Branch_data1 <=
-    EX_ALU_result when '1',
-    data1     when others;
-
-Zero_ID : process (clk)
-begin
-    if (rising_edge(clk)) then
-      if (Branch_data0 = Branch_data1) then
-        Early_Zero <= '1';
-      else
-        Early_Zero <= '0';
-      end if;
-    end if;
-end process;
 
 -- select DATA0 input for main ALU
 with Forward0_EX select ALU_data0 <=
