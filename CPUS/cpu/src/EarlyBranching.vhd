@@ -18,8 +18,8 @@ entity EarlyBranching is
 		MEM_Rd			: in std_logic_vector(4 downto 0);
 		WB_Rd			: in std_logic_vector(4 downto 0);
 
-		Forward0_Branch	: out std_logic;
-		Forward1_Branch	: out std_logic
+		Forward0_Branch	: out std_logic_vector(1 downto 0);
+		Forward1_Branch	: out std_logic_vector(1 downto 0)
 		);
 end EarlyBranching;
 
