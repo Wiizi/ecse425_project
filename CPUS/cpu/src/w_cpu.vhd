@@ -663,7 +663,7 @@ PORT MAP
     re            => DataMem_re,
     we            => DataMem_we,
     dump          => mem_dump,
-    dataIn        => EX_MEM_Data, -- TODO: ADD CORRECT DATAIN HERE
+    dataIn        => EX_MEM_data, -- TODO: ADD CORRECT DATAIN HERE
     dataOut       => DataMem_data,
     busy          => DataMem_busy
 );
