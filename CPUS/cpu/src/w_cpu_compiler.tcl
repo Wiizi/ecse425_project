@@ -16,7 +16,7 @@ proc AddWaves {} {
 
   add wave -group "INSTMEM"   -position end -radix unsigned sim:/w_cpu/InstMem_address\
                               -radix binary sim:/w_cpu/InstMem_re\
-                              -radix unsigned sim:/w_cpu/address_counter\
+                              -radix unsigned sim:/w_cpu/pc_in\
                               -radix binary sim:/w_cpu/Imem_inst_in
 
   add wave -group "INSTR RUN"   -position end -radix binary sim:/w_cpu/IF_ID_Imem_inst_in

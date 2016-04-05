@@ -326,7 +326,7 @@ END COMPONENT;
      PORT(
        clk         : in std_logic;
        addr_in     : in std_logic_vector(31 downto 0);
-       PC_write    : in std_logic := '1'; --For hazard dectection, always1 unless hazard detection    unit changes it
+       PC_write    : in std_logic := '1';
        addr_out    : out std_logic_vector(31 downto 0) := (others => '0')
      );
   END COMPONENT;
@@ -453,7 +453,7 @@ END COMPONENT;
 ------------------------SIGNALS----------------------
 
 -- MEMORY
-SIGNAL address_counter, InstMem_address    : integer   := 0;
+SIGNAL pc_in, InstMem_address    : integer   := 0;
 SIGNAL InstMem_re         : std_logic := '0';
 SIGNAL DataMem_addr       : integer    := 0;
 SIGNAL DataMem_re         : std_logic  := '1';
@@ -553,11 +553,11 @@ pc_increment : process (clk)
 begin
   if (falling_edge(clk)) then
     if (CPU_stall /= '1' or ID_EX_Branch_out = '1') then
-      address_counter <= to_integer(unsigned(PC_addr_out)) + 4;
+      pc_in <= to_integer(unsigned(PC_addr_out)) + 4;
     end if;
   end if;
 end process;
-InstMem_counterVector <= std_logic_vector(to_unsigned(address_counter,32));
+InstMem_counterVector <= std_logic_vector(to_unsigned(pc_in,32));
 InstMem_address <= to_integer(unsigned(PC_addr_out));
 
 read_instruction_mem : process (clk)
@@ -614,7 +614,7 @@ branch_delay : Sync
     );
 
 with PC_Branch select after_Branch <=
-  Branch_addr when '1',
+  Branch_addr_out when '1',
   InstMem_counterVector when others;
 
 ----------------------------
@@ -932,10 +932,12 @@ with Forward1_Branch select
 
 Zero_ID : process (clk)
 begin
-    if (Branch_data0 = Branch_data1) then
-      Early_Zero <= '1';
-    else
-      Early_Zero <= '0';
+    if (rising_edge(clk)) then
+      if (Branch_data0 = Branch_data1) then
+        Early_Zero <= '1';
+      else
+        Early_Zero <= '0';
+      end if;
     end if;
 end process;
 

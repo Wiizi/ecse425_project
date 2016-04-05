@@ -117,8 +117,9 @@ begin
 	ALU_LO_out <= regArray(32);
 	ALU_HI_out <= regArray(33);
 
-	process(RegWrite, ALU_LOHI_Write, readReg_0, readReg_1, writeReg, writeData, ALU_LO_in, ALU_HI_in )
+	process(clk)
 	begin
+	if (falling_edge(clk)) then
 		--check whether write signal is active
 		if (RegWrite = '1') then
 			--write the data
@@ -130,6 +131,7 @@ begin
 		end if;
 		--register 0 is hardwired to 0
 		regArray(0) <= (others => '0');
+	end if;
 	end process;
 
 end Behavioural;
