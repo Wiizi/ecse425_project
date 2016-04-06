@@ -40,7 +40,7 @@ begin
 		-- check for hazards and stall if any hazard is detected
 		case state is 
 			when 0 =>
-				if (BRANCH = '1') then 
+				if (ID_EX_MemRead = '1' or BRANCH = '1') then 
 					state <= 2; -- insert 3 delay slots
 				elsif (((EX_Rt = ID_Rs) or (EX_Rt = ID_Rt)) and EX_Rt /= "00000" and EX_Rt /= "UUUUU" and (ID_Rs /= "UUUUU" or ID_Rt /= "UUUUU")) then
 					state <= 1; -- insert 1 delay slot
