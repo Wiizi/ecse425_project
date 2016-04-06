@@ -488,7 +488,6 @@ signal hazard_state : integer range 0 to 7;
 signal Forward0_EX, Forward1_EX : std_logic_vector(1 downto 0);
 signal Forward0_Branch, Forward1_Branch : std_logic_vector(1 downto 0);
 signal Branch_data0, Branch_data1: std_logic_vector(31 downto 0);
-signal new_Rs, new_Rt : std_logic_vector(4 downto 0);
 
 --ID_EX output signals
 signal ID_EX_RegRt : std_logic_vector(4 downto 0);
@@ -527,7 +526,7 @@ signal EX_MEM_ALU_result, EX_MEM_ALU_HI, EX_MEM_ALU_LO : std_logic_vector(31 dow
 signal EX_MEM_ALU_zero : std_logic;
 signal MEM_WB_ALU_zero, MEM_WB_busy : std_logic;
 signal MEM_WB_ALU_result, MEM_WB_ALU_HI, MEM_WB_ALU_LO : std_logic_vector(31 downto 0);
-signal ID_EX_Rd, EX_MEM_Rd, MEM_WB_Rd, EX_rd, Rd_W: std_logic_vector(4 downto 0);
+signal ID_EX_Rd, EX_MEM_Rd, MEM_WB_Rd, EX_rd, Rd_W : std_logic_vector(4 downto 0);
 signal EX_MEM_Data1, EX_MEM_data: std_logic_vector(31 downto 0);
 signal MEM_WB_data, Result_W: std_logic_vector(31 downto 0);
 
@@ -610,35 +609,15 @@ with PC_Branch select after_Branch <=
   Branch_addr_out when '1',
   InstMem_counterVector when others;
 
-Rs_Delay : Sync
-  generic map(
-    width => 5
-    )
-  PORT MAP(
-    clk     => clk,
-    Rd      => rs,
-    Rd_W    => new_Rs
-    );
-
-Rt_Delay : Sync
-  generic map(
-    width => 5
-    )
-  PORT MAP(
-    clk     => clk,
-    Rd      => rt,
-    Rd_W    => new_Rt
-    );
-
 BRANCH_ID : EarlyBranching
   PORT MAP(
     Branch          => Branch,
-    EX_MEM_RegWrite => EX_MEM_RegWrite,
-    MEM_WB_RegWrite => MEM_WB_RegWrite,
-    ID_Rs           => new_Rs,
-    ID_Rt           => new_Rt,
+    EX_MEM_RegWrite => ID_EX_RegWrite,
+    MEM_WB_RegWrite => EX_MEM_RegWrite,
+    ID_Rs           => rs,
+    ID_Rt           => rt,
     MEM_Rd          => EX_MEM_Rd,
-    WB_Rd           => Rd_W,
+    WB_Rd           => MEM_WB_Rd,
 
     Forward0_Branch => Forward0_Branch,
     Forward1_Branch => Forward1_Branch
@@ -646,12 +625,12 @@ BRANCH_ID : EarlyBranching
 
 with Forward0_Branch select Branch_data0 <=
   EX_ALU_result when "01",
-  Result_W      when "10",
+  Result_W when "10",
   data0     when others;
 
 with Forward1_Branch select Branch_data1 <=
   EX_ALU_result when "01",
-  Result_W      when "10",
+  Result_W when "10",
   data1     when others;
 
 Equal <= (Branch_data0 = Branch_data1);
@@ -706,7 +685,7 @@ PORT MAP
     re            => DataMem_re,
     we            => DataMem_we,
     dump          => mem_dump,
-    dataIn        => EX_MEM_data, -- TODO: ADD CORRECT DATAIN HERE
+    dataIn        => EX_MEM_Data1, -- TODO: ADD CORRECT DATAIN HERE
     dataOut       => DataMem_data,
     busy          => DataMem_busy
 );
@@ -959,7 +938,7 @@ Forwarding_unit: Forwarding
     EX_Rs           => ID_EX_Rs_out,
     EX_Rt           => ID_EX_Rt_out,
     MEM_Rd          => EX_MEM_Rd,
-    WB_Rd           => Rd_W,
+    WB_Rd           => MEM_WB_Rd,
 
     Forward0_EX     => Forward0_EX,
     Forward1_EX     => Forward1_EX
