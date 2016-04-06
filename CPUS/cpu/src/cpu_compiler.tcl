@@ -12,62 +12,70 @@ proc AddWaves {} {
   ;#These signals will be contained in a group
   ;# add wave -group "SIGNALS" -radix hex sim:/memory/addr\
 
-  add wave -group "SIGNALS"   -position end -radix decimal sim:/cpu/PC_addr_out
+  add wave -group "SIGNALS"   -position end -radix unsigned sim:/cpu/PC_addr_out
 
-  add wave -group "INSTMEM"   -position end -radix decimal sim:/cpu/InstMem_counter\
+  add wave -group "INSTMEM"   -position end -radix unsigned sim:/cpu/InstMem_address\
+                              -radix binary sim:/cpu/InstMem_re\
+                              -radix unsigned sim:/cpu/pc_in\
                               -radix binary sim:/cpu/Imem_inst_in
 
-  add wave -group "DATAMEM"   -position end -radix decimal sim:/cpu/DataMem_addr\
+  add wave -group "INSTR RUN"   -position end -radix binary sim:/cpu/IF_ID_Imem_inst_in
+
+  add wave -group "DATAMEM"   -position end -radix unsigned sim:/cpu/DataMem_addr\
                               -radix binary sim:/cpu/DataMem_re\
                               -radix binary sim:/cpu/DataMem_we\
-                              -radix binary sim:/cpu/MEM_WB_data\
-                              -radix binary sim:/cpu/DataMem_data\
+                              -radix unsigned sim:/cpu/EX_MEM_Data1\
+                              -radix unsigned sim:/cpu/EX_MEM_data\
+                              -radix unsigned sim:/cpu/DataMem_data\
                               -radix binary sim:/cpu/DataMem_busy
 
-  add wave -group "RegIn"     -position end -radix decimal sim:/cpu/rs\
-                              -radix decimal sim:/cpu/rt\
-                              -radix decimal sim:/cpu/Rd_W\
-                              -radix decimal sim:/cpu/MEM_WB_RegWrite\
-                              -radix decimal sim:/cpu/Result_W\
-                              -radix decimal sim:/cpu/ALU_LO\
-                              -radix decimal sim:/cpu/ALU_HI\
-                              -radix decimal sim:/cpu/data0\
-                              -radix decimal sim:/cpu/data1\
-                              -radix decimal sim:/cpu/ALU_LO_out\
-                              -radix decimal sim:/cpu/ALU_HI_out
+  add wave -group "RegIn"     -position end -radix unsigned sim:/cpu/rs\
+                              -radix unsigned sim:/cpu/rt\
+                              -radix unsigned sim:/cpu/Rd_W\
+                              -radix unsigned sim:/cpu/MEM_WB_RegWrite\
+                              -radix unsigned sim:/cpu/MEM_WB_MemtoReg\
+                              -radix unsigned sim:/cpu/Result_W\
+                              -radix unsigned sim:/cpu/ALU_LO\
+                              -radix unsigned sim:/cpu/ALU_HI\
+                              -radix unsigned sim:/cpu/data0\
+                              -radix unsigned sim:/cpu/data1\
+                              -radix unsigned sim:/cpu/ALU_LO_out\
+                              -radix unsigned sim:/cpu/ALU_HI_out
 
-  add wave -group "Registers" -position end -radix decimal sim:/cpu/r0\
-                              -radix decimal sim:/cpu/r1\
-                              -radix decimal sim:/cpu/r2\
-                              -radix decimal sim:/cpu/r3\
-                              -radix decimal sim:/cpu/r4\
-                              -radix decimal sim:/cpu/r5\
-                              -radix decimal sim:/cpu/r6\
-                              -radix decimal sim:/cpu/r7\
-                              -radix decimal sim:/cpu/r8\
-                              -radix decimal sim:/cpu/r9\
-                              -radix decimal sim:/cpu/r10\
-                              -radix decimal sim:/cpu/r11\
-                              -radix decimal sim:/cpu/r12\
-                              -radix decimal sim:/cpu/r13\
-                              -radix decimal sim:/cpu/r14\
-                              -radix decimal sim:/cpu/r15\
-                              -radix decimal sim:/cpu/r16\
-                              -radix decimal sim:/cpu/r17\
-                              -radix decimal sim:/cpu/r18\
-                              -radix decimal sim:/cpu/r19\
-                              -radix decimal sim:/cpu/r20\
-                              -radix decimal sim:/cpu/r21\
-                              -radix decimal sim:/cpu/r22\
-                              -radix decimal sim:/cpu/r23\
-                              -radix decimal sim:/cpu/r24\
-                              -radix decimal sim:/cpu/r25\
-                              -radix decimal sim:/cpu/r26\
-                              -radix decimal sim:/cpu/r27\
-                              -radix decimal sim:/cpu/r28\
-                              -radix decimal sim:/cpu/r29\
-                              -radix decimal sim:/cpu/r30\
-                              -radix decimal sim:/cpu/r31
+  add wave -group "Registers" -position end -radix unsigned sim:/cpu/r0\
+                              -radix unsigned sim:/cpu/r1\
+                              -radix unsigned sim:/cpu/r2\
+                              -radix unsigned sim:/cpu/r3\
+                              -radix unsigned sim:/cpu/r4\
+                              -radix unsigned sim:/cpu/r5\
+                              -radix unsigned sim:/cpu/r6\
+                              -radix unsigned sim:/cpu/r7\
+                              -radix unsigned sim:/cpu/r8\
+                              -radix unsigned sim:/cpu/r9\
+                              -radix unsigned sim:/cpu/r10\
+                              -radix unsigned sim:/cpu/r11\
+                              -radix unsigned sim:/cpu/r12\
+                              -radix unsigned sim:/cpu/r13\
+                              -radix unsigned sim:/cpu/r14\
+                              -radix unsigned sim:/cpu/r15\
+                              -radix unsigned sim:/cpu/r16\
+                              -radix unsigned sim:/cpu/r17\
+                              -radix unsigned sim:/cpu/r18\
+                              -radix unsigned sim:/cpu/r19\
+                              -radix unsigned sim:/cpu/r20\
+                              -radix unsigned sim:/cpu/r21\
+                              -radix unsigned sim:/cpu/r22\
+                              -radix unsigned sim:/cpu/r23\
+                              -radix unsigned sim:/cpu/r24\
+                              -radix unsigned sim:/cpu/r25\
+                              -radix unsigned sim:/cpu/r26\
+                              -radix unsigned sim:/cpu/r27\
+                              -radix unsigned sim:/cpu/r28\
+                              -radix unsigned sim:/cpu/r29\
+                              -radix unsigned sim:/cpu/r30\
+                              -radix unsigned sim:/cpu/r31\
+                              -radix unsigned sim:/cpu/rLo\
+                              -radix unsigned sim:/cpu/rHi
 
   add wave -group "CONTROLIN" -position end -radix binary sim:/cpu/IF_ID_opCode\
                               -radix binary sim:/cpu/IF_ID_funct
@@ -88,32 +96,55 @@ proc AddWaves {} {
                               -radix binary sim:/cpu/regWrite
 
   add wave -group "ALU IN"    -position end -radix binary sim:/cpu/ALUOpcode\
-                              -radix decimal sim:/cpu/ALU_data0\
-                              -radix decimal sim:/cpu/ALU_data1\
-                              -radix decimal sim:/cpu/ALU_shamt
+                              -radix unsigned sim:/cpu/ALU_data0\
+                              -radix unsigned sim:/cpu/ALU_data1\
+                              -radix unsigned sim:/cpu/ALU_shamt
 
-  add wave -group "ALU OUT"   -position end -radix decimal sim:/cpu/ALU_data_out\
-                              -radix decimal sim:/cpu/ALU_HI\
-                              -radix decimal sim:/cpu/ALU_LO\
+  add wave -group "ALU OUT"   -position end -radix unsigned sim:/cpu/ALU_data_out\
+                              -radix unsigned sim:/cpu/ALU_HI\
+                              -radix unsigned sim:/cpu/ALU_LO\
                               -radix binary sim:/cpu/zero
 
-  add wave -group "Wr - Rd"   -position end -radix decimal sim:/cpu/ID_EX_Rd\
-                              -radix decimal sim:/cpu/ID_EX_Rt_out\
-                              -radix decimal sim:/cpu/EX_rd\
-                              -radix decimal sim:/cpu/EX_MEM_Rd\
-                              -radix binary sim:/cpu/MEM_WB_Rd
+  add wave -group "Forward"   -position end -radix unsigned sim:/cpu/ID_EX_Rs_out\
+                              -radix unsigned sim:/cpu/ID_EX_Rt_out\
+                              -radix unsigned sim:/cpu/EX_MEM_RegWrite\
+                              -radix unsigned sim:/cpu/EX_MEM_Rd\
+                              -radix unsigned sim:/cpu/MEM_WB_RegWrite\
+                              -radix unsigned sim:/cpu/Rd_W\
+                              -radix binary sim:/cpu/Forward0_EX\
+                              -radix binary sim:/cpu/Forward1_EX
 
-  add wave -group "Write Sign" -position end -radix decimal sim:/cpu/regWrite\
-                              -radix decimal sim:/cpu/IF_ID_regWrite\
-                              -radix decimal sim:/cpu/ID_EX_RegWrite\
-                              -radix decimal sim:/cpu/EX_MEM_RegWrite\
-                              -radix binary sim:/cpu/MEM_WB_RegWrite
+  add wave -group "Hazard"   -position end -radix unsigned sim:/cpu/hazard_state\
+                              -radix unsigned sim:/cpu/IF_ID_rt\
+                              -radix unsigned sim:/cpu/Imem_rs\
+                              -radix unsigned sim:/cpu/Imem_rt\
+                              -radix unsigned sim:/cpu/MemRead\
+                              -radix binary sim:/cpu/Branch\
+                              -radix binary sim:/cpu/CPU_stall
 
-  add wave -group "Result Sign" -position end -radix decimal sim:/cpu/MemtoReg\
-                              -radix decimal sim:/cpu/IF_ID_MemtoReg\
-                              -radix decimal sim:/cpu/ID_EX_MemtoReg\
-                              -radix decimal sim:/cpu/EX_MEM_MemtoReg\
-                              -radix binary sim:/cpu/MEM_WB_MemtoReg
+  add wave -group "Branch&J"   -position end -radix binary sim:/cpu/Branch\
+                              -radix unsigned sim:/cpu/Branch_data0\
+                              -radix unsigned sim:/cpu/Branch_data1\
+                              -radix unsigned sim:/cpu/Early_Zero\
+                              -radix unsigned sim:/cpu/zero\
+                              -radix binary sim:/cpu/BNE\
+                              -radix binary sim:/cpu/PC_Branch\
+                              -radix unsigned sim:/cpu/Branch_addr_out\
+                              -radix binary sim:/cpu/IF_ID_Jump\
+                              -radix unsigned sim:/cpu/Jump_addr_out\
+                              -radix unsigned sim:/cpu/after_Jump
+
+  add wave -group "Early_B"   -position end -radix binary sim:/cpu/Branch\
+                              -radix binary sim:/cpu/ID_EX_RegWrite\
+                              -radix binary sim:/cpu/EX_MEM_RegWrite\
+                              -radix unsigned sim:/cpu/new_Rs\
+                              -radix unsigned sim:/cpu/new_Rt\
+                              -radix unsigned sim:/cpu/EX_MEM_Rd\
+                              -radix unsigned sim:/cpu/Rd_W\
+                              -radix binary sim:/cpu/Forward0_Branch\
+                              -radix binary sim:/cpu/Forward1_Branch\
+                              -radix unsigned sim:/cpu/EX_ALU_result\
+                              -radix unsigned sim:/cpu/Result_W
 
   ;#Set some formating options to make the Waves window more legible
   configure wave -namecolwidth 250
@@ -152,6 +183,7 @@ proc CompileAndSimulate {} {
   vcom Haz_mux.vhd
   vcom MEM_WB.vhd
   vcom Sync.vhd
+  vcom Earlybranching.vhd
   vcom cpu.vhd
   
   ;#Start a simulation session with the cpu component
@@ -162,9 +194,9 @@ proc CompileAndSimulate {} {
   AddWaves
   
   ;#Generate a CPU clock
-  ;#Memory clock must be 5 times faster 
   GenerateClock clk 20
   GenerateClock clk_mem 4
+  GenerateClock clk_mem_data 2
 
   ;#Update all signals
   run 1000 ns;
@@ -195,5 +227,6 @@ proc CompileOnly {} {
   vcom Haz_mux.vhd
   vcom MEM_WB.vhd
   vcom Sync.vhd
+  vcom Earlybranching.vhd
   vcom cpu.vhd
 }
