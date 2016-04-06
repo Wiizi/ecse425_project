@@ -28,9 +28,10 @@ entity Control_Unit is
 		BNE 			: out std_logic;
 		Jump 			: out std_logic;
 		LUI 			: out std_logic;
-		ALU_LOHI_Write 		: out std_logic;
-		ALU_LOHI_Read 		: out std_logic_vector(1 downto 0);
-
+		ALU_LOHI_Write 	: out std_logic;
+		ALU_LOHI_Read 	: out std_logic_vector(1 downto 0);
+		Asrt			: out std_logic;
+		Jal				: out std_logic;
 		--MEM
 		MemWrite 		: out std_logic;
 		MemRead 		: out std_logic;
@@ -44,7 +45,7 @@ architecture Behavioural of Control_Unit is
 
 signal temp_RegWrite, temp_ALUSrc, temp_RegDest 		: std_logic;
 signal temp_Branch, temp_BNE, temp_Jump, temp_LUI		: std_logic;
-signal temp_MemWrite, temp_MemRead, temp_MemtoReg 		: std_logic;
+signal temp_MemWrite, temp_MemRead, temp_MemtoReg, temp_Jal, temp_asrt 		: std_logic;
 -- 0 for inactive, 1 for active write
 signal temp_ALU_LOHI_Write 								: std_logic := '0';
 -- 00 for result, 01 for low, 10 for high
@@ -53,6 +54,8 @@ signal temp_ALUOpCode 									: std_logic_vector(3 downto 0);
 
 begin
 
+Asrt 			<= temp_asrt;
+Jal 			<= temp_Jal;
 RegWrite 		<= temp_RegWrite;
 ALUSrc 			<= temp_ALUSrc;
 ALUOpCode 		<= temp_ALUOpCode;
@@ -69,7 +72,10 @@ MemtoReg 		<= temp_MemtoReg;
 
 	process(clk)
 	begin
-	if (clk'event and clk = '1') then
+	if (clk'event and clk = '1') then 
+		--'reset all signals
+		temp_asrt				<= '0';
+		temp_Jal 				<= '0';
 		temp_RegWrite			<= '0';
 		temp_ALUSrc				<= '0';
 		temp_ALUOpCode			<= "XXXX";
@@ -234,9 +240,11 @@ MemtoReg 		<= temp_MemtoReg;
 			when "000010" =>
 				temp_ALUOpCode 	<= "0010";
 				temp_Jump 		<= '1';
+				temp_Jal 		<= '1';
 			--asrt
 			when "010100" =>
 				temp_ALUOpCode 	<= "0110";
+				temp_asrt 		<= '1';
 			--asrti
 			when "010101" =>
 				temp_ALUOpCode 	<= "0110";

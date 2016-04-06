@@ -43,7 +43,7 @@ begin
 				if (BRANCH = '1') then 
 					state <= 2; -- insert 3 delay slots
 				elsif (((EX_Rt = ID_Rs) or (EX_Rt = ID_Rt)) and EX_Rt /= "00000" and EX_Rt /= "UUUUU" and (ID_Rs /= "UUUUU" or ID_Rt /= "UUUUU")) then
-					state <= 2; -- insert 1 delay slot
+					state <= 1; -- insert 1 delay slot
 				end if;
 			-- case 1: 1 delay slot; used for structural hazards
 			when 1 =>
