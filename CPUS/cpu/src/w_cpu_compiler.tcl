@@ -24,15 +24,16 @@ proc AddWaves {} {
   add wave -group "DATAMEM"   -position end -radix unsigned sim:/w_cpu/DataMem_addr\
                               -radix binary sim:/w_cpu/DataMem_re\
                               -radix binary sim:/w_cpu/DataMem_we\
-                              -radix binary sim:/w_cpu/EX_MEM_Data1\
-                              -radix binary sim:/w_cpu/EX_MEM_data\
-                              -radix binary sim:/w_cpu/DataMem_data\
+                              -radix unsigned sim:/w_cpu/EX_MEM_Data1\
+                              -radix unsigned sim:/w_cpu/EX_MEM_data\
+                              -radix unsigned sim:/w_cpu/DataMem_data\
                               -radix binary sim:/w_cpu/DataMem_busy
 
   add wave -group "RegIn"     -position end -radix unsigned sim:/w_cpu/rs\
                               -radix unsigned sim:/w_cpu/rt\
                               -radix unsigned sim:/w_cpu/Rd_W\
                               -radix unsigned sim:/w_cpu/MEM_WB_RegWrite\
+                              -radix unsigned sim:/w_cpu/MEM_WB_MemtoReg\
                               -radix unsigned sim:/w_cpu/Result_W\
                               -radix unsigned sim:/w_cpu/ALU_LO\
                               -radix unsigned sim:/w_cpu/ALU_HI\
@@ -196,6 +197,7 @@ proc CompileAndSimulate {} {
   ;#Generate a CPU clock
   GenerateClock clk 20
   GenerateClock clk_mem 4
+  GenerateClock clk_mem_data 2
 
   ;#Update all signals
   run 1000 ns;
