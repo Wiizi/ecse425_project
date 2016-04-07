@@ -122,23 +122,31 @@ proc AddWaves {} {
                               -radix binary sim:/cpu/Branch\
                               -radix binary sim:/cpu/CPU_stall
 
-  add wave -group "Branch&J"   -position end -radix binary sim:/cpu/Branch\
+  add wave -group "Branch&J"   -position end -radix binary sim:/cpu/Branch_Signal\
+                              -radix binary sim:/cpu/Branch\
                               -radix unsigned sim:/cpu/Branch_data0\
                               -radix unsigned sim:/cpu/Branch_data1\
                               -radix unsigned sim:/cpu/Early_Zero\
                               -radix unsigned sim:/cpu/zero\
+                              -radix binary sim:/cpu/BNE_Signal\
                               -radix binary sim:/cpu/BNE\
                               -radix binary sim:/cpu/PC_Branch\
-                              -radix unsigned sim:/cpu/Branch_addr_out\
+                              -radix unsigned sim:/cpu/Branch_addr\
+                              -radix unsigned sim:/cpu/InstMem_counterVector\
+                              -radix unsigned sim:/cpu/after_Branch\
                               -radix binary sim:/cpu/IF_ID_Jump\
-                              -radix unsigned sim:/cpu/Jump_addr_out\
                               -radix unsigned sim:/cpu/after_Jump
 
-  add wave -group "Early_B"   -position end -radix binary sim:/cpu/Branch\
+  add wave -group "Early_B"   -position end -radix binary sim:/cpu/Branch_Signal\
+                              -radix binary sim:/cpu/BNE_Signal\
+                              -radix binary sim:/cpu/Branch\
                               -radix binary sim:/cpu/ID_EX_RegWrite\
                               -radix binary sim:/cpu/EX_MEM_RegWrite\
+                              -radix unsigned sim:/cpu/rs\
+                              -radix unsigned sim:/cpu/rt\
                               -radix unsigned sim:/cpu/new_Rs\
                               -radix unsigned sim:/cpu/new_Rt\
+                              -radix unsigned sim:/cpu/EX_rd\
                               -radix unsigned sim:/cpu/EX_MEM_Rd\
                               -radix unsigned sim:/cpu/Rd_W\
                               -radix binary sim:/cpu/Forward0_Branch\
