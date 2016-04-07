@@ -456,7 +456,7 @@ signal MemWrite, MemRead, MemtoReg: std_logic;
 signal rs, rt, rd, Imem_rs, Imem_rt, IF_ID_rt : std_logic_vector ( 4 downto 0);
 
 --For Branch and Jump
-signal PC_Branch, Early_Zero : std_logic;
+signal PC_Branch, Early_Zero, Branch_Signal, BNE_Signal : std_logic;
 signal Branch_addr, Branch_addr_delayed, after_Branch : std_logic_vector(31 downto 0) := (others => '0');
 signal Jump_addr, Jump_addr_delayed, after_Jump, jal_addr : std_logic_vector(31 downto 0) := (others => '0');
 signal Equal : boolean;
@@ -605,7 +605,15 @@ end process;
 -----------------------------
 --------BRANCH LOGIC---------
 -----------------------------
-PC_Branch <= Branch and (Early_Zero xor BNE);
+with ((IF_ID_inst_out(31 downto 26) = "000100") or (IF_ID_inst_out(31 downto 26) = "000101")) select Branch_Signal <=
+  '1' when TRUE,
+  '0' when others;
+
+with (IF_ID_inst_out(31 downto 26) = "000101") select BNE_Signal <=
+  '1' when TRUE,
+  '0' when others;
+
+PC_Branch <= ((Branch_Signal and (Early_Zero xor BNE_Signal)) or (Branch and (zero xor BNE)));
 Branch_addr <= (ID_SignExtend(29 downto 0) & "00");
 
 with PC_Branch select after_Branch <=
