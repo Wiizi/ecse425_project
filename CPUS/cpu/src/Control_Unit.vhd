@@ -236,11 +236,11 @@ MemtoReg 		<= temp_MemtoReg;
 				temp_RegWrite 	<= '1';
 				temp_ALUOpCode 	<= "0010";
 				temp_Jump 		<= '1';
+				temp_Jal 		<= '1';
 			--j
 			when "000010" =>
 				temp_ALUOpCode 	<= "0010";
 				temp_Jump 		<= '1';
-				temp_Jal 		<= '1';
 			--asrt
 			when "010100" =>
 				temp_ALUOpCode 	<= "0110";

@@ -456,7 +456,7 @@ signal rs, rt, Imem_rs, Imem_rt, IF_ID_rt : std_logic_vector ( 4 downto 0);
 --For Branch and Jump
 signal PC_Branch, Early_Zero : std_logic;
 signal Branch_addr, Branch_addr_delayed, after_Branch : std_logic_vector(31 downto 0) := (others => '0');
-signal Jump_addr, Jump_addr_delayed, after_Jump : std_logic_vector(31 downto 0) := (others => '0');
+signal Jump_addr, Jump_addr_delayed, after_Jump, jal_addr : std_logic_vector(31 downto 0) := (others => '0');
 signal Equal : boolean;
 
 -- flush signal control
@@ -494,7 +494,7 @@ signal ID_EX_Branch_out : std_logic;
 signal ID_EX_LUI : std_logic;
 signal ID_EX_RegDest_out : std_logic;
 signal ID_EX_Asrt : std_logic;
-signal ID_EX_Jal : std_logic;
+signal ID_EX_Jal, Jal_to_Reg : std_logic;
 signal low_ID_EX_SignExtend: std_logic_vector(31 downto 0);
 signal ID_Extend: std_logic_vector(15 downto 0);
 
@@ -518,9 +518,9 @@ signal EX_MEM_ALU_result, EX_MEM_ALU_HI, EX_MEM_ALU_LO : std_logic_vector(31 dow
 signal EX_MEM_ALU_zero : std_logic;
 signal MEM_WB_ALU_zero, MEM_WB_busy : std_logic;
 signal MEM_WB_ALU_result, MEM_WB_ALU_HI, MEM_WB_ALU_LO : std_logic_vector(31 downto 0);
-signal ID_EX_Rd, EX_MEM_Rd, MEM_WB_Rd, EX_rd, Rd_W : std_logic_vector(4 downto 0);
+signal ID_EX_Rd, EX_MEM_Rd, MEM_WB_Rd, EX_rd, Rd_W, Rd_W_in : std_logic_vector(4 downto 0);
 signal EX_MEM_Data1, EX_MEM_Data_delayed, EX_MEM_data: std_logic_vector(31 downto 0);
-signal MEM_WB_data, Result_W: std_logic_vector(31 downto 0);
+signal MEM_WB_data, Result_W, Result_W_in: std_logic_vector(31 downto 0);
 
 BEGIN
 
@@ -638,6 +638,14 @@ with RegDest select EX_rd <=
   ID_EX_Rd when '1',
   ID_EX_Rt_out when others;
 
+with Jal_to_Reg select Rd_W_in <=
+  "11111" when '1',
+  Rd_W when others;
+
+with Jal_to_Reg select Result_W_in <=
+  jal_addr when '1',
+  Result_W when others;
+
 ----------------------
 -- Data memory 
 ----------------------
@@ -708,8 +716,9 @@ begin
   if (rising_edge(clk)) then 
     case flush_state is
       when 0 =>
-        if (Branch = '1') then
+        if (Branch = '1' or Jump = '1') then
           flush_state <= 5;
+          jal_addr <=  std_logic_vector(to_unsigned(to_integer(unsigned(PC_addr_out)) - 8, 32));
         end if; 
       when 1 =>
         flush_state <= 0;
@@ -738,6 +747,7 @@ begin
     MEM_WB_MemtoReg_delayed <= MEM_WB_MemtoReg;
     EX_MEM_Data_delayed <= EX_MEM_Data1;
     Rd_W <= MEM_WB_Rd;
+    Jal_to_Reg <= ID_EX_Jal;
   end if;
 end process;
 
@@ -797,8 +807,8 @@ Register_bank: Registers
 
     readReg_0   => rs,
     readReg_1   => rt,
-    writeReg    => Rd_W,
-    writeData   => Result_W,
+    writeReg    => Rd_W_in,
+    writeData   => Result_W_in,
 
     ALU_LO_in   => ALU_LO,
     ALU_HI_in   => ALU_HI,
