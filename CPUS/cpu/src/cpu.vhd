@@ -427,6 +427,19 @@ COMPONENT EarlyBranching is
     );
 end COMPONENT;
 
+-- a delay buffer (delays the signal by 1 clock cycle)
+COMPONENT Sync IS
+  GENERIC(
+    width : integer := 32
+    );
+  PORT(
+    clk     : in std_logic;
+    Rd      : in std_logic_vector(width downto 0);
+
+    Rd_W    : out std_logic_vector(width downto 0)
+    );
+END COMPONENT;
+
 ------------------------SIGNALS----------------------
 
 -- MEMORY
@@ -454,14 +467,10 @@ signal MemWrite, MemRead, MemtoReg: std_logic;
 signal rs, rt, Imem_rs, Imem_rt, IF_ID_rt : std_logic_vector ( 4 downto 0);
 
 --For Branch and Jump
-signal PC_Branch, Early_Zero,Branch_Signal, BNE_Signal : std_logic;
-signal Branch_addr, Branch_addr_delayed, after_Branch : std_logic_vector(31 downto 0) := (others => '0');
-signal Jump_addr, Jump_addr_delayed, after_Jump : std_logic_vector(31 downto 0) := (others => '0');
+signal PC_Branch, Branch_Signal, Early_Zero, BNE_Signal : std_logic;
+signal Branch_addr, Branch_addr_out, after_Branch : std_logic_vector(31 downto 0) := (others => '0');
+signal Jump_addr, Jump_addr_out, after_Jump : std_logic_vector(31 downto 0) := (others => '0');
 signal Equal : boolean;
-
--- flush signal control
-signal flush_state : integer range 0 to 5 := 0;
-signal re_control, we_control, reg_write_control, lohi_write_control : std_logic;
 
 --signals from last pipeline stage
 signal ID_SignExtend, ID_EX_SignExtend, EX_SignExtend : std_logic_vector(31 downto 0);
@@ -513,16 +522,14 @@ signal ALU_shamt : std_logic_vector (4 downto 0);
 signal ID_EX_MemWrite, EX_MEM_MemWrite : std_logic;
 signal EX_MEM_MemRead : std_logic;
 signal EX_MEM_RegWrite, MEM_WB_RegWrite : std_logic;
-signal ID_EX_MemtoReg, EX_MEM_MemtoReg, MEM_WB_MemtoReg, MEM_WB_MemtoReg_delayed: std_logic;
+signal ID_EX_MemtoReg, EX_MEM_MemtoReg, MEM_WB_MemtoReg, MEM_WB_MemtoReg_out: std_logic;
 signal EX_MEM_ALU_result, EX_MEM_ALU_HI, EX_MEM_ALU_LO : std_logic_vector(31 downto 0);
 signal EX_MEM_ALU_zero : std_logic;
 signal MEM_WB_ALU_zero, MEM_WB_busy : std_logic;
 signal MEM_WB_ALU_result, MEM_WB_ALU_HI, MEM_WB_ALU_LO : std_logic_vector(31 downto 0);
 signal ID_EX_Rd, EX_MEM_Rd, MEM_WB_Rd, EX_rd, Rd_W : std_logic_vector(4 downto 0);
-signal EX_MEM_Data1, EX_MEM_Data_delayed, EX_MEM_data: std_logic_vector(31 downto 0);
+signal EX_MEM_Data1, EX_MEM_data: std_logic_vector(31 downto 0);
 signal MEM_WB_data, Result_W: std_logic_vector(31 downto 0);
-
-signal branch_taken : std_logic;
 
 BEGIN
 
@@ -588,7 +595,7 @@ PORT MAP
 -----------------------------
 -- BRANCH LOGIC
 -----------------------------
-with ((IF_ID_inst_out(31 downto 26) = "000100") or (IF_ID_inst_out(31 downto 26) = "000101")) select Branch_Signal <=
+with (IF_ID_inst_out(31 downto 26) = "000100") select Branch_Signal <=
   '1' when TRUE,
   '0' when others;
 
@@ -596,12 +603,40 @@ with (IF_ID_inst_out(31 downto 26) = "000101") select BNE_Signal <=
   '1' when TRUE,
   '0' when others;
 
-PC_Branch <= ((Branch_Signal and (Early_Zero xor BNE_Signal)) or (Branch and (zero xor BNE)));
+PC_Branch <= (Branch and (Early_Zero xor BNE));
 Branch_addr <= (ID_SignExtend(29 downto 0) & "00");
 
+--delay branch address
+branch_delay : Sync
+  PORT MAP(
+    clk     => clk,
+    Rd      => Branch_addr,
+    Rd_W    => Branch_addr_out
+    );
+
 with PC_Branch select after_Branch <=
-  Branch_addr_delayed when '1',
+  Branch_addr_out when '1',
   InstMem_counterVector when others;
+
+Rs_Delay : Sync
+  generic map(
+    width => 5
+    )
+  PORT MAP(
+    clk     => clk,
+    Rd      => rs,
+    Rd_W    => new_Rs
+    );
+
+Rt_Delay : Sync
+  generic map(
+    width => 5
+    )
+  PORT MAP(
+    clk     => clk,
+    Rd      => rt,
+    Rd_W    => new_Rt
+    );
 
 BRANCH_ID : EarlyBranching
   PORT MAP(
@@ -618,17 +653,19 @@ BRANCH_ID : EarlyBranching
     );
 
 with Forward0_Branch select Branch_data0 <=
+  data0 when "00",
   EX_ALU_result when "01",
   Result_W when "10",
-  data0     when others;
+  (others=> 'X')     when others;
 
 with Forward1_Branch select Branch_data1 <=
+  data1 when "00",
   EX_ALU_result when "01",
   Result_W when "10",
-  data1     when others;
+  (others=> 'X')     when others;
 
--- early branch prediction: zero
 Equal <= (Branch_data0 = Branch_data1);
+
 with Equal select Early_Zero <=
   '1' when TRUE,
   '0' when others;
@@ -638,12 +675,17 @@ with Equal select Early_Zero <=
 ----------------------------
 Jump_addr <= "0000" & IF_ID_inst_out(25 downto 0) & "00";
 
--- if Jump control is on, then get the jump address for PC
+jump_delay : Sync
+  PORT MAP(
+    clk     => clk,
+    Rd      => Jump_addr,
+    Rd_W    => Jump_addr_out
+    );
+
 with Jump select after_Jump <=
-  Jump_addr_delayed when '1',
+  Jump_addr_out when '1',
   after_Branch when others;
 
--- selects destination register depending on instruction format
 with RegDest select EX_rd <=
   ID_EX_Rd when '1',
   ID_EX_Rt_out when others;
@@ -671,18 +713,16 @@ PORT MAP
     clk           => clk_mem_data,
     addr          => DataMem_addr, 
     wordbyte      => '1',
-    re            => re_control,
-    we            => we_control,
+    re            => DataMem_re,
+    we            => DataMem_we,
     dump          => mem_dump,
-    dataIn        => EX_MEM_Data_delayed,
+    dataIn        => EX_MEM_Data1, -- TODO: ADD CORRECT DATAIN HERE
     dataOut       => DataMem_data,
     busy          => DataMem_busy
 );
--- get address and multiply by 4
 DataMem_addr <= to_integer(unsigned(EX_MEM_data ( 29 downto 0) & "00"));
 
--- insert an "addi $0,$0,0" for stall or execute normal
-stall_or_run : process (clk)
+process (clk)
 begin
   if (falling_edge(clk)) then
     case CPU_stall is
@@ -694,60 +734,10 @@ begin
   end if;
 end process;
 
---------------------------
------ FLUSH selectors-----
---------------------------
-with flush_state select re_control <= 
-  DataMem_re when 0,
-  '0' when others;
-
-with flush_state select we_control <=
-  DataMem_we when 0,
-  '0' when others;
-
-with flush_state select reg_write_control <= 
-  MEM_WB_RegWrite when 0,
-  '0' when others;
-
-with flush_state select lohi_write_control <=
-  ALU_LOHI_Write when 0,
-  '0' when others;
-
-flush : process (clk)
-begin
-  if (rising_edge(clk)) then 
-    case flush_state is
-      when 0 =>
-        if (Branch = '1' and branch_taken = '1') then
-          flush_state <= 5;
-        end if; 
-      when 1 =>
-        flush_state <= 0;
-      when 2 =>
-        flush_state <= 1;
-      when 3 =>
-        flush_state <= 2;
-      when 4 =>
-        flush_state <= 3;
-      when 5 =>
-        flush_state <= 4;
-      when others =>
-        flush_state <= 0;
-    end case;
-  end if;
-end process;
-
-delay_buffer : process (clk)
+process (clk)
 begin
   if (rising_edge(clk)) then
     haz_instruction <= IF_ID_Imem_inst_in;
-    Jump_addr_delayed <= Jump_addr;
-    Branch_addr_delayed <= Branch_addr;
-    new_Rs <= rs;
-    new_Rt <= rt;
-    MEM_WB_MemtoReg_delayed <= MEM_WB_MemtoReg;
-    EX_MEM_Data_delayed <= EX_MEM_Data1;
-    Rd_W <= MEM_WB_Rd;
   end if;
 end process;
 
@@ -802,8 +792,8 @@ Register_bank: Registers
   PORT MAP(
     clk     => clk,
 
-    RegWrite  => reg_write_control,
-    ALU_LOHI_Write  => lohi_write_control,
+    RegWrite  => MEM_WB_RegWrite,
+    ALU_LOHI_Write  => ALU_LOHI_Write,
 
     readReg_0   => rs,
     readReg_1   => rt,
@@ -1084,6 +1074,24 @@ MEM_WB_stage: MEM_WB
     --Register
     Rd_out         => MEM_WB_Rd
   );
+
+-- delay write enable for registers
+Rd_Delay : Sync
+  generic map(
+    width => 5
+    )
+  PORT MAP(
+    clk     => clk,
+    Rd      => MEM_WB_Rd,
+    Rd_W    => Rd_W
+    );
+
+memtoreg_delay : process (clk)
+begin
+  if (rising_edge(clk)) then
+    MEM_WB_MemtoReg_out <= MEM_WB_MemtoReg;
+  end if;
+end process;
 
 with MEM_WB_MemtoReg select Result_W <=
   DataMem_data when '1',
