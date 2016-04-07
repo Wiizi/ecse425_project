@@ -103,15 +103,16 @@ END COMPONENT;
   -- detects if a stall must be inserted in the execution
   COMPONENT HazardDetectionControl
       PORT (
-        clk           : in std_logic;
-        ID_Rs         : in std_logic_vector(4 downto 0);
-        ID_Rt         : in std_logic_vector(4 downto 0);
-        EX_Rt         : in std_logic_vector(4 downto 0);
+        clk             : in std_logic;
+        ID_Rs           : in std_logic_vector(4 downto 0);
+        ID_Rt           : in std_logic_vector(4 downto 0);
+        EX_Rt           : in std_logic_vector(4 downto 0);
         ID_EX_MemRead   : in std_logic;
-        BRANCH         : in std_logic;
-   
-        CPU_Stall      : out std_logic;
-        state_o       : out integer
+        BRANCH          : in std_logic;
+        JUMP            : in std_logic;
+
+        CPU_Stall       : out std_logic;
+        state_o         : out integer := 0
       );
   END COMPONENT;
 
@@ -143,55 +144,54 @@ END COMPONENT;
 
   -- register between ID and EX stages
   COMPONENT ID_EX
-      PORT(
-        clk               : in std_logic;
+    PORT(
+      clk               : in std_logic;
+      --Data inputs
+      Addr_in           : in std_logic_vector(31 downto 0);
+      RegData0_in       : in std_logic_vector(31 downto 0);
+      RegData1_in       : in std_logic_vector(31 downto 0);
+      SignExtended_in   : in std_logic_vector(31 downto 0);
+      --Register inputs (5 bits each)
+      Rs_in             : in std_logic_vector(4 downto 0);
+      Rt_in             : in std_logic_vector(4 downto 0);
+      Rd_in             : in std_logic_vector(4 downto 0);
+       --Control inputs (8 of them?)
+      RegWrite_in       : in std_logic;
+      MemToReg_in       : in std_logic;
+      MemWrite_in       : in std_logic;
+      MemRead_in        : in std_logic;
+      Branch_in         : in std_logic;
+      LUI_in            : in std_logic;
+      ALU_op_in         : in std_logic_vector(3 downto 0);
+      ALU_src_in        : in std_logic;
+      Reg_dest_in       : in std_logic;
+      BNE_in            : in std_logic;
+      Asrt_in           : in std_logic;
+      Jal_in            : in std_logic;
 
-        --Data inputs
-        Addr_in           : in std_logic_vector(31 downto 0);
-        RegData0_in       : in std_logic_vector(31 downto 0);
-        RegData1_in       : in std_logic_vector(31 downto 0);
-        SignExtended_in   : in std_logic_vector(31 downto 0);
-        --Register inputs (5 bits each)
-        Rs_in             : in std_logic_vector(4 downto 0);
-        Rt_in             : in std_logic_vector(4 downto 0);
-        Rd_in             : in std_logic_vector(4 downto 0);
-         --Control inputs (8 of them?)
-        RegWrite_in       : in std_logic;
-        MemToReg_in       : in std_logic;
-        MemWrite_in       : in std_logic;
-        MemRead_in        : in std_logic;
-        Branch_in         : in std_logic;
-        LUI_in            : in std_logic;
-        ALU_op_in         : in std_logic_vector(3 downto 0);
-        ALU_src_in        : in std_logic;
-        Reg_dest_in       : in std_logic;
-        BNE_in            : in std_logic;
-        Asrt_in           : in std_logic;
-        Jal_in            : in std_logic;
-
-        --Data Outputs
-        Addr_out          : out std_logic_vector(31 downto 0);
-        RegData0_out      : out std_logic_vector(31 downto 0);
-        RegData1_out      : out std_logic_vector(31 downto 0);
-        SignExtended_out  : out std_logic_vector(31 downto 0);
-        --Register outputs
-        Rs_out            : out std_logic_vector(4 downto 0);
-        Rt_out            : out std_logic_vector(4 downto 0);
-        Rd_out            : out std_logic_vector(4 downto 0);
-        --Control outputs
-        RegWrite_out      : out std_logic;
-        MemToReg_out      : out std_logic;
-        MemWrite_out      : out std_logic;
-        MemRead_out       : out std_logic;
-        Branch_out        : out std_logic;
-        LUI_out           : out std_logic;
-        ALU_op_out        : out std_logic_vector(3 downto 0);
-        ALU_src_out       : out std_logic;
-        Reg_dest_out      : out std_logic;
-        BNE_out           : out std_logic;
-        Asrt_out          : out std_logic;
-        Jal_out           : out std_logic
-      );
+      --Data Outputs
+      Addr_out          : out std_logic_vector(31 downto 0);
+      RegData0_out      : out std_logic_vector(31 downto 0);
+      RegData1_out      : out std_logic_vector(31 downto 0);
+      SignExtended_out  : out std_logic_vector(31 downto 0);
+      --Register outputs
+      Rs_out            : out std_logic_vector(4 downto 0);
+      Rt_out            : out std_logic_vector(4 downto 0);
+      Rd_out            : out std_logic_vector(4 downto 0);
+      --Control outputs
+      RegWrite_out      : out std_logic;
+      MemToReg_out      : out std_logic;
+      MemWrite_out      : out std_logic;
+      MemRead_out       : out std_logic;
+      Branch_out        : out std_logic;
+      LUI_out           : out std_logic;
+      ALU_op_out        : out std_logic_vector(3 downto 0);
+      ALU_src_out       : out std_logic;
+      Reg_dest_out      : out std_logic;
+      BNE_out           : out std_logic;
+      Asrt_out          : out std_logic;
+      Jal_out           : out std_logic
+    );
   END COMPONENT;
 
   -- register between Execution and Memory stages
@@ -427,18 +427,20 @@ COMPONENT EarlyBranching is
     );
 end COMPONENT;
 
-------------------------SIGNALS----------------------
+-----------------------------------------------------
+---------------DECLARATION OF SIGNALS----------------
+-----------------------------------------------------
 
 -- MEMORY
-SIGNAL pc_in, InstMem_address    : integer   := 0;
-SIGNAL InstMem_re         : std_logic := '0';
-SIGNAL DataMem_addr       : integer    := 0;
-SIGNAL DataMem_re         : std_logic  := '1';
-SIGNAL DataMem_we         : std_logic  := '0';
-SIGNAL DataMem_data       : std_logic_vector (31 downto 0)  := (others => 'Z');
-SIGNAL InstMem_counterVector : std_logic_vector (31 downto 0)  := (others => '0'); 
-SIGNAL InstMem_busy       : std_logic  := '0';
-SIGNAL DataMem_busy       : std_logic  := '0';
+signal pc_in, InstMem_address    : integer   := 0;
+signal InstMem_re         : std_logic := '0';
+signal DataMem_addr       : integer    := 0;
+signal DataMem_re         : std_logic  := '1';
+signal DataMem_we         : std_logic  := '0';
+signal DataMem_data       : std_logic_vector (31 downto 0)  := (others => 'Z');
+signal InstMem_counterVector : std_logic_vector (31 downto 0)  := (others => '0'); 
+signal InstMem_busy       : std_logic  := '0';
+signal DataMem_busy       : std_logic  := '0';
 
 -- PC AND memory
 signal PC_addr_out : std_logic_vector(31 downto 0);
@@ -451,7 +453,7 @@ signal ALUOpcode: std_logic_vector(3 downto 0);
 signal RegDest, Branch, BNE, Jump, LUI, ALU_LOHI_Write, ALUSrc, Asrt, Jal : std_logic;
 signal ALU_LOHI_Read: std_logic_vector(1 downto 0);
 signal MemWrite, MemRead, MemtoReg: std_logic;
-signal rs, rt, Imem_rs, Imem_rt, IF_ID_rt : std_logic_vector ( 4 downto 0);
+signal rs, rt, rd, Imem_rs, Imem_rt, IF_ID_rt : std_logic_vector ( 4 downto 0);
 
 --For Branch and Jump
 signal PC_Branch, Early_Zero : std_logic;
@@ -459,16 +461,16 @@ signal Branch_addr, Branch_addr_delayed, after_Branch : std_logic_vector(31 down
 signal Jump_addr, Jump_addr_delayed, after_Jump, jal_addr : std_logic_vector(31 downto 0) := (others => '0');
 signal Equal : boolean;
 
--- flush signal control
+--Flush signal control
 signal flush_state : integer range 0 to 5 := 0;
 signal re_control, we_control, reg_write_control, lohi_write_control : std_logic;
 
---signals from last pipeline stage
+--Signals from last pipeline stage
 signal ID_SignExtend, ID_EX_SignExtend, EX_SignExtend : std_logic_vector(31 downto 0);
 
---hazard detection signal
+--Hazard detection signal
 signal CPU_stall : std_logic;
-signal IF_ID_regWrite,IF_ID_RegDest,IF_ID_Branch,IF_ID_BNE, ID_EX_BNE, IF_ID_Jump,IF_ID_MemWrite,IF_ID_MemRead,IF_ID_MemtoReg, IF_ID_Jal, IF_ID_Asrt : std_logic;
+signal IF_ID_regWrite,IF_ID_RegDest,IF_ID_Branch,IF_ID_BNE, ID_EX_BNE, IF_ID_Jump, ID_EX_Jump, IF_ID_MemWrite,IF_ID_MemRead,IF_ID_MemtoReg, IF_ID_Jal, IF_ID_Asrt : std_logic;
 signal IF_ID_opCode, IF_ID_funct : std_logic_vector (5 downto 0);
 signal IF_ID_ALUsrc : std_logic;
 signal IF_ID_ALUOpcode : std_logic_vector(3 downto 0);
@@ -536,24 +538,27 @@ Program_counter: PC
 pc_increment : process (clk)
 begin
   if (falling_edge(clk)) then
-    if (CPU_stall /= '1' or ID_EX_Branch_out = '1') then
+    if (CPU_stall /= '1' or ID_EX_Branch_out = '1' or ID_EX_Jump = '1') then
       pc_in <= to_integer(unsigned(PC_addr_out)) + 4;
-    end if;
+    end if; 
   end if;
 end process;
 InstMem_counterVector <= std_logic_vector(to_unsigned(pc_in,32));
 InstMem_address <= to_integer(unsigned(PC_addr_out));
 
+-- updates read enable signal for the main instruction memory
+-- dont read when cpu is on stall
 read_instruction_mem : process (clk)
 begin
   if (falling_edge(clk)) then
-    if (CPU_stall /= '1' or ID_EX_Branch_out = '1') then
+    if (CPU_stall /= '1' or ID_EX_Branch_out = '1' or ID_EX_Jump = '1') then
       InstMem_re <= '1';
     else
       InstMem_re <= '0';
     end if;
   end if;
 end process;
+
 -- Instruction memory component
 Instruction_Memory : memory
 GENERIC MAP
@@ -583,8 +588,22 @@ PORT MAP
     busy          => InstMem_busy
 );
 
+-- updates currently run instruction used by further pipeline stages:
+-- insert an "addi $0,$0,0" for stall or execute normal instruction
+stall_or_run : process (clk)
+begin
+  if (falling_edge(clk)) then
+    case CPU_stall is
+      when '1' =>
+        IF_ID_Imem_inst_in <= "00100000000000000000000000000000";
+      when others =>
+        IF_ID_Imem_inst_in <= Imem_inst_in;
+    end case;
+  end if;
+end process;
+
 -----------------------------
--- BRANCH LOGIC
+--------BRANCH LOGIC---------
 -----------------------------
 PC_Branch <= Branch and (Early_Zero xor BNE);
 Branch_addr <= (ID_SignExtend(29 downto 0) & "00");
@@ -624,7 +643,7 @@ with Equal select Early_Zero <=
   '0' when others;
 
 ----------------------------
--- JUMP LOGIC
+--------JUMP LOGIC----------
 ----------------------------
 Jump_addr <= "0000" & IF_ID_inst_out(25 downto 0) & "00";
 
@@ -646,9 +665,9 @@ with Jal_to_Reg select Result_W_in <=
   jal_addr when '1',
   Result_W when others;
 
-----------------------
--- Data memory 
-----------------------
+-----------------------
+------Data memory------ 
+-----------------------
 Data_Memory : memory
 GENERIC MAP
 (
@@ -676,101 +695,10 @@ PORT MAP
     dataOut       => DataMem_data,
     busy          => DataMem_busy
 );
--- get address and multiply by 4
+-- get address for data memory (must multiply by 4 or shift left by 2)
 DataMem_addr <= to_integer(unsigned(EX_MEM_data ( 29 downto 0) & "00"));
 
--- insert an "addi $0,$0,0" for stall or execute normal
-stall_or_run : process (clk)
-begin
-  if (falling_edge(clk)) then
-    case CPU_stall is
-      when '1' =>
-        IF_ID_Imem_inst_in <= "00100000000000000000000000000000";
-      when others =>
-        IF_ID_Imem_inst_in <= Imem_inst_in;
-    end case;
-  end if;
-end process;
-
---------------------------
------ FLUSH selectors-----
---------------------------
-with flush_state select re_control <= 
-  DataMem_re when 0,
-  '0' when others;
-
-with flush_state select we_control <=
-  DataMem_we when 0,
-  '0' when others;
-
-with flush_state select reg_write_control <= 
-  MEM_WB_RegWrite when 0,
-  '0' when others;
-
-with flush_state select lohi_write_control <=
-  ALU_LOHI_Write when 0,
-  '0' when others;
-
-flush : process (clk)
-begin
-  if (rising_edge(clk)) then 
-    case flush_state is
-      when 0 =>
-        if (Jal_to_Reg = '1') then
-          flush_state <= 3;
-        end if;
-        if (Branch = '1' or Jump = '1') then
-          flush_state <= 5;
-          jal_addr <=  std_logic_vector(to_unsigned(to_integer(unsigned(PC_addr_out)) - 8, 32));
-        end if; 
-      when 1 =>
-        flush_state <= 0;
-      when 2 =>
-        flush_state <= 1;
-      when 3 =>
-        flush_state <= 2;
-      when 4 =>
-        flush_state <= 3;
-      when 5 =>
-        flush_state <= 4;
-        if (ID_EX_Jal = '1') then
-          flush_state <= 0;
-        end if;
-      when others =>
-        flush_state <= 0;
-    end case;
-  end if;
-end process;
-
-delay_buffer : process (clk)
-begin
-  if (rising_edge(clk)) then
-    haz_instruction <= IF_ID_Imem_inst_in;
-    Jump_addr_delayed <= Jump_addr;
-    Branch_addr_delayed <= Branch_addr;
-    new_Rs <= rs;
-    new_Rt <= rt;
-    MEM_WB_MemtoReg_delayed <= MEM_WB_MemtoReg;
-    EX_MEM_Data_delayed <= EX_MEM_Data1;
-    Rd_W <= MEM_WB_Rd;
-    Jal_to_Reg <= ID_EX_Jal;
-  end if;
-end process;
-
--- IF_ID stage
-IF_ID_stage: IF_ID
-  PORT MAP(
-    clk           => clk,
-    inst_in       => IF_ID_Imem_inst_in,
-    addr_in       => PC_addr_out,
-    IF_ID_write   => '1',
-    inst_out      => IF_ID_inst_out,
-    addr_out      => IF_ID_addr_out
-    );
-IF_ID_opCode <= IF_ID_inst_out(31 downto 26);
-IF_ID_funct <= IF_ID_inst_out(5 downto 0);
-
--- Control unit declaration
+-- Control circuit of the pipeline
 Control: Control_Unit
   PORT MAP(
     -- inputs
@@ -801,9 +729,7 @@ Control: Control_Unit
     MemtoReg        => MemtoReg
     );
 
-rs <= IF_ID_inst_out(25 downto 21);
-rt <= IF_ID_inst_out(20 downto 16);
-
+-- Component representing the registers of the CPU
 Register_bank: Registers
   PORT MAP(
     clk     => clk,
@@ -825,6 +751,7 @@ Register_bank: Registers
     ALU_LO_out  => ALU_LO_out,
     ALU_HI_out  => ALU_HI_out,
 
+    -- used inspection only (testing purposes)
     r0              => r0 ,
     r1              => r1 ,
     r2              => r2 ,
@@ -861,6 +788,98 @@ Register_bank: Registers
     rHi             => rHi
     );
 
+---------------------------
+--------FLUSH logic--------
+---------------------------
+-- flushing means to prevent any operation that entered the pipeline after branch/jump 
+-- from writing to registers/memory when jump/branch is taken
+
+with flush_state select re_control <= 
+  DataMem_re when 0,
+  '0' when others;
+
+with flush_state select we_control <=
+  DataMem_we when 0,
+  '0' when others;
+
+with flush_state select reg_write_control <= 
+  MEM_WB_RegWrite when 0,
+  '0' when others;
+
+with flush_state select lohi_write_control <=
+  ALU_LOHI_Write when 0,
+  '0' when others;
+
+flush : process (clk)
+begin
+  if (rising_edge(clk)) then 
+    case flush_state is
+      when 0 =>
+        if (Jal_to_Reg = '1') then
+          flush_state <= 3;
+        end if;
+        if (Branch = '1' or Jump = '1') then
+          flush_state <= 5;
+          -- update jump address for jal
+          jal_addr <=  std_logic_vector(to_unsigned(to_integer(unsigned(PC_addr_out)) - 8, 32));
+        end if; 
+      when 1 =>
+        flush_state <= 0;
+      when 2 =>
+        flush_state <= 1;
+      when 3 =>
+        flush_state <= 2;
+      when 4 =>
+        flush_state <= 3;
+      when 5 =>
+        flush_state <= 4;
+        -- disable flush, to allow for writing to register 31
+        if (ID_EX_Jal = '1') then
+          flush_state <= 0;
+        end if;
+      when others =>
+        flush_state <= 0;
+    end case;
+  end if;
+end process;
+
+-- delays multiple signals for synchronization purposes:
+-- acts as a pipeline register but is used by signals from different pipeline stages
+delay_buffer : process (clk)
+begin
+  if (rising_edge(clk)) then
+    haz_instruction <= IF_ID_Imem_inst_in;
+    Jump_addr_delayed <= Jump_addr;
+    Branch_addr_delayed <= Branch_addr;
+    new_Rs <= rs;
+    new_Rt <= rt;
+    MEM_WB_MemtoReg_delayed <= MEM_WB_MemtoReg;
+    EX_MEM_Data_delayed <= EX_MEM_Data1;
+    Rd_W <= MEM_WB_Rd;
+    Jal_to_Reg <= ID_EX_Jal;
+    ID_EX_Jump <= IF_ID_Jump;
+  end if;
+end process;
+
+-- pipeline register
+-- IF_ID stage
+IF_ID_stage: IF_ID
+  PORT MAP(
+    clk           => clk,
+    inst_in       => IF_ID_Imem_inst_in,
+    addr_in       => PC_addr_out,
+    IF_ID_write   => '1',
+    inst_out      => IF_ID_inst_out,
+    addr_out      => IF_ID_addr_out
+    );
+
+-- decompose the read instruction into subsignals
+IF_ID_opCode <= IF_ID_inst_out(31 downto 26);
+IF_ID_funct <= IF_ID_inst_out(5 downto 0);
+rs <= IF_ID_inst_out(25 downto 21);
+rt <= IF_ID_inst_out(20 downto 16);
+rd <= IF_ID_inst_out(15 downto 11);
+
 ----------------------------------
 -- MFLO and MFHI LOGIC
 ----------------------------------
@@ -877,8 +896,8 @@ MFLO_MFHI : Mux_3to1
 --------------------------------
 -- Sign Extend
 --------------------------------
-  ID_Extend <= (others => IF_ID_inst_out(15));
-  ID_SignExtend <= (ID_Extend & IF_ID_inst_out(15 downto 0));
+ID_Extend <= (others => IF_ID_inst_out(15));
+ID_SignExtend <= (ID_Extend & IF_ID_inst_out(15 downto 0));
 
 Imem_rs <= haz_instruction(25 downto 21);
 Imem_rt <= haz_instruction(20 downto 16);
@@ -893,11 +912,13 @@ Hazard : HazardDetectionControl
     ID_Rt           => Imem_rt,
     ID_EX_MemRead   => MemRead,
     BRANCH          => Branch,
+    JUMP            => Jump,
 
     CPU_Stall       => CPU_stall,
     state_o         => hazard_state
   );
 
+-- renaming signals
 IF_ID_regWrite       <=     regWrite;
 IF_ID_RegDest        <=     RegDest;
 IF_ID_Branch         <=     Branch;
@@ -923,9 +944,9 @@ ID_EX_stage: ID_EX
     SignExtended_in   => ID_SignExtend,
 
     --Register inputs (5 bits each)
-    Rs_in             => IF_ID_inst_out(25 downto 21),--rs
-    Rt_in             => IF_ID_inst_out(20 downto 16),--rt
-    Rd_in             => IF_ID_inst_out(15 downto 11),--rd
+    Rs_in             => rs,
+    Rt_in             => rt,
+    Rd_in             => rd,
 
     --Control inputs (8 of them?)
     RegWrite_in       => IF_ID_regWrite,
@@ -965,19 +986,18 @@ ID_EX_stage: ID_EX
     Jal_out           => ID_EX_Jal
   );
 
-LUI_mux: Mux_2to1
-  GENERIC MAP(
-    WIDTH_IN => 32
-  )
-  PORT MAP(
-    sel      => LUI,
-    in1      => ID_EX_SignExtend,
-    in2      => low_ID_EX_SignExtend,
-    dataOut  => EX_SignExtend
-  );
-  -- sign extend
+-- selects LUI signal
+with LUI select EX_SignExtend <=
+  ID_EX_SignExtend when '0',
+  low_ID_EX_SignExtend when '1',
+  (others => 'Z') when others;
+
+-- sign extend
 low_ID_EX_SignExtend <= ID_EX_SignExtend(15 downto 0) & "0000000000000000";
 
+----------------------------------
+---------Forwarding Logic---------
+----------------------------------
 Forwarding_unit: Forwarding
   PORT MAP(
     EX_MEM_RegWrite => ID_EX_RegWrite,
@@ -1008,7 +1028,9 @@ with ALUSrc select ALU_data1 <=
   EX_SignExtend when '1',
   t_ALU_data1 when others;
 
--- main ALU component
+------------------------------
+------main ALU component------
+------------------------------
 main_ALU: ALU
   PORT MAP(
     clk       => clk,

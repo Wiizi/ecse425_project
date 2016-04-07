@@ -3,7 +3,7 @@
 --
 -- HazardDetectionControl.vhd
 -- This module is used to detect read after writing (RAW) and Branch hazards in our MIPS pipelined processor.
--- The module outputs control signals to the PC, the IF_ID buffer, and Haz_mux to insert bubbles in the pipeline.
+-- The module outputs control signals to the PC, the IF_ID buffer
 LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 USE ieee.numeric_std.all;
@@ -16,6 +16,7 @@ ENTITY HazardDetectionControl IS
 		EX_Rt 		: in std_logic_vector(4 downto 0);
 		ID_EX_MemRead 	: in std_logic;
 		BRANCH			: in std_logic;
+		JUMP 			: in std_logic;
 
 		CPU_Stall 		: out std_logic;
 		state_o 			: out integer := 0
@@ -40,8 +41,8 @@ begin
 		-- check for hazards and stall if any hazard is detected
 		case state is 
 			when 0 =>
-				if (ID_EX_MemRead = '1' or BRANCH = '1') then 
-					state <= 1; -- insert 3 delay slots
+				if (ID_EX_MemRead = '1' or BRANCH = '1' or JUMP = '1') then 
+					state <= 2; -- insert 2 delay slots
 				elsif (((EX_Rt = ID_Rs) or (EX_Rt = ID_Rt)) and EX_Rt /= "00000" and EX_Rt /= "UUUUU" and (ID_Rs /= "UUUUU" or ID_Rt /= "UUUUU")) then
 					state <= 1; -- insert 1 delay slot
 				end if;
