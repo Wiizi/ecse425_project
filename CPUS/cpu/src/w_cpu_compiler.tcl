@@ -129,10 +129,11 @@ proc AddWaves {} {
                               -radix unsigned sim:/w_cpu/zero\
                               -radix binary sim:/w_cpu/BNE\
                               -radix binary sim:/w_cpu/PC_Branch\
-                              -radix unsigned sim:/w_cpu/Branch_addr_out\
+                              -radix unsigned sim:/w_cpu/Branch_addr_delayed\
                               -radix binary sim:/w_cpu/IF_ID_Jump\
-                              -radix unsigned sim:/w_cpu/Jump_addr_out\
-                              -radix unsigned sim:/w_cpu/after_Jump
+                              -radix unsigned sim:/w_cpu/Jump_addr_delayed\
+                              -radix unsigned sim:/w_cpu/after_Jump\
+                              -radix unsigned sim:/w_cpu/Flush_state
 
   add wave -group "Early_B"   -position end -radix binary sim:/w_cpu/Branch\
                               -radix binary sim:/w_cpu/ID_EX_RegWrite\

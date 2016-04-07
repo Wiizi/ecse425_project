@@ -50,6 +50,7 @@ signal temp_Rd : std_logic_vector(4 downto 0);
 
 begin
 
+	-- really
 	process (clk)
 	begin
 	if (rising_edge(clk)) then
