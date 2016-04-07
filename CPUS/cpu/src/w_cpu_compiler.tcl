@@ -31,10 +31,11 @@ proc AddWaves {} {
 
   add wave -group "RegIn"     -position end -radix unsigned sim:/w_cpu/rs\
                               -radix unsigned sim:/w_cpu/rt\
-                              -radix unsigned sim:/w_cpu/Rd_W\
-                              -radix unsigned sim:/w_cpu/MEM_WB_RegWrite\
+                              -radix unsigned sim:/w_cpu/Rd_W_in\
+                              -radix unsigned sim:/w_cpu/reg_write_control\
+                              -radix unsigned sim:/w_cpu/lohi_write_control\
                               -radix unsigned sim:/w_cpu/MEM_WB_MemtoReg\
-                              -radix unsigned sim:/w_cpu/Result_W\
+                              -radix unsigned sim:/w_cpu/Result_W_in\
                               -radix unsigned sim:/w_cpu/ALU_LO\
                               -radix unsigned sim:/w_cpu/ALU_HI\
                               -radix unsigned sim:/w_cpu/data0\
@@ -133,7 +134,9 @@ proc AddWaves {} {
                               -radix binary sim:/w_cpu/IF_ID_Jump\
                               -radix unsigned sim:/w_cpu/Jump_addr_delayed\
                               -radix unsigned sim:/w_cpu/after_Jump\
+                              -radix unsigned sim:/w_cpu/ID_EX_Jal\
                               -radix unsigned sim:/w_cpu/Jal_to_Reg\
+                              -radix unsigned sim:/w_cpu/jal_addr\
                               -radix unsigned sim:/w_cpu/Flush_state
 
   add wave -group "Early_B"   -position end -radix binary sim:/w_cpu/Branch\

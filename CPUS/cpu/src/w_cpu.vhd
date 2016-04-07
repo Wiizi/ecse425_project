@@ -716,6 +716,9 @@ begin
   if (rising_edge(clk)) then 
     case flush_state is
       when 0 =>
+        if (Jal_to_Reg = '1') then
+          flush_state <= 3;
+        end if;
         if (Branch = '1' or Jump = '1') then
           flush_state <= 5;
           jal_addr <=  std_logic_vector(to_unsigned(to_integer(unsigned(PC_addr_out)) - 8, 32));
@@ -730,6 +733,9 @@ begin
         flush_state <= 3;
       when 5 =>
         flush_state <= 4;
+        if (ID_EX_Jal = '1') then
+          flush_state <= 0;
+        end if;
       when others =>
         flush_state <= 0;
     end case;
