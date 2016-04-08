@@ -10,10 +10,10 @@ USE ieee.numeric_std.all;
 
 ENTITY HazardDetectionControl IS
 	PORT (
-		clk 		: in std_logic;
-		ID_Rs 		: in std_logic_vector(4 downto 0);
-		ID_Rt 		: in std_logic_vector(4 downto 0);
-		EX_Rt 		: in std_logic_vector(4 downto 0);
+		clk 			: in std_logic;
+		ID_Rs 			: in std_logic_vector(4 downto 0);
+		ID_Rt 			: in std_logic_vector(4 downto 0);
+		EX_Rt 			: in std_logic_vector(4 downto 0);
 		ID_EX_MemRead 	: in std_logic;
 		BRANCH			: in std_logic;
 		JUMP 			: in std_logic;
