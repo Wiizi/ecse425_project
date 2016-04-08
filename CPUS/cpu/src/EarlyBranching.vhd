@@ -1,7 +1,7 @@
---Date: 2016-03-27
+--Date: 2016-04-01
 --
--- Description: Forward.vhd is the forwarding unit responcible for selecting the inputs to the ALU. 
--- Each input to the ALU come from a multiplexer which selects whether the data should come from the current execution stage, 
+-- Description: EarlyBranching.vhd is the forwarding unit responcible for comparing branch data inputs. 
+-- Each input required for comparison come from a multiplexer which selects whether the data should come from the execution stage, 
 -- the Memory Access stage, or the Writeback stage. This is determined by examining the register Rs, Rt, and Rd to detect Read after Write (RAW) hazards.
 
 LIBRARY ieee;
