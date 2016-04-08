@@ -612,7 +612,7 @@ with (IF_ID_inst_out(31 downto 26) = "000101") select BNE_Signal <=
   '1' when TRUE,
   '0' when others;
 
-PC_Branch <= ((Branch_Signal and (Early_Zero xor BNE_Signal)) or (Branch and (zero xor BNE)));
+PC_Branch <= ((Branch_Signal and (Early_Zero xor BNE_Signal)) or (Branch and (Early_Zero xor BNE)));
 Branch_addr <= (ID_SignExtend(29 downto 0) & "00");
 
 with PC_Branch select after_Branch <=
