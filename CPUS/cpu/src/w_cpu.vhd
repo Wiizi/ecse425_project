@@ -123,7 +123,8 @@ END COMPONENT;
         opcode         : in std_logic_vector(3 downto 0);
         data0, data1   : in std_logic_vector(31 downto 0);
         shamt          : in std_logic_vector (4 downto 0);
-        data_out       : out std_logic_vector(31 downto 0); 
+        data_out       : out std_logic_vector(31 downto 0);
+        data_out_async : out std_logic_vector (31 downto 0); 
         HI             : out std_logic_vector (31 downto 0);
         LO             : out std_logic_vector (31 downto 0);
         zero           : out std_logic
@@ -612,11 +613,11 @@ with (IF_ID_inst_out(31 downto 26) = "000101") select BNE_Signal <=
   '1' when TRUE,
   '0' when others;
 
-PC_Branch <= ((Branch_Signal and (Early_Zero xor BNE_Signal)) or (Branch and (Early_Zero xor BNE)));
+PC_Branch <= ((Branch_Signal and (Early_Zero xor BNE_Signal)));
 Branch_addr <= (ID_SignExtend(29 downto 0) & "00");
 
 with PC_Branch select after_Branch <=
-  Branch_addr_delayed when '1',
+  Branch_addr when '1',
   InstMem_counterVector when others;
 
 BRANCH_ID : EarlyBranching
@@ -803,18 +804,22 @@ Register_bank: Registers
 
 with flush_state select re_control <= 
   DataMem_re when 0,
+    DataMem_re when 5,
   '0' when others;
 
 with flush_state select we_control <=
   DataMem_we when 0,
+    DataMem_we when 5,
   '0' when others;
 
 with flush_state select reg_write_control <= 
   MEM_WB_RegWrite when 0,
+    MEM_WB_RegWrite when 5,
   '0' when others;
 
 with flush_state select lohi_write_control <=
   ALU_LOHI_Write when 0,
+    ALU_LOHI_Write when 5,
   '0' when others;
 
 flush : process (clk)
@@ -827,8 +832,10 @@ begin
         end if;
         if (Branch = '1' or Jump = '1') then
           flush_state <= 5;
-          -- update jump address for jal
-          jal_addr <=  std_logic_vector(to_unsigned(to_integer(unsigned(PC_addr_out)) - 8, 32));
+          if (Jal = '1') then 
+            -- update jump address for jal
+            jal_addr <=  std_logic_vector(to_unsigned(to_integer(unsigned(PC_addr_out)) - 8, 32));
+          end if;
         end if; 
       when 1 =>
         flush_state <= 0;
@@ -840,8 +847,8 @@ begin
         flush_state <= 3;
       when 5 =>
         flush_state <= 4;
-        -- disable flush, to allow for writing to register 31
         if (ID_EX_Jal = '1') then
+          -- disable flush, to allow for writing to register 31
           flush_state <= 0;
         end if;
       when others =>
@@ -904,9 +911,9 @@ MFLO_MFHI : Mux_3to1
 ID_Extend <= (others => IF_ID_inst_out(15));
 ID_SignExtend <= (ID_Extend & IF_ID_inst_out(15 downto 0));
 
-Imem_rs <= haz_instruction(25 downto 21);
-Imem_rt <= haz_instruction(20 downto 16);
-IF_ID_rt <= ID_EX_Rt_out;
+Imem_rs <= IF_ID_Imem_inst_in(25 downto 21);
+Imem_rt <= IF_ID_Imem_inst_in(20 downto 16);
+IF_ID_rt <= rt;
 
 -- Hazard detection
 Hazard : HazardDetectionControl
