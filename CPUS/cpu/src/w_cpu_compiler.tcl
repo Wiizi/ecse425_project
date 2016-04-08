@@ -144,8 +144,8 @@ proc AddWaves {} {
   add wave -group "Early_B"   -position end -radix binary sim:/w_cpu/Branch\
                               -radix binary sim:/w_cpu/ID_EX_RegWrite\
                               -radix binary sim:/w_cpu/EX_MEM_RegWrite\
-                              -radix unsigned sim:/w_cpu/new_Rs\
-                              -radix unsigned sim:/w_cpu/new_Rt\
+                              -radix unsigned sim:/w_cpu/ID_EX_Rs_out\
+                              -radix unsigned sim:/w_cpu/ID_EX_Rt_out\
                               -radix unsigned sim:/w_cpu/EX_MEM_Rd\
                               -radix unsigned sim:/w_cpu/Rd_W\
                               -radix binary sim:/w_cpu/Forward0_Branch\

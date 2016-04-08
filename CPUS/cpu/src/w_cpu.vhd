@@ -481,7 +481,6 @@ signal hazard_state : integer range 0 to 7;
 signal Forward0_EX, Forward1_EX : std_logic_vector(1 downto 0);
 signal Forward0_Branch, Forward1_Branch : std_logic_vector(1 downto 0);
 signal Branch_data0, Branch_data1: std_logic_vector(31 downto 0);
-signal new_Rs, new_Rt : std_logic_vector(4 downto 0);
 
 --ID_EX output signals
 signal ID_EX_RegRt : std_logic_vector(4 downto 0);
@@ -625,8 +624,8 @@ BRANCH_ID : EarlyBranching
     Branch          => Branch,
     EX_MEM_RegWrite => EX_MEM_RegWrite,
     MEM_WB_RegWrite => MEM_WB_RegWrite,
-    ID_Rs           => new_Rs,
-    ID_Rt           => new_Rt,
+    ID_Rs           => ID_EX_Rs_out,
+    ID_Rt           => ID_EX_Rt_out,
     MEM_Rd          => EX_MEM_Rd,
     WB_Rd           => Rd_W,
 
@@ -859,8 +858,6 @@ begin
     haz_instruction <= IF_ID_Imem_inst_in;
     Jump_addr_delayed <= Jump_addr;
     Branch_addr_delayed <= Branch_addr;
-    new_Rs <= rs;
-    new_Rt <= rt;
     MEM_WB_MemtoReg_delayed <= MEM_WB_MemtoReg;
     EX_MEM_Data_delayed <= EX_MEM_Data1;
     Rd_W <= MEM_WB_Rd;
