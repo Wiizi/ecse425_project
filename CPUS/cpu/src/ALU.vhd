@@ -39,13 +39,15 @@ BEGIN
 -- synchronize the output to a clock
 output : process (clk)
 begin
-	if(rising_edge(clk))then
+	if(rising_edge(clk)) then
 		zero <= temp_zero;
 		HI <= hilo (63 downto 32);
 		LO <= hilo (31 downto 0);
 		data_out <= temp_data_out;
 	end if;
 end process;
+
+data_out_async <= temp_data_out;
 
 alu : process(opcode, data0, data1, shamt)
 begin
@@ -111,7 +113,6 @@ begin
 		when others =>
 			temp_data_out <= (others => 'X');
 		end case;
-	end if;
 end process alu;
 
 END BEHAVIOR;

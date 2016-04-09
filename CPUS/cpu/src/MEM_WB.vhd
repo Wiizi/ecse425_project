@@ -53,20 +53,20 @@ begin
 	-- really
 	process (clk)
 	begin
-	if (rising_edge(clk)) then
-		temp_MemtoReg 	<= MemtoReg_in;
-		temp_RegWrite	<= RegWrite_in;
-	
-		temp_busy 		<= busy_in;
-		temp_Data 		<= Data_in;
-	
-		temp_ALUResult 	<= ALU_Result_in;
-		temp_ALU_HI 	<= ALU_HI_in;
-		temp_ALU_LO 	<= ALU_LO_in;
-		temp_ALU_zero 	<= ALU_zero_in;
-	
-		temp_Rd 		<= Rd_in;
-	end if;
+		if (rising_edge(clk)) then
+			temp_MemtoReg 	<= MemtoReg_in;
+			temp_RegWrite	<= RegWrite_in;
+		
+			temp_busy 		<= busy_in;
+			temp_Data 		<= Data_in;
+		
+			temp_ALUResult 	<= ALU_Result_in;
+			temp_ALU_HI 	<= ALU_HI_in;
+			temp_ALU_LO 	<= ALU_LO_in;
+			temp_ALU_zero 	<= ALU_zero_in;
+		
+			temp_Rd 		<= Rd_in;
+		end if;
 	end process;
 
 	MemtoReg_out 	<= MemtoReg_in;

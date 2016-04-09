@@ -451,13 +451,13 @@ signal IF_ID_inst_out, IF_ID_addr_out : std_logic_vector(31 downto 0) := (others
 -- CONTROL signals
 signal regWrite: std_logic;
 signal ALUOpcode: std_logic_vector(3 downto 0);
-signal RegDest, Branch, BNE, Jump, LUI, ALU_LOHI_Write, ALUSrc, Asrt, Jal : std_logic;
-signal ALU_LOHI_Read: std_logic_vector(1 downto 0);
+signal RegDest, Branch, BNE, Jump, LUI, ALU_LOHI_Write, ALU_LOHI_Write_delayed, ALUSrc, Asrt, Jal : std_logic;
+signal ALU_LOHI_Read, ALU_LOHI_Read_delayed: std_logic_vector(1 downto 0);
 signal MemWrite, MemRead, MemtoReg: std_logic;
 signal rs, rt, rd, Imem_rs, Imem_rt, IF_ID_rt : std_logic_vector ( 4 downto 0);
 
 --For Branch and Jump
-signal PC_Branch, Early_Zero, Branch_Signal, BNE_Signal : std_logic;
+signal Branch_taken, PC_Branch, Early_Zero, Branch_Signal, BNE_Signal : std_logic;
 signal Branch_addr, Branch_addr_delayed, after_Branch : std_logic_vector(31 downto 0) := (others => '0');
 signal Jump_addr, Jump_addr_delayed, after_Jump, jal_addr : std_logic_vector(31 downto 0) := (others => '0');
 signal Equal : boolean;
@@ -506,7 +506,7 @@ signal data0, data1 : std_logic_vector(31 downto 0);
 signal ALU_LO_out, ALU_HI_out : std_logic_vector(31 downto 0);
 
 -- multiplexer output signals
-signal ALU_data0, t_ALU_data1, ALU_data1, ALU_data_out : std_logic_vector(31 downto 0);
+signal ALU_data0, t_ALU_data1, ALU_data1, ALU_data_out, ALU_data_out_fast : std_logic_vector(31 downto 0);
 signal EX_ALU_result : std_logic_vector(31 downto 0);
 signal zero : std_logic;
 signal ALU_shamt : std_logic_vector (4 downto 0);
@@ -622,11 +622,11 @@ with PC_Branch select after_Branch <=
 
 BRANCH_ID : EarlyBranching
   PORT MAP(
-    Branch          => Branch,
-    EX_MEM_RegWrite => EX_MEM_RegWrite,
-    MEM_WB_RegWrite => MEM_WB_RegWrite,
-    ID_Rs           => ID_EX_Rs_out,
-    ID_Rt           => ID_EX_Rt_out,
+    Branch          => Branch_Signal,
+    EX_MEM_RegWrite => ID_EX_RegWrite,
+    MEM_WB_RegWrite => EX_MEM_RegWrite,
+    ID_Rs           => rs,
+    ID_Rt           => rt,
     MEM_Rd          => EX_MEM_Rd,
     WB_Rd           => Rd_W,
 
@@ -818,8 +818,8 @@ with flush_state select reg_write_control <=
   '0' when others;
 
 with flush_state select lohi_write_control <=
-  ALU_LOHI_Write when 0,
-    ALU_LOHI_Write when 5,
+  ALU_LOHI_Write_delayed when 0,
+    ALU_LOHI_Write_delayed when 5,
   '0' when others;
 
 flush : process (clk)
@@ -830,7 +830,7 @@ begin
         if (Jal_to_Reg = '1') then
           flush_state <= 3;
         end if;
-        if (Branch = '1' or Jump = '1') then
+        if ((Branch_taken = '1' and Branch = '1') or Jump = '1') then
           flush_state <= 5;
           if (Jal = '1') then 
             -- update jump address for jal
@@ -870,6 +870,9 @@ begin
     Rd_W <= MEM_WB_Rd;
     Jal_to_Reg <= ID_EX_Jal;
     ID_EX_Jump <= IF_ID_Jump;
+    Branch_taken <= PC_Branch;
+    ALU_LOHI_Write_delayed <= ALU_LOHI_Write;
+    ALU_LOHI_Read_delayed <= ALU_LOHI_Read;
   end if;
 end process;
 
@@ -895,15 +898,10 @@ rd <= IF_ID_inst_out(15 downto 11);
 ----------------------------------
 -- MFLO and MFHI LOGIC
 ----------------------------------
-MFLO_MFHI : Mux_3to1
-  GENERIC MAP(WIDTH_IN =>  32)
-  PORT MAP(
-    sel      => ALU_LOHI_Read,
-    in1      => ALU_data_out,
-    in2      => ALU_LO,
-    in3      => ALU_HI,
-    dataOut  => EX_ALU_result
-    );
+with ALU_LOHI_Read_delayed select EX_ALU_result <=
+  ALU_LO_out when "01",
+  ALU_HI_out when "10",
+  ALU_data_out when others;
 
 --------------------------------
 -- Sign Extend
@@ -1051,6 +1049,7 @@ main_ALU: ALU
     data1     => ALU_data1,
     shamt     => ALU_shamt,
     data_out  => ALU_data_out,
+    data_out_async => ALU_data_out_fast,
     HI        => ALU_HI,
     LO        => ALU_LO,
     zero      => zero

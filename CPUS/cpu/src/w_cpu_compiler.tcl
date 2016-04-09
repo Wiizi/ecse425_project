@@ -34,6 +34,7 @@ proc AddWaves {} {
                               -radix unsigned sim:/w_cpu/Rd_W_in\
                               -radix unsigned sim:/w_cpu/reg_write_control\
                               -radix unsigned sim:/w_cpu/lohi_write_control\
+                              -radix unsigned sim:/w_cpu/ALU_LOHI_Read_delayed\
                               -radix unsigned sim:/w_cpu/MEM_WB_MemtoReg\
                               -radix unsigned sim:/w_cpu/Result_W_in\
                               -radix unsigned sim:/w_cpu/ALU_LO\
@@ -102,6 +103,7 @@ proc AddWaves {} {
                               -radix unsigned sim:/w_cpu/ALU_shamt
 
   add wave -group "ALU OUT"   -position end -radix unsigned sim:/w_cpu/ALU_data_out\
+                              -radix unsigned sim:/w_cpu/ALU_data_out_fast\
                               -radix unsigned sim:/w_cpu/ALU_HI\
                               -radix unsigned sim:/w_cpu/ALU_LO\
                               -radix binary sim:/w_cpu/zero
@@ -141,15 +143,16 @@ proc AddWaves {} {
                               -radix unsigned sim:/w_cpu/jal_addr\
                               -radix unsigned sim:/w_cpu/Flush_state
 
-  add wave -group "Early_B"   -position end -radix binary sim:/w_cpu/Branch\
+  add wave -group "Early_B"   -position end -radix binary sim:/w_cpu/Branch_Signal\
                               -radix binary sim:/w_cpu/ID_EX_RegWrite\
                               -radix binary sim:/w_cpu/EX_MEM_RegWrite\
-                              -radix unsigned sim:/w_cpu/ID_EX_Rs_out\
-                              -radix unsigned sim:/w_cpu/ID_EX_Rt_out\
+                              -radix unsigned sim:/w_cpu/rs\
+                              -radix unsigned sim:/w_cpu/rt\
                               -radix unsigned sim:/w_cpu/EX_MEM_Rd\
                               -radix unsigned sim:/w_cpu/Rd_W\
                               -radix binary sim:/w_cpu/Forward0_Branch\
                               -radix binary sim:/w_cpu/Forward1_Branch\
+                              -radix unsigned sim:/w_cpu/ALU_data_out_fast\
                               -radix unsigned sim:/w_cpu/EX_ALU_result\
                               -radix unsigned sim:/w_cpu/Result_W
 
