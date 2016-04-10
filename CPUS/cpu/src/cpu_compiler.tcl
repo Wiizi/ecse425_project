@@ -22,19 +22,23 @@ proc AddWaves {} {
   add wave -group "INSTR RUN"   -position end -radix binary sim:/cpu/IF_ID_Imem_inst_in
 
   add wave -group "DATAMEM"   -position end -radix unsigned sim:/cpu/DataMem_addr\
+                              -radix binary sim:/cpu/re_control\
+                              -radix binary sim:/cpu/we_control\
                               -radix binary sim:/cpu/DataMem_re\
                               -radix binary sim:/cpu/DataMem_we\
-                              -radix unsigned sim:/cpu/EX_MEM_Data1\
-                              -radix unsigned sim:/cpu/EX_MEM_data\
+                              -radix unsigned sim:/cpu/EX_MEM_Data_delayed\
                               -radix unsigned sim:/cpu/DataMem_data\
-                              -radix binary sim:/cpu/DataMem_busy
+                              -radix binary sim:/cpu/DataMem_busy\
+                              -radix unsigned sim:/cpu/mem_data_state
 
   add wave -group "RegIn"     -position end -radix unsigned sim:/cpu/rs\
                               -radix unsigned sim:/cpu/rt\
-                              -radix unsigned sim:/cpu/Rd_W\
-                              -radix unsigned sim:/cpu/MEM_WB_RegWrite\
+                              -radix unsigned sim:/cpu/Rd_W_in\
+                              -radix unsigned sim:/cpu/reg_write_control\
+                              -radix unsigned sim:/cpu/lohi_write_control\
+                              -radix unsigned sim:/cpu/ALU_LOHI_Read_delayed\
                               -radix unsigned sim:/cpu/MEM_WB_MemtoReg\
-                              -radix unsigned sim:/cpu/Result_W\
+                              -radix unsigned sim:/cpu/Result_W_in\
                               -radix unsigned sim:/cpu/ALU_LO\
                               -radix unsigned sim:/cpu/ALU_HI\
                               -radix unsigned sim:/cpu/data0\
@@ -86,6 +90,7 @@ proc AddWaves {} {
                               -radix binary sim:/cpu/ALUSrc\
                               -radix binary sim:/cpu/BNE\
                               -radix binary sim:/cpu/Jump\
+                              -radix binary sim:/cpu/JR\
                               -radix binary sim:/cpu/LUI\
                               -radix binary sim:/cpu/ALU_LOHI_Write\
                               -radix binary sim:/cpu/ALU_LOHI_Read\
@@ -101,6 +106,7 @@ proc AddWaves {} {
                               -radix unsigned sim:/cpu/ALU_shamt
 
   add wave -group "ALU OUT"   -position end -radix unsigned sim:/cpu/ALU_data_out\
+                              -radix unsigned sim:/cpu/ALU_data_out_fast\
                               -radix unsigned sim:/cpu/ALU_HI\
                               -radix unsigned sim:/cpu/ALU_LO\
                               -radix binary sim:/cpu/zero
@@ -131,27 +137,34 @@ proc AddWaves {} {
                               -radix binary sim:/cpu/BNE_Signal\
                               -radix binary sim:/cpu/BNE\
                               -radix binary sim:/cpu/PC_Branch\
-                              -radix unsigned sim:/cpu/Branch_addr\
-                              -radix unsigned sim:/cpu/after_Branch\
+                              -radix unsigned sim:/cpu/Branch_addr_delayed\
                               -radix binary sim:/cpu/IF_ID_Jump\
-                              -radix unsigned sim:/cpu/Jump_addr\
-                              -radix unsigned sim:/cpu/after_Jump
+                              -radix unsigned sim:/cpu/Jump_addr_delayed\
+                              -radix unsigned sim:/cpu/after_Jump\
+                              -radix unsigned sim:/cpu/ID_EX_Jal\
+                              -radix unsigned sim:/cpu/Jal_to_Reg\
+                              -radix unsigned sim:/cpu/jal_addr\
+                              -radix unsigned sim:/cpu/Branch_taken\
+                              -radix unsigned sim:/cpu/Flush_state
+
 
   add wave -group "Early_B"   -position end -radix binary sim:/cpu/Branch_Signal\
-                              -radix binary sim:/cpu/Branch\
                               -radix binary sim:/cpu/ID_EX_RegWrite\
                               -radix binary sim:/cpu/EX_MEM_RegWrite\
                               -radix unsigned sim:/cpu/rs\
                               -radix unsigned sim:/cpu/rt\
-                              -radix unsigned sim:/cpu/new_Rs\
-                              -radix unsigned sim:/cpu/new_Rt\
-                              -radix unsigned sim:/cpu/EX_rd\
                               -radix unsigned sim:/cpu/EX_MEM_Rd\
                               -radix unsigned sim:/cpu/Rd_W\
                               -radix binary sim:/cpu/Forward0_Branch\
                               -radix binary sim:/cpu/Forward1_Branch\
+                              -radix unsigned sim:/cpu/ALU_data_out_fast\
                               -radix unsigned sim:/cpu/EX_ALU_result\
                               -radix unsigned sim:/cpu/Result_W
+
+  add wave -group "JR"   -position end -radix binary sim:/cpu/JR\
+                              -radix binary sim:/cpu/JR_delayed\
+                              -radix unsigned sim:/cpu/JR_addr\
+                              -radix unsigned sim:/cpu/J_addr
 
   ;#Set some formating options to make the Waves window more legible
   configure wave -namecolwidth 250
@@ -206,7 +219,7 @@ proc CompileAndSimulate {} {
   GenerateClock clk_mem_data 2
 
   ;#Update all signals
-  run 1000 ns;
+  run 5000 ns;
 
   ;# tests pc updates
 }
