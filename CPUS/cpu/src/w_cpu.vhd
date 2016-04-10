@@ -464,6 +464,7 @@ signal Branch_taken, PC_Branch, Early_Zero, Branch_Signal, BNE_Signal : std_logi
 signal Branch_addr, Branch_addr_delayed, after_Branch : std_logic_vector(31 downto 0) := (others => '0');
 signal Jump_addr, Jump_addr_delayed, after_Jump, jal_addr : std_logic_vector(31 downto 0) := (others => '0');
 signal Equal : boolean;
+signal JR_addr, J_addr : std_logic_vector(31 downto 0);
 
 --Flush signal control
 signal flush_state : integer range 0 to 6 := 0;
@@ -671,9 +672,12 @@ with Equal select Early_Zero <=
 --------------------------------------------------------------------TODO-------------------------------------------------
 --------------------------------------------------------------------TODO-------------------------------------------------
 --------------------------------------------------------------------TODO-------------------------------------------------
-with JR_delayed select Jump_addr <= 
-  when '1',
-"0000" & IF_ID_inst_out(25 downto 0) & "00" when others;
+JR_addr <= (ALU_data0(29 downto 0) & "00");
+J_addr <= "0000" & IF_ID_inst_out(25 downto 0) & "00";
+
+with JR select Jump_addr <=
+  (ALU_data0(29 downto 0) & "00") when '1',
+  "0000" & IF_ID_inst_out(25 downto 0) & "00" when others;
 
 -- if Jump control is on, then get the jump address for PC
 with Jump select after_Jump <=
@@ -725,7 +729,7 @@ PORT MAP
     state_o       => mem_data_state
 );
 -- get address for data memory (must multiply by 4 or shift left by 2)
-DataMem_addr <= to_integer(unsigned(EX_MEM_data ( 29 downto 0) & "00"));
+DataMem_addr <= to_integer(unsigned(EX_MEM_data (29 downto 0) & "00"));
 
 -- Control circuit of the pipeline
 Control: Control_Unit
@@ -751,7 +755,7 @@ Control: Control_Unit
     ALU_LOHI_Read   => ALU_LOHI_Read,
     Asrt            => Asrt,
     Jal             => Jal,
-    JR              => JR;
+    JR              => JR,
     --MEM (data mem)
     MemWrite        => MemWrite,
     MemRead         => MemRead,

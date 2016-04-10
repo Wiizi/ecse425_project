@@ -90,6 +90,7 @@ proc AddWaves {} {
                               -radix binary sim:/w_cpu/ALUSrc\
                               -radix binary sim:/w_cpu/BNE\
                               -radix binary sim:/w_cpu/Jump\
+                              -radix binary sim:/w_cpu/JR\
                               -radix binary sim:/w_cpu/LUI\
                               -radix binary sim:/w_cpu/ALU_LOHI_Write\
                               -radix binary sim:/w_cpu/ALU_LOHI_Read\
@@ -159,6 +160,11 @@ proc AddWaves {} {
                               -radix unsigned sim:/w_cpu/ALU_data_out_fast\
                               -radix unsigned sim:/w_cpu/EX_ALU_result\
                               -radix unsigned sim:/w_cpu/Result_W
+
+  add wave -group "JR"   -position end -radix binary sim:/w_cpu/JR\
+                              -radix binary sim:/w_cpu/JR_delayed\
+                              -radix unsigned sim:/w_cpu/JR_addr\
+                              -radix unsigned sim:/w_cpu/J_addr
 
   ;#Set some formating options to make the Waves window more legible
   configure wave -namecolwidth 250
