@@ -268,37 +268,6 @@ END COMPONENT;
       );
    END COMPONENT;
 
-   -- 2 to 1 multiplexer 
-   COMPONENT Mux_2to1
-      Port(
-        --select line
-        sel      : in std_logic;
-
-        --data inputs
-        in1      : in std_logic_vector(31 downto 0);
-        in2      : in std_logic_vector(31 downto 0);
-
-        --output
-        dataOut : out std_logic_vector(31 downto 0)
-      );
-   END COMPONENT;
-
-   -- 3 to 1 multiplexer 
-   COMPONENT Mux_3to1
-      Port (
-        --select line
-        sel      : in std_logic_vector(1 downto 0);
-
-        --data inputs
-        in1      : in std_logic_vector(31 downto 0);
-        in2      : in std_logic_vector(31 downto 0);
-        in3      : in std_logic_vector(31 downto 0);
-
-        --output
-        dataOut : out std_logic_vector(31 downto 0)
-      );
-   END COMPONENT;
-
   -- Program Counter 
   COMPONENT PC
      PORT(
@@ -529,8 +498,13 @@ signal ID_EX_Rd, EX_MEM_Rd, MEM_WB_Rd, EX_rd, Rd_W, Rd_W_in : std_logic_vector(4
 signal EX_MEM_Data1, EX_MEM_Data_delayed, EX_MEM_data: std_logic_vector(31 downto 0);
 signal MEM_WB_data, Result_W, Result_W_in: std_logic_vector(31 downto 0);
 
+-------------------------------------------------
+-----------------BEGIN BEHAVIOUR-----------------
+-------------------------------------------------
+
 BEGIN
 
+-- PC
 Program_counter: PC
   PORT MAP( 
           clk         => clk,
@@ -539,7 +513,7 @@ Program_counter: PC
           addr_out    => PC_addr_out
       );
 
--- increments the pc by 4 on every clock cycle
+-- increments the pc by 4 on every clock cycle unless branch or jump signals are high
 pc_increment : process (clk)
 begin
   if (falling_edge(clk)) then
@@ -552,7 +526,7 @@ InstMem_counterVector <= std_logic_vector(to_unsigned(pc_in,32));
 InstMem_address <= to_integer(unsigned(PC_addr_out));
 
 -- updates read enable signal for the main instruction memory
--- dont read when cpu is on stall
+-- (dont read when cpu is on stall)
 read_instruction_mem : process (clk)
 begin
   if (falling_edge(clk)) then
@@ -607,9 +581,11 @@ begin
   end if;
 end process;
 
------------------------------
---------BRANCH LOGIC---------
------------------------------
+-------------------------------------------------
+------------------BRANCH LOGIC-------------------
+-------------------------------------------------
+
+-----------------EARLY BRANCHING-----------------
 with ((IF_ID_inst_out(31 downto 26) = "000100") or (IF_ID_inst_out(31 downto 26) = "000101")) select Branch_Signal <=
   '1' when TRUE,
   '0' when others;
@@ -655,9 +631,9 @@ with Equal select Early_Zero <=
   '1' when TRUE,
   '0' when others;
 
-----------------------------
---------JUMP LOGIC----------
-----------------------------
+-------------------------------------------------
+--------------------JUMP LOGIC-------------------
+-------------------------------------------------
 
 -- get correct jump address (different for jr and j instructions)
 JR_addr <= (ALU_data0(29 downto 0) & "00");
@@ -691,7 +667,7 @@ with Jal_to_Reg select Result_W_in <=
   Result_W when others;
 
 -----------------------
-------Data memory------ 
+------DATA MEMORY------ 
 -----------------------
 Data_Memory : memory
 GENERIC MAP
@@ -815,9 +791,9 @@ Register_bank: Registers
     rHi             => rHi
     );
 
----------------------------
---------FLUSH logic--------
----------------------------
+-------------------------------------------------
+-------------------FLUSH LOGIC-------------------
+-------------------------------------------------
 -- flushing means to prevent any operation that entered the pipeline after branch/jump 
 -- from writing to registers/memory when jump/branch is taken
 
@@ -845,7 +821,7 @@ with flush_state select lohi_write_control <=
   ALU_LOHI_Write_delayed when 6,
   '0' when others;
 
--- 6 state final state machine for pipeline flush (need to flush for up to 5 clock cycles)
+-- 7 state final state machine for pipeline flush (need to flush for up to 5 clock cycles)
 flush_fsm : process (clk)
 begin
   if (rising_edge(clk)) then 
