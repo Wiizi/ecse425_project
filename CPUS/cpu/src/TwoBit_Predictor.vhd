@@ -8,7 +8,7 @@ entity TwoBit_Predictor is
 	port(
 		clk			 	 : in std_logic;
 		reset 			 : in std_logic;
-		PC 				 : in std_logic_vector(31 downto 0);
+		--PC 				 : in std_logic_vector(31 downto 0);
 		OpCode			 : in std_logic_vector(5 downto 0);
 		--actual result corresponding to the last prediction that was computed
 		last_pred 		 : in integer;
@@ -27,7 +27,7 @@ begin
 
 	process(clk)
 	begin
-		if (clk'event and clk = '1') then
+		if (falling_edge(clk)) then
 			if (reset = '1') then
 				pred_validate <= 0;
 				branch_outcome <= '0';
