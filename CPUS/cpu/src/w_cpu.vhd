@@ -455,6 +455,7 @@ signal IF_ID_inst_out, IF_ID_addr_out : std_logic_vector(31 downto 0) := (others
 signal regWrite: std_logic;
 signal ALUOpcode: std_logic_vector(3 downto 0);
 signal RegDest, Branch, BNE, Jump, LUI, ALU_LOHI_Write, ALU_LOHI_Write_delayed, ALUSrc, Asrt, Jal, JR, JR_delayed : std_logic;
+signal Jump_selector : std_logic_vector(1 downto 0);
 signal ALU_LOHI_Read, ALU_LOHI_Read_delayed: std_logic_vector(1 downto 0);
 signal MemWrite, MemRead, MemtoReg: std_logic;
 signal rs, rt, rd, Imem_rs, Imem_rt, IF_ID_rt : std_logic_vector ( 4 downto 0);
@@ -462,7 +463,7 @@ signal rs, rt, rd, Imem_rs, Imem_rt, IF_ID_rt : std_logic_vector ( 4 downto 0);
 --For Branch and Jump
 signal Branch_taken, PC_Branch, Early_Zero, Branch_Signal, BNE_Signal : std_logic;
 signal Branch_addr, Branch_addr_delayed, after_Branch : std_logic_vector(31 downto 0) := (others => '0');
-signal Jump_addr, Jump_addr_delayed, after_Jump, jal_addr : std_logic_vector(31 downto 0) := (others => '0');
+signal Jump_addr, Jump_addr_delayed, Jump_addr_in, after_Jump, jal_addr : std_logic_vector(31 downto 0) := (others => '0');
 signal Equal : boolean;
 signal JR_addr, J_addr : std_logic_vector(31 downto 0);
 
@@ -658,30 +659,22 @@ with Equal select Early_Zero <=
 --------JUMP LOGIC----------
 ----------------------------
 
---------------------------------------------------------------------TODO-------------------------------------------------
---------------------------------------------------------------------TODO-------------------------------------------------
---------------------------------------------------------------------TODO-------------------------------------------------
---------------------------------------------------------------------TODO-------------------------------------------------
---------------------------------------------------------------------TODO-------------------------------------------------
---------------------------------------------------------------------TODO-------------------------------------------------
---------------------------------------------------------------------TODO-------------------------------------------------
---------------------------------------------------------------------TODO-------------------------------------------------
---------------------------------------------------------------------TODO-------------------------------------------------
---------------------------------------------------------------------TODO-------------------------------------------------
---------------------------------------------------------------------TODO-------------------------------------------------
---------------------------------------------------------------------TODO-------------------------------------------------
---------------------------------------------------------------------TODO-------------------------------------------------
---------------------------------------------------------------------TODO-------------------------------------------------
+-- get correct jump address (different for jr and j instructions)
 JR_addr <= (ALU_data0(29 downto 0) & "00");
 J_addr <= "0000" & IF_ID_inst_out(25 downto 0) & "00";
-
 with JR select Jump_addr <=
-  (ALU_data0(29 downto 0) & "00") when '1',
-  "0000" & IF_ID_inst_out(25 downto 0) & "00" when others;
+  JR_addr when '1',
+  J_addr when others;
+
+-- select correct after jump address (JR address is ready 1 cycle later so it need not be delayed)
+Jump_selector <= Jump & JR;
+with Jump_selector select Jump_addr_in <=
+  Jump_addr when "11",
+  Jump_addr_delayed when others;
 
 -- if Jump control is on, then get the jump address for PC
 with Jump select after_Jump <=
-  Jump_addr_delayed when '1',
+  Jump_addr_in when '1',
   after_Branch when others;
 
 -- selects destination register depending on instruction format

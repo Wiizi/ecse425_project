@@ -215,7 +215,7 @@ proc CompileAndSimulate {} {
   
   ;#Generate a CPU clock
   GenerateClock clk 20
-  GenerateClock clk_mem 4
+  GenerateClock clk_mem 2
   GenerateClock clk_mem_data 2
 
   ;#Update all signals
