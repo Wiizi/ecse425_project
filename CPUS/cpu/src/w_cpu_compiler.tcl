@@ -22,12 +22,14 @@ proc AddWaves {} {
   add wave -group "INSTR RUN"   -position end -radix binary sim:/w_cpu/IF_ID_Imem_inst_in
 
   add wave -group "DATAMEM"   -position end -radix unsigned sim:/w_cpu/DataMem_addr\
+                              -radix binary sim:/w_cpu/re_control\
+                              -radix binary sim:/w_cpu/we_control\
                               -radix binary sim:/w_cpu/DataMem_re\
                               -radix binary sim:/w_cpu/DataMem_we\
-                              -radix unsigned sim:/w_cpu/EX_MEM_Data1\
-                              -radix unsigned sim:/w_cpu/EX_MEM_data\
+                              -radix unsigned sim:/w_cpu/EX_MEM_Data_delayed\
                               -radix unsigned sim:/w_cpu/DataMem_data\
-                              -radix binary sim:/w_cpu/DataMem_busy
+                              -radix binary sim:/w_cpu/DataMem_busy\
+                              -radix unsigned sim:/w_cpu/mem_data_state
 
   add wave -group "RegIn"     -position end -radix unsigned sim:/w_cpu/rs\
                               -radix unsigned sim:/w_cpu/rt\
@@ -141,7 +143,9 @@ proc AddWaves {} {
                               -radix unsigned sim:/w_cpu/ID_EX_Jal\
                               -radix unsigned sim:/w_cpu/Jal_to_Reg\
                               -radix unsigned sim:/w_cpu/jal_addr\
+                              -radix unsigned sim:/w_cpu/Branch_taken\
                               -radix unsigned sim:/w_cpu/Flush_state
+
 
   add wave -group "Early_B"   -position end -radix binary sim:/w_cpu/Branch_Signal\
                               -radix binary sim:/w_cpu/ID_EX_RegWrite\
@@ -209,7 +213,7 @@ proc CompileAndSimulate {} {
   GenerateClock clk_mem_data 2
 
   ;#Update all signals
-  run 1000 ns;
+  run 5000 ns;
 
   ;# tests pc updates
 }

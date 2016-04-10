@@ -32,6 +32,7 @@ entity Control_Unit is
 		ALU_LOHI_Read 	: out std_logic_vector(1 downto 0);
 		Asrt			: out std_logic;
 		Jal				: out std_logic;
+		JR 				: out std_logic;
 		--MEM
 		MemWrite 		: out std_logic;
 		MemRead 		: out std_logic;
@@ -44,7 +45,7 @@ end Control_Unit;
 architecture Behavioural of Control_Unit is
 
 signal temp_RegWrite, temp_ALUSrc, temp_RegDest 		: std_logic;
-signal temp_Branch, temp_BNE, temp_Jump, temp_LUI		: std_logic;
+signal temp_Branch, temp_BNE, temp_Jump, temp_LUI, temp_JR		: std_logic;
 signal temp_MemWrite, temp_MemRead, temp_MemtoReg, temp_Jal, temp_asrt 		: std_logic;
 -- 0 for inactive, 1 for active write
 signal temp_ALU_LOHI_Write 								: std_logic := '0';
@@ -69,6 +70,7 @@ ALU_LOHI_Read 	<= temp_ALU_LOHI_Read;
 MemWrite 		<= temp_MemWrite;
 MemRead 		<= temp_MemRead;
 MemtoReg 		<= temp_MemtoReg;
+JR 				<= temp_JR;
 
 	process(clk)
 	begin
@@ -83,6 +85,7 @@ MemtoReg 		<= temp_MemtoReg;
 		temp_Branch				<= '0';
 		temp_BNE				<= '0';
 		temp_Jump				<= '0';
+		temp_JR 				<= '0';
 		temp_LUI				<= '0';
 		temp_ALU_LOHI_Write		<= '0';
 		temp_ALU_LOHI_Read		<= "00";
@@ -110,6 +113,8 @@ MemtoReg 		<= temp_MemtoReg;
 					--jr
 					when "001000" =>
 						temp_ALUOpCode 		<= "0010";
+						temp_JR 		<= '1';
+						temp_Jump 		<= '1';
 					--mfhi
 					when "010000" =>
 						temp_ALUOpCode 		<= "0010";
@@ -241,6 +246,9 @@ MemtoReg 		<= temp_MemtoReg;
 			when "000010" =>
 				temp_ALUOpCode 	<= "0010";
 				temp_Jump 		<= '1';
+
+			--Custom instructions
+
 			--asrt
 			when "010100" =>
 				temp_ALUOpCode 	<= "0110";

@@ -96,7 +96,8 @@ PORT
     dump        : in STD_LOGIC;
     dataIn      : in STD_LOGIC_VECTOR(MEM_DATA_WIDTH-1 downto 0);
     dataOut     : out STD_LOGIC_VECTOR(MEM_DATA_WIDTH-1 downto 0);
-    busy        : out STD_LOGIC
+    busy        : out STD_LOGIC;
+    state_o     : out STD_LOGIC_VECTOR(2 downto 0)
 );
 END COMPONENT;
 
@@ -389,6 +390,7 @@ END COMPONENT;
 
         Asrt            : out std_logic;
         Jal             : out std_logic;
+        JR              : out std_logic;
 
         --MEM
         MemWrite        : out std_logic;
@@ -442,6 +444,7 @@ signal DataMem_data       : std_logic_vector (31 downto 0)  := (others => 'Z');
 signal InstMem_counterVector : std_logic_vector (31 downto 0)  := (others => '0'); 
 signal InstMem_busy       : std_logic  := '0';
 signal DataMem_busy       : std_logic  := '0';
+signal mem_data_state     : std_logic_vector(2 downto 0);
 
 -- PC AND memory
 signal PC_addr_out : std_logic_vector(31 downto 0);
@@ -451,7 +454,7 @@ signal IF_ID_inst_out, IF_ID_addr_out : std_logic_vector(31 downto 0) := (others
 -- CONTROL signals
 signal regWrite: std_logic;
 signal ALUOpcode: std_logic_vector(3 downto 0);
-signal RegDest, Branch, BNE, Jump, LUI, ALU_LOHI_Write, ALU_LOHI_Write_delayed, ALUSrc, Asrt, Jal : std_logic;
+signal RegDest, Branch, BNE, Jump, LUI, ALU_LOHI_Write, ALU_LOHI_Write_delayed, ALUSrc, Asrt, Jal, JR, JR_delayed : std_logic;
 signal ALU_LOHI_Read, ALU_LOHI_Read_delayed: std_logic_vector(1 downto 0);
 signal MemWrite, MemRead, MemtoReg: std_logic;
 signal rs, rt, rd, Imem_rs, Imem_rt, IF_ID_rt : std_logic_vector ( 4 downto 0);
@@ -463,7 +466,7 @@ signal Jump_addr, Jump_addr_delayed, after_Jump, jal_addr : std_logic_vector(31 
 signal Equal : boolean;
 
 --Flush signal control
-signal flush_state : integer range 0 to 5 := 0;
+signal flush_state : integer range 0 to 6 := 0;
 signal re_control, we_control, reg_write_control, lohi_write_control : std_logic;
 
 --Signals from last pipeline stage
@@ -653,7 +656,24 @@ with Equal select Early_Zero <=
 ----------------------------
 --------JUMP LOGIC----------
 ----------------------------
-Jump_addr <= "0000" & IF_ID_inst_out(25 downto 0) & "00";
+
+--------------------------------------------------------------------TODO-------------------------------------------------
+--------------------------------------------------------------------TODO-------------------------------------------------
+--------------------------------------------------------------------TODO-------------------------------------------------
+--------------------------------------------------------------------TODO-------------------------------------------------
+--------------------------------------------------------------------TODO-------------------------------------------------
+--------------------------------------------------------------------TODO-------------------------------------------------
+--------------------------------------------------------------------TODO-------------------------------------------------
+--------------------------------------------------------------------TODO-------------------------------------------------
+--------------------------------------------------------------------TODO-------------------------------------------------
+--------------------------------------------------------------------TODO-------------------------------------------------
+--------------------------------------------------------------------TODO-------------------------------------------------
+--------------------------------------------------------------------TODO-------------------------------------------------
+--------------------------------------------------------------------TODO-------------------------------------------------
+--------------------------------------------------------------------TODO-------------------------------------------------
+with JR_delayed select Jump_addr <= 
+  when '1',
+"0000" & IF_ID_inst_out(25 downto 0) & "00" when others;
 
 -- if Jump control is on, then get the jump address for PC
 with Jump select after_Jump <=
@@ -701,7 +721,8 @@ PORT MAP
     dump          => mem_dump,
     dataIn        => EX_MEM_Data_delayed,
     dataOut       => DataMem_data,
-    busy          => DataMem_busy
+    busy          => DataMem_busy,
+    state_o       => mem_data_state
 );
 -- get address for data memory (must multiply by 4 or shift left by 2)
 DataMem_addr <= to_integer(unsigned(EX_MEM_data ( 29 downto 0) & "00"));
@@ -730,6 +751,7 @@ Control: Control_Unit
     ALU_LOHI_Read   => ALU_LOHI_Read,
     Asrt            => Asrt,
     Jal             => Jal,
+    JR              => JR;
     --MEM (data mem)
     MemWrite        => MemWrite,
     MemRead         => MemRead,
@@ -804,34 +826,39 @@ Register_bank: Registers
 
 with flush_state select re_control <= 
   DataMem_re when 0,
-    DataMem_re when 5,
+  DataMem_re when 4,
+  DataMem_re when 6,
   '0' when others;
 
 with flush_state select we_control <=
   DataMem_we when 0,
-    DataMem_we when 5,
+  DataMem_we when 4,
+  DataMem_we when 6,
   '0' when others;
 
 with flush_state select reg_write_control <= 
   MEM_WB_RegWrite when 0,
-    MEM_WB_RegWrite when 5,
+  MEM_WB_RegWrite when 4,
+  MEM_WB_RegWrite when 6,
   '0' when others;
 
 with flush_state select lohi_write_control <=
   ALU_LOHI_Write_delayed when 0,
-    ALU_LOHI_Write_delayed when 5,
+  ALU_LOHI_Write_delayed when 4,
+  ALU_LOHI_Write_delayed when 6,
   '0' when others;
 
-flush : process (clk)
+-- 6 state final state machine for pipeline flush (need to flush for up to 5 clock cycles)
+flush_fsm : process (clk)
 begin
   if (rising_edge(clk)) then 
     case flush_state is
+      -- jump and branch states
       when 0 =>
-        if (Jal_to_Reg = '1') then
-          flush_state <= 3;
-        end if;
-        if ((Branch_taken = '1' and Branch = '1') or Jump = '1') then
-          flush_state <= 5;
+        if ((Branch_taken = '1' and Branch = '1')) then
+          flush_state <= 4;
+        elsif (Jump = '1') then
+          flush_state <= 6;
           if (Jal = '1') then 
             -- update jump address for jal
             jal_addr <=  std_logic_vector(to_unsigned(to_integer(unsigned(PC_addr_out)) - 8, 32));
@@ -841,15 +868,24 @@ begin
         flush_state <= 0;
       when 2 =>
         flush_state <= 1;
+
       when 3 =>
         flush_state <= 2;
+
+      -- branch specific state 4
+      -- flush is disabled in state 4 to allow for completion of the instruction immediately before branch
       when 4 =>
         flush_state <= 3;
+
+      -- jump specific states 5,6
       when 5 =>
-        flush_state <= 4;
+        flush_state <= 3;
+      -- flush is disabled in state 6 to allow for completion of the instruction immediately before jump
+      when 6 =>
+        flush_state <= 5;
         if (ID_EX_Jal = '1') then
           -- disable flush, to allow for writing to register 31
-          flush_state <= 0;
+          flush_state <= 4;
         end if;
       when others =>
         flush_state <= 0;
@@ -873,6 +909,7 @@ begin
     Branch_taken <= PC_Branch;
     ALU_LOHI_Write_delayed <= ALU_LOHI_Write;
     ALU_LOHI_Read_delayed <= ALU_LOHI_Read;
+    JR_delayed <= JR;
   end if;
 end process;
 

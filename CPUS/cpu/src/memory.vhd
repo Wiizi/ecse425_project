@@ -29,7 +29,8 @@ PORT
     dump      : in STD_LOGIC := '0';
     dataIn    : in STD_LOGIC_VECTOR(MEM_DATA_WIDTH-1 downto 0);
     dataOut   : out STD_LOGIC_VECTOR(MEM_DATA_WIDTH-1 downto 0);
-    busy      : out STD_LOGIC
+    busy      : out STD_LOGIC;
+    state_o   : out STD_LOGIC_VECTOR(2 downto 0)
 );
 END memory;
 
@@ -57,6 +58,15 @@ ARCHITECTURE behavioral OF memory IS
   SIGNAL state            :  state_type:=init;
 
 begin
+
+  with state select state_o <= 
+    "000" when init,
+    "001" when start,
+    "010" when read1,
+    "011" when read2,
+    "100" when write1,
+    "101" when write2,
+    "ZZZ" when others;
 
   mm_dump <= dump;
   mm_word_byte <= wordbyte;
