@@ -7,7 +7,8 @@ proc AddWaves {} {
 
   ;#Add the following signals to the Waves window
   add wave -group "CLOCKS" -position end -radix binary sim:/cpu/clk\
-                                          -radix binary sim:/cpu/clk_mem
+                              -radix binary sim:/cpu/clk_mem\
+                              -radix binary sim:/cpu/clk_mem_data
   
   ;#These signals will be contained in a group
   ;# add wave -group "SIGNALS" -radix hex sim:/memory/addr\
