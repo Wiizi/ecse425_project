@@ -382,7 +382,7 @@ COMPONENT Forwarding is
     Forward0_EX   : out std_logic_vector(1 downto 0);
     Forward1_EX   : out std_logic_vector(1 downto 0)
     );
-end COMPONENT;
+END COMPONENT;
 
 COMPONENT EarlyBranching is
   port(
@@ -397,7 +397,7 @@ COMPONENT EarlyBranching is
     Forward0_Branch : out std_logic_vector(1 downto 0);
     Forward1_Branch : out std_logic_vector(1 downto 0)
     );
-end COMPONENT;
+END COMPONENT;
 
 -----------------------------------------------------
 ---------------DECLARATION OF SIGNALS----------------
