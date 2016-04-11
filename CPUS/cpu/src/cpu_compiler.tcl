@@ -181,30 +181,8 @@ proc GenerateClock {port period} {
 ;#sets up the Waves window to contain useful input/output signals
 ;#for debugging.
 proc CompileAndSimulate {} {
-  ;#Create the work library, which is the default library used by ModelSim
-  vlib work
-  
   ;#Compile the memory unit and its subcomponents
-  vcom ALU.vhd
-  vcom Memory_in_Byte.vhd
-  vcom Main_Memory.vhd
-  vcom memory_arbiter_lib.vhd
-  vcom memory.vhd
-  vcom Control_Unit.vhd
-  vcom EX_MEM.vhd
-  vcom HazardDetectionControl.vhd
-  vcom ID_EX.vhd
-  vcom IF_ID.vhd
-  vcom Mux_2to1.vhd
-  vcom Mux_3to1.vhd
-  vcom PC.vhd
-  vcom Registers.vhd
-  vcom Forwarding.vhd
-  vcom Haz_mux.vhd
-  vcom MEM_WB.vhd
-  vcom Sync.vhd
-  vcom Earlybranching.vhd
-  vcom cpu.vhd
+  CompileOnly
   
   ;#Start a simulation session with the cpu component
   vsim -t ps cpu
@@ -239,12 +217,9 @@ proc CompileOnly {} {
   vcom HazardDetectionControl.vhd
   vcom ID_EX.vhd
   vcom IF_ID.vhd
-  vcom Mux_2to1.vhd
-  vcom Mux_3to1.vhd
   vcom PC.vhd
   vcom Registers.vhd
   vcom Forwarding.vhd
-  vcom Haz_mux.vhd
   vcom MEM_WB.vhd
   vcom Sync.vhd
   vcom Earlybranching.vhd
