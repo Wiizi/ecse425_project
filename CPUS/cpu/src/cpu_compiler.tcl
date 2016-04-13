@@ -7,8 +7,7 @@ proc AddWaves {} {
 
   ;#Add the following signals to the Waves window
   add wave -group "CLOCKS" -position end -radix binary sim:/cpu/clk\
-                              -radix binary sim:/cpu/clk_mem\
-                              -radix binary sim:/cpu/clk_mem_data
+                                          -radix binary sim:/cpu/clk_mem
   
   ;#These signals will be contained in a group
   ;# add wave -group "SIGNALS" -radix hex sim:/memory/addr\
@@ -18,6 +17,8 @@ proc AddWaves {} {
   add wave -group "INSTMEM"   -position end -radix unsigned sim:/cpu/InstMem_address\
                               -radix binary sim:/cpu/InstMem_re\
                               -radix unsigned sim:/cpu/pc_in\
+                              -radix unsigned sim:/cpu/after_Jump\
+                              -radix unsigned sim:/cpu/InstMem_busy\
                               -radix binary sim:/cpu/Imem_inst_in
 
   add wave -group "INSTR RUN"   -position end -radix binary sim:/cpu/IF_ID_Imem_inst_in
@@ -25,12 +26,16 @@ proc AddWaves {} {
   add wave -group "DATAMEM"   -position end -radix unsigned sim:/cpu/DataMem_addr\
                               -radix binary sim:/cpu/re_control\
                               -radix binary sim:/cpu/we_control\
+                              -radix binary sim:/cpu/data_we_control\
+                              -radix binary sim:/cpu/data_re_control\
                               -radix binary sim:/cpu/DataMem_re\
                               -radix binary sim:/cpu/DataMem_we\
-                              -radix unsigned sim:/cpu/EX_MEM_Data_delayed\
-                              -radix unsigned sim:/cpu/DataMem_data\
+                              -radix unsigned sim:/cpu/datamem_datain\
+                              -radix unsigned sim:/cpu/datamem_dataout\
                               -radix binary sim:/cpu/DataMem_busy\
-                              -radix unsigned sim:/cpu/mem_data_state
+                              -radix unsigned sim:/cpu/mem_data_state\
+                              -radix unsigned sim:/cpu/wrd\
+                              -radix unsigned sim:/cpu/rdr
 
   add wave -group "RegIn"     -position end -radix unsigned sim:/cpu/rs\
                               -radix unsigned sim:/cpu/rt\
@@ -127,7 +132,8 @@ proc AddWaves {} {
                               -radix unsigned sim:/cpu/Imem_rt\
                               -radix unsigned sim:/cpu/MemRead\
                               -radix binary sim:/cpu/Branch\
-                              -radix binary sim:/cpu/CPU_stall
+                              -radix binary sim:/cpu/CPU_stall\
+                              -radix binary sim:/cpu/Stall_selector
 
   add wave -group "Branch&J"   -position end -radix binary sim:/cpu/Branch_Signal\
                               -radix binary sim:/cpu/Branch\

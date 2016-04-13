@@ -348,7 +348,7 @@ COMPONENT Forwarding IS
     Forward0_EX   : out std_logic_vector(1 downto 0);
     Forward1_EX   : out std_logic_vector(1 downto 0)
     );
-END COMPONENT;
+end COMPONENT;
 
 COMPONENT EarlyBranching IS
   PORT(
@@ -363,7 +363,7 @@ COMPONENT EarlyBranching IS
     Forward0_Branch : out std_logic_vector(1 downto 0);
     Forward1_Branch : out std_logic_vector(1 downto 0)
     );
-END COMPONENT;
+end COMPONENT;
 
 -----------------------------------------------------
 ---------------DECLARATION OF SIGNALS----------------
@@ -427,8 +427,10 @@ signal hazard_state : integer range 0 to 7;
 
 --Signals for Forwarding
 signal Forward0_EX, Forward1_EX : std_logic_vector(1 downto 0);
+signal Forwarding0_selector, Forwarding1_selector : std_logic_vector(2 downto 0) := "001";
 signal Forward0_Branch, Forward1_Branch : std_logic_vector(1 downto 0);
 signal Branch_data0, Branch_data1: std_logic_vector(31 downto 0);
+signal Forwarding_enable : std_logic := '1';
 
 --ID_EX output signals
 signal ID_EX_RegRt : std_logic_vector(4 downto 0);
@@ -818,10 +820,13 @@ begin
     case flush_state is
       -- jump and branch states
       when 0 =>
+        Forwarding_enable <= '1';
         if ((Branch_taken = '1' and Branch = '1')) then
+          Forwarding_enable <= '0';
           flush_state <= 4;
         elsif (Jump = '1') then
           flush_state <= 6;
+          Forwarding_enable <= '0';
           if (Jal = '1') then 
             -- update jump address for jal
             jal_addr <=  std_logic_vector(to_unsigned(to_integer(unsigned(PC_addr_out)) - 8, 32));
@@ -829,6 +834,7 @@ begin
         end if; 
       when 1 =>
         flush_state <= 0;
+        Forwarding_enable <= '1';
       when 2 =>
         flush_state <= 1;
 
@@ -1009,6 +1015,7 @@ low_ID_EX_SignExtend <= ID_EX_SignExtend(15 downto 0) & "0000000000000000";
 ----------------------------------
 ---------Forwarding Logic---------
 ----------------------------------
+  
 Forwarding_unit: Forwarding
   PORT MAP(
     EX_MEM_RegWrite => ID_EX_RegWrite,
@@ -1022,16 +1029,19 @@ Forwarding_unit: Forwarding
     Forward1_EX     => Forward1_EX
   );
 
+Forwarding0_selector <= (Forward0_EX & Forwarding_enable);
+Forwarding1_selector <= (Forward1_EX & Forwarding_enable);
+
 -- select DATA0 input for main ALU
-with Forward0_EX select ALU_data0 <=
-  EX_ALU_result when "01",
-  Result_W when "10",
+with Forwarding0_selector select ALU_data0 <=
+  EX_ALU_result when "011",
+  Result_W when "101",
   ID_EX_data0_out when others;
 
 -- select DATA1 input for main ALU
-with Forward1_EX select t_ALU_data1 <=
-  EX_ALU_result when "01",
-  Result_W when "10",
+with Forwarding1_selector select t_ALU_data1 <=
+  EX_ALU_result when "011",
+  Result_W when "101",
   ID_EX_data1_out when others;
 
 -- immediate value or data2 for main ALU data1 input
