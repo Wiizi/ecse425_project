@@ -336,8 +336,8 @@ END COMPONENT;
 END COMPONENT;
 
 -- used to forward relevant signals to avoid data hazards
-COMPONENT Forwarding is
-  port(
+COMPONENT Forwarding IS
+  PORT(
     EX_MEM_RegWrite : in std_logic;
     MEM_WB_RegWrite : in std_logic;
     EX_Rs     : in std_logic_vector(4 downto 0);
@@ -350,8 +350,8 @@ COMPONENT Forwarding is
     );
 end COMPONENT;
 
-COMPONENT EarlyBranching is
-  port(
+COMPONENT EarlyBranching IS
+  PORT(
     Branch      : in std_logic;
     EX_MEM_RegWrite : in std_logic;
     MEM_WB_RegWrite : in std_logic;
