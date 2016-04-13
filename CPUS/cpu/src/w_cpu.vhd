@@ -367,7 +367,6 @@ END COMPONENT;
 
 COMPONENT TwoBit_Predictor IS
   PORT(
-    clk        : in std_logic;
     reset        : in std_logic;
     OpCode       : in std_logic_vector(5 downto 0);
     --actual result corresponding to the last prediction that was computed
@@ -423,7 +422,7 @@ signal Equal : boolean;
 signal JR_addr, J_addr : std_logic_vector(31 downto 0);
 
 --2-bit Counter Branch Predictor
-signal init: std_logic := '0';
+signal init: std_logic := '1';
 signal last_prediction, curr_prediction : integer range 0 to 3 := 0;
 signal taken_history, actual_taken, pred_taken : std_logic;
 signal predictor_instr : std_logic_vector(5 downto 0);
@@ -630,11 +629,15 @@ with Equal select Early_Zero <=
 --------TWO BIT COUNTER BRANCH PREDICTOR---------
 process(clk)
 begin
-  if (rising_edge(clk)) then
+  if (falling_edge(clk)) then
+    if (init = '1') then
+      init <= '0';
+    end if;
     last_prediction <= curr_prediction;
   end if;
 end process;
 
+taken_history <= PC_Branch and Branch_Signal;
 --By default, assuming branch untaken
 with init select actual_taken <=
   '0' when '1',
@@ -642,11 +645,8 @@ with init select actual_taken <=
 
 predictor_instr <= IF_ID_Imem_inst_in(31 downto 26);
 
-taken_history <= PC_Branch and Branch_Signal;
-
 Branch_Predictor : TwoBit_Predictor
   PORT MAP(
-    clk            => clk,
     reset          => init,
     OpCode         => predictor_instr,
     last_pred      => last_prediction,
@@ -1082,13 +1082,13 @@ Forwarding0_selector <= (Forward0_EX & Forwarding_enable);
 Forwarding1_selector <= (Forward1_EX & Forwarding_enable);
 
 -- select DATA0 input for main ALU
-with Forward0_EX select ALU_data0 <=
+with Forwarding0_selector select ALU_data0 <=
   EX_ALU_result when "011",
   Result_W when "101",
   ID_EX_data0_out when others;
 
 -- select DATA1 input for main ALU
-with Forward1_EX select t_ALU_data1 <=
+with Forwarding1_selector select t_ALU_data1 <=
   EX_ALU_result when "011",
   Result_W when "101",
   ID_EX_data1_out when others;
