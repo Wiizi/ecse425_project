@@ -367,7 +367,7 @@ END COMPONENT;
 
 COMPONENT TwoBit_Predictor IS
   PORT(
-    reset        : in std_logic;
+    clk          : in std_logic;
     OpCode       : in std_logic_vector(5 downto 0);
     --actual result corresponding to the last prediction that was computed
     last_pred      : in integer range 0 to 3;
@@ -389,7 +389,7 @@ r16 , r17 , r18 , r19 , r20 , r21 , r22 , r23 , r24 , r25 , r26 , r27 , r28 , r2
 
 -- MEMORY
 signal pc_in, InstMem_address    : integer   := 0;
-signal InstMem_re         : std_logic := '0';
+signal InstMem_re, inst_re_control         : std_logic := '0';
 signal DataMem_addr       : integer    := 0;
 signal DataMem_re         : std_logic  := '1';
 signal DataMem_we         : std_logic  := '0';
@@ -422,7 +422,6 @@ signal Equal : boolean;
 signal JR_addr, J_addr : std_logic_vector(31 downto 0);
 
 --2-bit Counter Branch Predictor
-signal init: std_logic := '1';
 signal last_prediction, curr_prediction : integer range 0 to 3 := 0;
 signal taken_history, actual_taken, pred_taken : std_logic;
 signal predictor_instr : std_logic_vector(5 downto 0);
@@ -553,13 +552,22 @@ PORT MAP
     clk           => clk_mem,
     addr          => InstMem_address,
     wordbyte      => '1',
-    re            => InstMem_re,
+    re            => inst_re_control,
     we            => '0', -- instMem never writes
     dump          => mem_dump,
     dataIn        => (others => '0'),
     dataOut       => Imem_inst_in,
     busy          => InstMem_busy
 );
+
+-- make sure that instruction mem is read only once per clock
+inst_we_control_update : process(InstMem_re, clk)
+begin
+  inst_re_control <= InstMem_re;
+  if (clk = '1') then
+      inst_re_control <= '0';
+  end if;
+end process; 
 
 Stall_selector <= (CPU_stall & Branch_taken_delayed);
 -- updates currently run instruction used by further pipeline stages:
@@ -630,24 +638,18 @@ with Equal select Early_Zero <=
 process(clk)
 begin
   if (falling_edge(clk)) then
-    if (init = '1') then
-      init <= '0';
-    end if;
     last_prediction <= curr_prediction;
   end if;
 end process;
 
 taken_history <= PC_Branch and Branch_Signal;
---By default, assuming branch untaken
-with init select actual_taken <=
-  '0' when '1',
-  taken_history when others;
+actual_taken <= taken_history;
 
-predictor_instr <= IF_ID_Imem_inst_in(31 downto 26);
+predictor_instr <= Imem_inst_in(31 downto 26);
 
 Branch_Predictor : TwoBit_Predictor
   PORT MAP(
-    reset          => init,
+    clk            => clk,
     OpCode         => predictor_instr,
     last_pred      => last_prediction,
     actual_taken   => actual_taken,
@@ -729,6 +731,7 @@ DataMem_data <= datamem_dataout;
 -- get address for data memory (must multiply by 4 or shift left by 2)
 DataMem_addr <= to_integer(unsigned(EX_MEM_data (29 downto 0) & "00"));
 
+-- make sure that data mem is read only once per clock
 data_we_control_update : process(we_control, re_control, clk)
 begin
   data_we_control <= we_control;
