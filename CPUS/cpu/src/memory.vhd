@@ -30,7 +30,9 @@ PORT
     dataIn    : in STD_LOGIC_VECTOR(MEM_DATA_WIDTH-1 downto 0);
     dataOut   : out STD_LOGIC_VECTOR(MEM_DATA_WIDTH-1 downto 0);
     busy      : out STD_LOGIC;
-    state_o   : out STD_LOGIC_VECTOR(2 downto 0)
+    state_o   : out STD_LOGIC_VECTOR(2 downto 0);
+    wrd       : out STD_LOGIC;
+    rdr       : out STD_LOGIC
 );
 END memory;
 
@@ -67,6 +69,9 @@ begin
     "100" when write1,
     "101" when write2,
     "ZZZ" when others;
+
+  rdr <= mm_rd_ready;
+  wrd <= mm_wr_done;
 
   mm_dump <= dump;
   mm_word_byte <= wordbyte;
@@ -135,8 +140,8 @@ begin
             dataOut <= (others=>'Z');
           end if;
         when start =>
-          mm_initialize <= '0';
           if (mem_busy = '1') then
+            mm_address <= addr;
             if (mem_op = '1') then
               state <= write1;
             elsif (mem_op = '0') then
@@ -145,7 +150,6 @@ begin
           end if;
         when write1 =>
           -- set address and data to write, and enable mm_we for memory
-          mm_address <= addr;
           mm_data <= dataIn;
           mm_we <= '1';
           state <= write2;
@@ -155,14 +159,14 @@ begin
             state <= start;
           end if;
         when read1 =>
+          mm_data <= (others => 'Z');
           -- set address to read, and enable mm_re for memory
-          mm_address <= addr;
           mm_re <= '1';
           state <= read2;
         when read2 =>
           if (mm_rd_ready = '1') then
-            mm_re <= '0';
             dataOut <= mm_data;
+            mm_re <= '0';
             state <= start;
           end if;
         when others =>

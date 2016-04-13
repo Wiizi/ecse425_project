@@ -1,6 +1,6 @@
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
-use STD.textio.all; --Don't forget to include this library for file operations.
+use STD.textio.all; --Dont forget to include this library for file operations.
 
 ENTITY Memory_in_Byte IS
 	generic (
@@ -31,8 +31,6 @@ ARCHITECTURE Behavioural OF Memory_in_Byte IS
 	 type MEM_Type is array (0 to Mem_Size-1) of std_logic_vector(Num_Bits_in_Byte-1 downto 0);
 	 signal Memory: Mem_Type;     
 BEGIN
-
-   
 
     process (initialize, dump, clk) 
 		file file_pointer : text;

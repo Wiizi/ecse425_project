@@ -1,6 +1,6 @@
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
-use STD.textio.all; --Don't forget to include this library for file operations.
+use STD.textio.all; --Dont forget to include this library for file operations.
 
 ENTITY Main_Memory IS
 	generic (
@@ -31,7 +31,6 @@ ENTITY Main_Memory IS
 END Main_Memory;
 
 ARCHITECTURE Behavioural OF Main_Memory IS 
-
 
 	signal data0,data1,data2,data3 : std_logic_vector (Num_Bits_in_Byte-1 downto 0);
 	signal wr_done0,wr_done1,wr_done2,wr_done3:std_logic; 
@@ -69,7 +68,7 @@ ARCHITECTURE Behavioural OF Main_Memory IS
 BEGIN
 	  Block0: Memory_in_Byte 
 		generic map (
-			 File_Address_Read => "Init0.dat",
+			 File_Address_Read => File_Address_Read0,
 			 File_Address_Write => "MemCon0.dat",
 			 Mem_Size => Mem_Size_in_Word,
 			 Num_Bits_in_Byte => Num_Bits_in_Byte,
@@ -91,7 +90,7 @@ BEGIN
 	 
     Block1: Memory_in_Byte 
 		generic map (
-			 File_Address_Read => "Init1.dat",
+			 File_Address_Read => File_Address_Read1,
 			 File_Address_Write => "MemCon1.dat",
 			 Mem_Size => Mem_Size_in_Word,
 			 Num_Bits_in_Byte => Num_Bits_in_Byte,
@@ -112,7 +111,7 @@ BEGIN
 		
 	 Block2: Memory_in_Byte 
 		generic map (
-			 File_Address_Read => "Init2.dat",
+			 File_Address_Read => File_Address_Read2,
 			 File_Address_Write => "MemCon2.dat",
 			 Mem_Size => Mem_Size_in_Word,
 			 Num_Bits_in_Byte => Num_Bits_in_Byte,
@@ -133,7 +132,7 @@ BEGIN
 		
 	 Block3: Memory_in_Byte 
 		generic map (
-			 File_Address_Read => "Init3.dat",
+			 File_Address_Read => File_Address_Read3,
 			 File_Address_Write => "MemCon3.dat",
 			 Mem_Size => Mem_Size_in_Word,
 			 Num_Bits_in_Byte => Num_Bits_in_Byte,
@@ -226,7 +225,7 @@ wr_done <= '1' when wr_done0='1' or wr_done1='1' or wr_done2='1' or wr_done3='1'
 		Block_Mem_Init <='0';
 	
 		--	Initializing the memory from a file
-		if (initialize'event and initialize='1') then
+		if (initialize'event and initialize='1') then --;
 			  --Open the file read.txt from the specified location for reading(READ_MODE).
 			file_open(file_pointer,File_Address_Read,READ_MODE);
 			file_open (file_write_pointer0, File_Address_Read0, WRITE_MODE);

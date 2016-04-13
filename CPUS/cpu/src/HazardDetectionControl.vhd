@@ -19,7 +19,7 @@ ENTITY HazardDetectionControl IS
 		JUMP 			: in std_logic;
 
 		CPU_Stall 		: out std_logic;
-		state_o 			: out integer := 0
+		state_o 		: out integer := 0
 	);
 END HazardDetectionControl;
 
@@ -41,16 +41,17 @@ begin
 		-- check for hazards and stall if any hazard is detected
 		case state is 
 			when 0 =>
-				if (ID_EX_MemRead = '1') then 
-					state <= 1; -- insert 2 delay slots
-				elsif (((EX_Rt = ID_Rs) or (EX_Rt = ID_Rt)) and EX_Rt /= "00000" and EX_Rt /= "UUUUU" and (ID_Rs /= "UUUUU" or ID_Rt /= "UUUUU")) then
+				--if (BRANCH = '1') then
+				--	state <= 1;
+				--end if;
+				if (((EX_Rt = ID_Rs) or (EX_Rt = ID_Rt)) and EX_Rt /= "00000" and EX_Rt /= "UUUUU" and (ID_Rs /= "UUUUU" or ID_Rt /= "UUUUU")) then
 					state <= 1; -- insert 1 delay slot
 				end if;
 			-- case 1: 1 delay slot; used for structural hazards
 			when 1 =>
 				state <= 0;
 				if (((EX_Rt = ID_Rs) or (EX_Rt = ID_Rt)) and EX_Rt /= "00000" and EX_Rt /= "UUUUU" and (ID_Rs /= "UUUUU" or ID_Rt /= "UUUUU")) then
-					state <= 1; -- insert 1 delay slot
+					state <= 1; -- keep delaying (if needed) until hazard is resolved
 				end if;
 			-- case 2: 2 delay slots
 			when 2 =>

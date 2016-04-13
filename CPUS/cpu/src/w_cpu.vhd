@@ -26,43 +26,7 @@ ENTITY w_cpu IS
       
       mem_dump             : IN    STD_LOGIC := '0';
 
-      Asrt_flag          : out std_logic := '0';
-
-      -- for testing purposes only (register inspection)
-      r0        : out std_logic_vector(31 downto 0);
-      r1        : out std_logic_vector(31 downto 0);
-      r2        : out std_logic_vector(31 downto 0);
-      r3        : out std_logic_vector(31 downto 0);
-      r4        : out std_logic_vector(31 downto 0);
-      r5        : out std_logic_vector(31 downto 0);
-      r6        : out std_logic_vector(31 downto 0);
-      r7        : out std_logic_vector(31 downto 0);
-      r8        : out std_logic_vector(31 downto 0);
-      r9        : out std_logic_vector(31 downto 0);
-      r10       : out std_logic_vector(31 downto 0);
-      r11       : out std_logic_vector(31 downto 0);
-      r12       : out std_logic_vector(31 downto 0);
-      r13       : out std_logic_vector(31 downto 0);
-      r14       : out std_logic_vector(31 downto 0);
-      r15       : out std_logic_vector(31 downto 0);
-      r16       : out std_logic_vector(31 downto 0);
-      r17       : out std_logic_vector(31 downto 0);
-      r18       : out std_logic_vector(31 downto 0);
-      r19       : out std_logic_vector(31 downto 0);
-      r20       : out std_logic_vector(31 downto 0);
-      r21       : out std_logic_vector(31 downto 0);
-      r22       : out std_logic_vector(31 downto 0);
-      r23       : out std_logic_vector(31 downto 0);
-      r24       : out std_logic_vector(31 downto 0);
-      r25       : out std_logic_vector(31 downto 0);
-      r26       : out std_logic_vector(31 downto 0);
-      r27       : out std_logic_vector(31 downto 0);
-      r28       : out std_logic_vector(31 downto 0);
-      r29       : out std_logic_vector(31 downto 0);
-      r30       : out std_logic_vector(31 downto 0);
-      r31       : out std_logic_vector(31 downto 0);
-      rLo       : out std_logic_vector(31 downto 0);
-      rHi       : out std_logic_vector(31 downto 0)
+      Asrt_flag            : out std_logic := '0'
    );
    
 END w_cpu;
@@ -97,7 +61,9 @@ PORT
     dataIn      : in STD_LOGIC_VECTOR(MEM_DATA_WIDTH-1 downto 0);
     dataOut     : out STD_LOGIC_VECTOR(MEM_DATA_WIDTH-1 downto 0);
     busy        : out STD_LOGIC;
-    state_o     : out STD_LOGIC_VECTOR(2 downto 0)
+    state_o     : out STD_LOGIC_VECTOR(2 downto 0);
+    wrd       : out STD_LOGIC;
+    rdr       : out STD_LOGIC
 );
 END COMPONENT;
 
@@ -403,17 +369,23 @@ end COMPONENT;
 ---------------DECLARATION OF SIGNALS----------------
 -----------------------------------------------------
 
+-- Registers
+-- for testing purposes only (register inspection)
+SIGNAL r0, r1 , r2  , r3  , r4  , r5  , r6  , r7  , r8  , r9  , r10 , r11 , r12 , r13 , r14 , r15 , 
+r16 , r17 , r18 , r19 , r20 , r21 , r22 , r23 , r24 , r25 , r26 , r27 , r28 , r29 , r30 , r31 , rLo , rHi   :  std_logic_vector(31 downto 0);
+
 -- MEMORY
 signal pc_in, InstMem_address    : integer   := 0;
 signal InstMem_re         : std_logic := '0';
 signal DataMem_addr       : integer    := 0;
 signal DataMem_re         : std_logic  := '1';
 signal DataMem_we         : std_logic  := '0';
-signal DataMem_data       : std_logic_vector (31 downto 0)  := (others => 'Z');
+signal DataMem_data, datamem_datain, datamem_dataout       : std_logic_vector (31 downto 0)  := (others => 'Z');
 signal InstMem_counterVector : std_logic_vector (31 downto 0)  := (others => '0'); 
 signal InstMem_busy       : std_logic  := '0';
 signal DataMem_busy       : std_logic  := '0';
 signal mem_data_state     : std_logic_vector(2 downto 0);
+signal wrd, rdr           : std_logic;
 
 -- PC AND memory
 signal PC_addr_out : std_logic_vector(31 downto 0);
@@ -430,7 +402,7 @@ signal MemWrite, MemRead, MemtoReg: std_logic;
 signal rs, rt, rd, Imem_rs, Imem_rt, IF_ID_rt : std_logic_vector ( 4 downto 0);
 
 --For Branch and Jump
-signal Branch_taken, PC_Branch, Early_Zero, Branch_Signal, BNE_Signal : std_logic;
+signal Branch_taken, Branch_taken_delayed, PC_Branch, Early_Zero, Branch_Signal, BNE_Signal : std_logic;
 signal Branch_addr, Branch_addr_delayed, after_Branch : std_logic_vector(31 downto 0) := (others => '0');
 signal Jump_addr, Jump_addr_delayed, Jump_addr_in, after_Jump, jal_addr : std_logic_vector(31 downto 0) := (others => '0');
 signal Equal : boolean;
@@ -438,12 +410,13 @@ signal JR_addr, J_addr : std_logic_vector(31 downto 0);
 
 --Flush signal control
 signal flush_state : integer range 0 to 6 := 0;
-signal re_control, we_control, reg_write_control, lohi_write_control : std_logic;
+signal re_control, we_control, data_we_control, data_re_control, reg_write_control, lohi_write_control : std_logic;
 
 --Signals from last pipeline stage
 signal ID_SignExtend, ID_EX_SignExtend, EX_SignExtend : std_logic_vector(31 downto 0);
 
 --Hazard detection signal
+signal Stall_selector : std_logic_vector (1 downto 0);
 signal CPU_stall : std_logic;
 signal IF_ID_regWrite,IF_ID_RegDest,IF_ID_Branch,IF_ID_BNE, ID_EX_BNE, IF_ID_Jump, ID_EX_Jump, IF_ID_MemWrite,IF_ID_MemRead,IF_ID_MemtoReg, IF_ID_Jal, IF_ID_Asrt : std_logic;
 signal IF_ID_opCode, IF_ID_funct : std_logic_vector (5 downto 0);
@@ -567,13 +540,14 @@ PORT MAP
     busy          => InstMem_busy
 );
 
+Stall_selector <= (CPU_stall & Branch_taken_delayed);
 -- updates currently run instruction used by further pipeline stages:
 -- insert an "addi $0,$0,0" for stall or execute normal instruction
 stall_or_run : process (clk)
 begin
   if (falling_edge(clk)) then
-    case CPU_stall is
-      when '1' =>
+    case Stall_selector is
+      when "10" =>
         IF_ID_Imem_inst_in <= "00100000000000000000000000000000";
       when others =>
         IF_ID_Imem_inst_in <= Imem_inst_in;
@@ -689,16 +663,31 @@ PORT MAP
     clk           => clk_mem_data,
     addr          => DataMem_addr, 
     wordbyte      => '1',
-    re            => re_control,
-    we            => we_control,
+    re            => data_re_control,
+    we            => data_we_control,
     dump          => mem_dump,
-    dataIn        => EX_MEM_Data_delayed,
-    dataOut       => DataMem_data,
+    dataIn        => datamem_datain,
+    dataOut       => datamem_dataout,
     busy          => DataMem_busy,
-    state_o       => mem_data_state
+    state_o       => mem_data_state,
+    wrd           => wrd,
+    rdr           => rdr
 );
+datamem_datain <= EX_MEM_Data_delayed;
+DataMem_data <= datamem_dataout;
 -- get address for data memory (must multiply by 4 or shift left by 2)
 DataMem_addr <= to_integer(unsigned(EX_MEM_data (29 downto 0) & "00"));
+
+data_we_control_update : process(we_control, re_control, clk)
+begin
+  data_we_control <= we_control;
+  data_re_control <= re_control;
+  if (falling_edge(clk)) then
+      data_we_control <= '0';
+      data_re_control <= '0';
+  end if;
+end process; 
+
 
 -- Control circuit of the pipeline
 Control: Control_Unit
@@ -754,7 +743,7 @@ Register_bank: Registers
     ALU_LO_out  => ALU_LO_out,
     ALU_HI_out  => ALU_HI_out,
 
-    -- used inspection only (testing purposes)
+    -- used for inspection only (testing purposes)
     r0              => r0 ,
     r1              => r1 ,
     r2              => r2 ,
@@ -794,8 +783,9 @@ Register_bank: Registers
 -------------------------------------------------
 -------------------FLUSH LOGIC-------------------
 -------------------------------------------------
--- flushing means to prevent any operation that entered the pipeline after branch/jump 
--- from writing to registers/memory when jump/branch is taken
+
+-- flushing means to prevent any operation that entered the pipeline after branch/jump instruction
+-- from writing to registers/memory if branch is taken or jump is performed
 
 with flush_state select re_control <= 
   DataMem_re when 0,
@@ -883,6 +873,7 @@ begin
     ALU_LOHI_Write_delayed <= ALU_LOHI_Write;
     ALU_LOHI_Read_delayed <= ALU_LOHI_Read;
     JR_delayed <= JR;
+    Branch_taken_delayed <= Branch_taken;
   end if;
 end process;
 
