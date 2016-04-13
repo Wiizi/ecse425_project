@@ -8,7 +8,7 @@ use STD.textio.all;
 
 use work.memory_arbiter_lib.all;
 
-ENTITY w_cpu IS
+ENTITY cpu IS
    
    GENERIC (
       File_Address_Read    : STRING    := "Init.dat";
@@ -29,9 +29,9 @@ ENTITY w_cpu IS
       Asrt_flag            : out std_logic := '0'
    );
    
-END w_cpu;
+END cpu;
 
-ARCHITECTURE rtl OF w_cpu IS
+ARCHITECTURE rtl OF cpu IS
 
 -- COMPONENTS 
 
