@@ -173,6 +173,15 @@ proc AddWaves {} {
                               -radix unsigned sim:/w_cpu/JR_addr\
                               -radix unsigned sim:/w_cpu/J_addr
 
+  add wave -group "Predictor" -position end -radix binary sim:/w_cpu/init\
+                              -radix binary sim:/w_cpu/PC_Branch\
+                              -radix binary sim:/w_cpu/Branch_Signal\
+                              -radix binary sim:/w_cpu/actual_taken\
+                              -radix binary sim:/w_cpu/taken_history\
+                              -radix binary sim:/w_cpu/pred_taken\
+                              -radix unsigned sim:/w_cpu/last_prediction\
+                              -radix unsigned sim:/w_cpu/curr_prediction
+
   ;#Set some formating options to make the Waves window more legible
   configure wave -namecolwidth 250
   WaveRestoreZoom {0 ns} {1100 ns}
@@ -228,7 +237,7 @@ proc CompileOnly {} {
   vcom Registers.vhd
   vcom Forwarding.vhd
   vcom MEM_WB.vhd
-  vcom Sync.vhd
   vcom Earlybranching.vhd
+  vcom TwoBit_Predictor.vhd
   vcom w_cpu.vhd
 }

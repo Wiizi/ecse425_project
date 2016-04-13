@@ -336,8 +336,8 @@ END COMPONENT;
 END COMPONENT;
 
 -- used to forward relevant signals to avoid data hazards
-COMPONENT Forwarding is
-  port(
+COMPONENT Forwarding IS
+  PORT(
     EX_MEM_RegWrite : in std_logic;
     MEM_WB_RegWrite : in std_logic;
     EX_Rs     : in std_logic_vector(4 downto 0);
@@ -348,10 +348,10 @@ COMPONENT Forwarding is
     Forward0_EX   : out std_logic_vector(1 downto 0);
     Forward1_EX   : out std_logic_vector(1 downto 0)
     );
-end COMPONENT;
+END COMPONENT;
 
-COMPONENT EarlyBranching is
-  port(
+COMPONENT EarlyBranching IS
+  PORT(
     Branch      : in std_logic;
     EX_MEM_RegWrite : in std_logic;
     MEM_WB_RegWrite : in std_logic;
@@ -363,7 +363,21 @@ COMPONENT EarlyBranching is
     Forward0_Branch : out std_logic_vector(1 downto 0);
     Forward1_Branch : out std_logic_vector(1 downto 0)
     );
-end COMPONENT;
+END COMPONENT;
+
+COMPONENT TwoBit_Predictor IS
+  PORT(
+    clk        : in std_logic;
+    reset        : in std_logic;
+    OpCode       : in std_logic_vector(5 downto 0);
+    --actual result corresponding to the last prediction that was computed
+    last_pred      : in integer range 0 to 3;
+    actual_taken   : in std_logic; -- 0 for not taken, 1 for taken
+
+    branch_outcome   : out std_logic;
+    pred_validate  : out integer range 0 to 3
+    );
+END COMPONENT;
 
 -----------------------------------------------------
 ---------------DECLARATION OF SIGNALS----------------
@@ -407,6 +421,12 @@ signal Branch_addr, Branch_addr_delayed, after_Branch : std_logic_vector(31 down
 signal Jump_addr, Jump_addr_delayed, Jump_addr_in, after_Jump, jal_addr : std_logic_vector(31 downto 0) := (others => '0');
 signal Equal : boolean;
 signal JR_addr, J_addr : std_logic_vector(31 downto 0);
+
+--2-bit Counter Branch Predictor
+signal init: std_logic := '0';
+signal last_prediction, curr_prediction : integer range 0 to 3 := 0;
+signal taken_history, actual_taken, pred_taken : std_logic;
+signal predictor_instr : std_logic_vector(5 downto 0);
 
 --Flush signal control
 signal flush_state : integer range 0 to 6 := 0;
@@ -604,6 +624,35 @@ Equal <= (Branch_data0 = Branch_data1);
 with Equal select Early_Zero <=
   '1' when TRUE,
   '0' when others;
+
+--------TWO BIT COUNTER BRANCH PREDICTOR---------
+process(clk)
+begin
+  if (rising_edge(clk)) then
+    last_prediction <= curr_prediction;
+  end if;
+end process;
+
+--By default, assuming branch untaken
+with init select actual_taken <=
+  '0' when '1',
+  taken_history when others;
+
+predictor_instr <= IF_ID_Imem_inst_in(31 downto 26);
+
+taken_history <= PC_Branch and Branch_Signal;
+
+Branch_Predictor : TwoBit_Predictor
+  PORT MAP(
+    clk            => clk,
+    reset          => init,
+    OpCode         => predictor_instr,
+    last_pred      => last_prediction,
+    actual_taken   => actual_taken,
+
+    branch_outcome => pred_taken,
+    pred_validate  => curr_prediction
+    );
 
 -------------------------------------------------
 --------------------JUMP LOGIC-------------------
