@@ -180,6 +180,14 @@ proc AddWaves {} {
                               -radix unsigned sim:/w_cpu/last_prediction\
                               -radix unsigned sim:/w_cpu/pred_validate
 
+  add wave -group "Pred_addr" -position end -radix binary sim:/w_cpu/branch_op\
+                              -radix unsigned sim:/w_cpu/predict_addr\
+                              -radix unsigned sim:/w_cpu/InstMem_counterVector\
+                              -radix unsigned sim:/w_cpu/after_Branch\
+                              -radix unsigned sim:/w_cpu/predict_untaken_addr\
+                              -radix unsigned sim:/w_cpu/predict_target\
+                              -radix unsigned sim:/w_cpu/predict_target_correct
+
   ;#Set some formating options to make the Waves window more legible
   configure wave -namecolwidth 250
   WaveRestoreZoom {0 ns} {1100 ns}

@@ -423,6 +423,9 @@ signal JR_addr, J_addr : std_logic_vector(31 downto 0);
 --2-bit Counter Branch Predictor
 signal last_prediction, last_prediction_in, pred_validate : integer range 0 to 3 := 0;
 signal actual_taken, branch_outcome, branch_signal_in, pc_branch_in: std_logic;
+signal predict_addr_upper : std_logic_vector(15 downto 0);
+signal predict_addr, predict_target, predict_target_correct, predict_untaken_addr : std_logic_vector(31 downto 0);
+signal branch_op : std_logic;
 
 --Flush signal control
 signal flush_state : integer range 0 to 6 := 0;
@@ -503,6 +506,10 @@ Program_counter: PC
           PC_write    => '1',-- from hazard detection
           addr_out    => PC_addr_out
       );
+
+with (branch_outcome = '1') select new_addr_in <=
+  predict_target_correct when TRUE,
+  after_Jump when others;
 
 -- increments the pc by 4 on every clock cycle unless branch or jump signals are high
 pc_increment : process (clk)
@@ -640,6 +647,7 @@ process(clk)
 begin
   if (rising_edge(clk)) then
     last_prediction <= pred_validate;
+    predict_untaken_addr <= after_Branch;
   end if;
 end process;
 
@@ -662,6 +670,24 @@ Branch_Predictor : TwoBit_Predictor
     branch_outcome => branch_outcome,
     pred_validate  => pred_validate
   );
+
+with ((Imem_inst_in(31 downto 26) = "000100") or (Imem_inst_in(31 downto 26) = "000101")) select branch_op <=
+  '1' when TRUE,
+  '0' when others;
+
+predict_addr_upper <= (others => Imem_inst_in(15));
+
+with branch_op select predict_addr <=
+  (predict_addr_upper(13 downto 0) & Imem_inst_in(15 downto 0) & "00") when '1',
+  (others => 'X') when others;
+
+with (branch_op = '1' and branch_outcome = '1') select predict_target <=
+  predict_addr when TRUE,
+  predict_untaken_addr when others;
+
+with PC_Branch select predict_target_correct <=
+  after_Branch when '1',
+  predict_target when others;
 
 -------------------------------------------------
 --------------------JUMP LOGIC-------------------
