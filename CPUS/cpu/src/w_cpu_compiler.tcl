@@ -174,8 +174,7 @@ proc AddWaves {} {
                               -radix unsigned sim:/w_cpu/JR_addr\
                               -radix unsigned sim:/w_cpu/J_addr
 
-  add wave -group "Predictor" -position end -radix binary sim:/w_cpu/predictor_instr\
-                              -radix binary sim:/w_cpu/PC_Branch\
+  add wave -group "Predictor" -position end -radix binary sim:/w_cpu/PC_Branch\
                               -radix binary sim:/w_cpu/Branch_Signal\
                               -radix binary sim:/w_cpu/branch_outcome\
                               -radix unsigned sim:/w_cpu/last_prediction\

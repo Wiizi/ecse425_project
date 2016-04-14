@@ -646,7 +646,7 @@ end process;
 process(clk_mem)
 begin
   if (falling_edge(clk_mem)) then
-    last_prediction_in <=;
+    last_prediction_in <= last_prediction;
     pc_branch_in <= PC_Branch;
     branch_signal_in <= Branch_Signal;
   end if;
