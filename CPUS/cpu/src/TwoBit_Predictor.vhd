@@ -6,62 +6,70 @@ USE ieee.numeric_std.all;
 
 entity TwoBit_Predictor is
 	port(
-		reset 			 : in std_logic;
-		OpCode			 : in std_logic_vector(5 downto 0);
+		clk : in std_logic;
+		branch : in std_logic;
 		--actual result corresponding to the last prediction that was computed
-		last_pred 		 : in integer range 0 to 3;
+		last_pred 		 : in integer range 0 to 3 := 0;
 		actual_taken	 : in std_logic; -- 0 for not taken, 1 for taken
 
 		branch_outcome   : out std_logic;
-		pred_validate	 : out integer range 0 to 3
+		pred_validate	 : out integer range 0 to 3 := 0
 		);
 end TwoBit_Predictor;
 
 architecture Behavioural of TwoBit_Predictor is
-
+signal state : integer range 0 to 3 := 0;
 begin
-	process(reset, OpCode, last_pred, actual_taken)
+	pred_validate <= state;
+
+	-- assynchronous output
+	process(state)
 	begin
-		if (reset = '1') then
-			pred_validate <= 0;
-			branch_outcome <= '0';
-		end if;
 		--only predict when the instruction is beq "000100" or bne "000101"
-		if ((OpCode = "000100") or (OpCode = "000101")) then
-			case last_pred is
+		case state is
+			when 0 =>
+				branch_outcome <= '0';
+			when 1 =>
+				branch_outcome <= '0';
+			when 2 =>
+				branch_outcome <= '1';
+			when 3 =>
+				branch_outcome <= '1';
+			when others => null;
+		end case;
+	end process;
+
+	process(branch)
+	begin
+		--only predict when the instruction is beq "000100" or bne "000101"
+		if (rising_edge(branch)) then
+			case state is
 				when 0 =>
 					if (actual_taken = '0') then
-						pred_validate <= 0;
+						state <= 0;
 					elsif (actual_taken = '1') then
-						pred_validate <= 1;
+						state <= 1;
 					end if;
-					branch_outcome <= '0';
 				when 1 =>
 					if (actual_taken = '0') then
-						pred_validate <= 0;
+						state <= 0;
 					elsif (actual_taken = '1') then
-						pred_validate <= 3;
+						state <= 3;
 					end if;
-					branch_outcome <= '0';
 				when 2 =>
 					if (actual_taken = '0') then
-						pred_validate <= 0;
+						state <= 0;
 					elsif (actual_taken = '1') then
-						pred_validate <= 3;
+						state <= 3;
 					end if;
-					branch_outcome <= '1';
 				when 3 =>
 					if (actual_taken = '0') then
-						pred_validate <= 2;
+						state <= 2;
 					elsif (actual_taken = '1') then
-						pred_validate <= 3;
+						state <= 3;
 					end if;
-					branch_outcome <= '1';
 				when others => null;
 			end case;
-		else
-			pred_validate <= last_pred;
-			branch_outcome <= actual_taken;
 		end if;
 	end process;
 

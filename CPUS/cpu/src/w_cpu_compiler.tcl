@@ -16,6 +16,7 @@ proc AddWaves {} {
 
   add wave -group "INSTMEM"   -position end -radix unsigned sim:/w_cpu/InstMem_address\
                               -radix binary sim:/w_cpu/InstMem_re\
+                              -radix binary sim:/w_cpu/inst_re_control\
                               -radix unsigned sim:/w_cpu/pc_in\
                               -radix unsigned sim:/w_cpu/after_Jump\
                               -radix unsigned sim:/w_cpu/InstMem_busy\
@@ -173,14 +174,12 @@ proc AddWaves {} {
                               -radix unsigned sim:/w_cpu/JR_addr\
                               -radix unsigned sim:/w_cpu/J_addr
 
-  add wave -group "Predictor" -position end -radix binary sim:/w_cpu/init\
+  add wave -group "Predictor" -position end -radix binary sim:/w_cpu/predictor_instr\
                               -radix binary sim:/w_cpu/PC_Branch\
                               -radix binary sim:/w_cpu/Branch_Signal\
-                              -radix binary sim:/w_cpu/actual_taken\
-                              -radix binary sim:/w_cpu/taken_history\
-                              -radix binary sim:/w_cpu/pred_taken\
+                              -radix binary sim:/w_cpu/branch_outcome\
                               -radix unsigned sim:/w_cpu/last_prediction\
-                              -radix unsigned sim:/w_cpu/curr_prediction
+                              -radix unsigned sim:/w_cpu/pred_validate
 
   ;#Set some formating options to make the Waves window more legible
   configure wave -namecolwidth 250
@@ -209,8 +208,7 @@ proc CompileAndSimulate {} {
   
   ;#Generate a CPU clock
   GenerateClock clk 20
-  GenerateClock clk_mem 4
-  GenerateClock clk_mem_data 2
+  GenerateClock clk_mem 2
 
   ;#Update all signals
   run 5000 ns;

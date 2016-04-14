@@ -20,7 +20,6 @@ ENTITY w_cpu IS
    PORT (
       clk                  : IN    STD_LOGIC;
       clk_mem              : IN    STD_LOGIC;
-      clk_mem_data         : IN    STD_LOGIC;
 
       reset                : IN    STD_LOGIC := '0';
       
@@ -367,8 +366,8 @@ END COMPONENT;
 
 COMPONENT TwoBit_Predictor IS
   PORT(
-    clk          : in std_logic;
-    OpCode       : in std_logic_vector(5 downto 0);
+    clk             : in std_logic;
+    branch          : in std_logic;
     --actual result corresponding to the last prediction that was computed
     last_pred      : in integer range 0 to 3;
     actual_taken   : in std_logic; -- 0 for not taken, 1 for taken
@@ -422,9 +421,8 @@ signal Equal : boolean;
 signal JR_addr, J_addr : std_logic_vector(31 downto 0);
 
 --2-bit Counter Branch Predictor
-signal last_prediction, curr_prediction : integer range 0 to 3 := 0;
-signal taken_history, actual_taken, pred_taken : std_logic;
-signal predictor_instr : std_logic_vector(5 downto 0);
+signal last_prediction, last_prediction_in, pred_validate : integer range 0 to 3 := 0;
+signal actual_taken, branch_outcome, branch_signal_in, pc_branch_in: std_logic;
 
 --Flush signal control
 signal flush_state : integer range 0 to 6 := 0;
@@ -588,7 +586,8 @@ end process;
 ------------------BRANCH LOGIC-------------------
 -------------------------------------------------
 
------------------EARLY BRANCHING-----------------
+-------------EARLY BRANCH RESOLUTION-------------
+
 with ((IF_ID_inst_out(31 downto 26) = "000100") or (IF_ID_inst_out(31 downto 26) = "000101")) select Branch_Signal <=
   '1' when TRUE,
   '0' when others;
@@ -635,28 +634,34 @@ with Equal select Early_Zero <=
   '0' when others;
 
 --------TWO BIT COUNTER BRANCH PREDICTOR---------
+
+-- update last prediction
 process(clk)
 begin
-  if (falling_edge(clk)) then
-    last_prediction <= curr_prediction;
+  if (rising_edge(clk)) then
+    last_prediction <= pred_validate;
   end if;
 end process;
 
-taken_history <= PC_Branch and Branch_Signal;
-actual_taken <= taken_history;
-
-predictor_instr <= Imem_inst_in(31 downto 26);
+process(clk_mem)
+begin
+  if (falling_edge(clk_mem)) then
+    last_prediction_in <=;
+    pc_branch_in <= PC_Branch;
+    branch_signal_in <= Branch_Signal;
+  end if;
+end process;
 
 Branch_Predictor : TwoBit_Predictor
   PORT MAP(
     clk            => clk,
-    OpCode         => predictor_instr,
-    last_pred      => last_prediction,
-    actual_taken   => actual_taken,
+    last_pred      => last_prediction_in,
+    actual_taken   => pc_branch_in,
+    branch         => branch_signal_in,
 
-    branch_outcome => pred_taken,
-    pred_validate  => curr_prediction
-    );
+    branch_outcome => branch_outcome,
+    pred_validate  => pred_validate
+  );
 
 -------------------------------------------------
 --------------------JUMP LOGIC-------------------
@@ -713,7 +718,7 @@ GENERIC MAP
 )
 PORT MAP
 (
-    clk           => clk_mem_data,
+    clk           => clk_mem,
     addr          => DataMem_addr, 
     wordbyte      => '1',
     re            => data_re_control,
