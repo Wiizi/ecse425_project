@@ -416,7 +416,7 @@ signal rs, rt, rd, Imem_rs, Imem_rt, IF_ID_rt : std_logic_vector ( 4 downto 0);
 --For Branch and Jump
 signal Branch_taken, Branch_taken_delayed, PC_Branch, Early_Zero, Branch_Signal, BNE_Signal : std_logic;
 signal Branch_addr, Branch_addr_delayed, after_Branch : std_logic_vector(31 downto 0) := (others => '0');
-signal Jump_addr, Jump_addr_delayed, Jump_addr_in, after_Jump, jal_addr : std_logic_vector(31 downto 0) := (others => '0');
+signal Jump_addr, Jump_addr_delayed, Jump_addr_in, pc_addr_in, after_Jump, jal_addr : std_logic_vector(31 downto 0) := (others => '0');
 signal Equal : boolean;
 signal JR_addr, J_addr : std_logic_vector(31 downto 0);
 
@@ -502,21 +502,24 @@ BEGIN
 Program_counter: PC
   PORT MAP( 
           clk         => clk,
-          addr_in     => after_Jump, --should be jump_mux_out
+          addr_in     => pc_addr_in, --should be jump_mux_out
           PC_write    => '1',-- from hazard detection
           addr_out    => PC_addr_out
       );
 
-with (branch_outcome = '1') select new_addr_in <=
-  predict_target_correct when TRUE,
+
+with branch_op select pc_addr_in <=
+  predict_target_correct when '1',
   after_Jump when others;
 
 -- increments the pc by 4 on every clock cycle unless branch or jump signals are high
 pc_increment : process (clk)
 begin
   if (falling_edge(clk)) then
-    if (CPU_stall /= '1' or ID_EX_Branch_out = '1' or ID_EX_Jump = '1') then
+    if (CPU_stall /= '1' or ID_EX_Jump = '1') then
       pc_in <= to_integer(unsigned(PC_addr_out)) + 4;
+    else
+      pc_in <= to_integer(unsigned(PC_addr_out));
     end if; 
   end if;
 end process;
@@ -528,7 +531,7 @@ InstMem_address <= to_integer(unsigned(PC_addr_out));
 read_instruction_mem : process (clk)
 begin
   if (falling_edge(clk)) then
-    if (CPU_stall /= '1' or ID_EX_Branch_out = '1' or ID_EX_Jump = '1') then
+    if (CPU_stall /= '1' or Branch_taken = '1' or ID_EX_Jump = '1') then
       InstMem_re <= '1';
     else
       InstMem_re <= '0';
@@ -679,7 +682,7 @@ predict_addr_upper <= (others => Imem_inst_in(15));
 
 with branch_op select predict_addr <=
   (predict_addr_upper(13 downto 0) & Imem_inst_in(15 downto 0) & "00") when '1',
-  (others => 'X') when others;
+  InstMem_counterVector when others;
 
 with (branch_op = '1' and branch_outcome = '1') select predict_target <=
   predict_addr when TRUE,
