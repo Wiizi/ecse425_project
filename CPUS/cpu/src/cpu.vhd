@@ -20,7 +20,6 @@ ENTITY cpu IS
    PORT (
       clk                  : IN    STD_LOGIC;
       clk_mem              : IN    STD_LOGIC;
-      clk_mem_data         : IN    STD_LOGIC;
 
       reset                : IN    STD_LOGIC := '0';
       
@@ -376,7 +375,7 @@ r16 , r17 , r18 , r19 , r20 , r21 , r22 , r23 , r24 , r25 , r26 , r27 , r28 , r2
 
 -- MEMORY
 signal pc_in, InstMem_address    : integer   := 0;
-signal InstMem_re         : std_logic := '0';
+signal InstMem_re, inst_re_control  : std_logic := '0';
 signal DataMem_addr       : integer    := 0;
 signal DataMem_re         : std_logic  := '1';
 signal DataMem_we         : std_logic  := '0';
@@ -492,8 +491,10 @@ Program_counter: PC
 pc_increment : process (clk)
 begin
   if (falling_edge(clk)) then
-    if (CPU_stall /= '1' or ID_EX_Branch_out = '1' or ID_EX_Jump = '1') then
+    if (CPU_stall /= '1' or Branch_taken = '1' or ID_EX_Jump = '1') then
       pc_in <= to_integer(unsigned(PC_addr_out)) + 4;
+    else    
+      pc_in <= to_integer(unsigned(PC_addr_out));
     end if; 
   end if;
 end process;
@@ -505,7 +506,7 @@ InstMem_address <= to_integer(unsigned(PC_addr_out));
 read_instruction_mem : process (clk)
 begin
   if (falling_edge(clk)) then
-    if (CPU_stall /= '1' or ID_EX_Branch_out = '1' or ID_EX_Jump = '1') then
+    if (CPU_stall /= '1' or Branch_taken = '1' or ID_EX_Jump = '1') then
       InstMem_re <= '1';
     else
       InstMem_re <= '0';
@@ -534,13 +535,22 @@ PORT MAP
     clk           => clk_mem,
     addr          => InstMem_address,
     wordbyte      => '1',
-    re            => InstMem_re,
+    re            => inst_re_control,
     we            => '0', -- instMem never writes
     dump          => mem_dump,
     dataIn        => (others => '0'),
     dataOut       => Imem_inst_in,
     busy          => InstMem_busy
 );
+
+-- make sure that instruction mem is read only once per clock   
+inst_we_control_update : process(InstMem_re, clk)   
+begin   
+  inst_re_control <= InstMem_re;    
+  if (clk = '1') then   
+      inst_re_control <= '0';   
+  end if;   
+end process; 
 
 Stall_selector <= (CPU_stall & Branch_taken_delayed);
 -- updates currently run instruction used by further pipeline stages:
@@ -662,7 +672,7 @@ GENERIC MAP
 )
 PORT MAP
 (
-    clk           => clk_mem_data,
+    clk           => clk_mem,
     addr          => DataMem_addr, 
     wordbyte      => '1',
     re            => data_re_control,
@@ -680,6 +690,7 @@ DataMem_data <= datamem_dataout;
 -- get address for data memory (must multiply by 4 or shift left by 2)
 DataMem_addr <= to_integer(unsigned(EX_MEM_data (29 downto 0) & "00"));
 
+-- make sure that data mem is read only once per main clock
 data_we_control_update : process(we_control, re_control, clk)
 begin
   data_we_control <= we_control;
@@ -689,7 +700,6 @@ begin
       data_re_control <= '0';
   end if;
 end process; 
-
 
 -- Control circuit of the pipeline
 Control: Control_Unit

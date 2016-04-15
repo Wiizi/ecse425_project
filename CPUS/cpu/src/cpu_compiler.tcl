@@ -200,8 +200,7 @@ proc CompileAndSimulate {} {
   
   ;#Generate a CPU clock
   GenerateClock clk 20
-  GenerateClock clk_mem 4
-  GenerateClock clk_mem_data 2
+  GenerateClock clk_mem 2
 
   ;#Update all signals
   run 5000 ns;
@@ -228,7 +227,6 @@ proc CompileOnly {} {
   vcom Registers.vhd
   vcom Forwarding.vhd
   vcom MEM_WB.vhd
-  vcom Sync.vhd
   vcom Earlybranching.vhd
   vcom cpu.vhd
 }
