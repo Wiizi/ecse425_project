@@ -33,11 +33,11 @@ public class SpecificInstruction {
         return instruction;
     }
 
-    public String toString(){
+    public String toStringSeparated(){
         return instruction.toString();
     }
 
-    public String noSpaceString(){
-        return instruction.noSpaceString();
+    public String toString(){
+        return instruction.toString();
     }
 }

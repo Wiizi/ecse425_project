@@ -19,4 +19,4 @@ Branch: addi $10, $0, 0
 		
 		j Store
 		
-Store: sw $5 0($13)
+Store: sw $5, 0($13)

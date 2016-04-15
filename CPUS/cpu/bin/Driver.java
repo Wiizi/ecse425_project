@@ -17,14 +17,22 @@ public class Driver {
      * @param args
      */
     public static void main(String[] args) {
-        if (args.length < 1) {
-            Tools.print("Missing .asm file input. Please add this to command line.");
-            System.exit(-1);
+        String read_from;
+        String write_to;
+        boolean testing = false;
+        if (testing) {
+            read_from = "./resources/jtest.asm";
+            write_to = "./resources/Init.dat";
+        } else {
+            if (args.length < 1) {
+                Tools.print("Missing .asm file input. Please add this to command line.");
+                System.exit(-1);
+            }
+            read_from = getPath("Driver.java");
+            read_from = read_from.substring(0, read_from.length() - ("Driver.java").length() - 4);
+            read_from += File.separatorChar + "tests" + File.separatorChar + args[0];
+            write_to = read_from.substring(0, read_from.length() - 4) + ".dat";
         }
-        String read_from = getPath("Driver.java");
-        read_from = read_from.substring(0, read_from.length() - ("Driver.java").length() - 4);
-        read_from += File.separatorChar + "tests" + File.separatorChar + args[0];
-        String write_to = read_from.substring(0, read_from.length() - 4) + ".dat";
         Assembler.assemble(read_from, write_to);
     }
 

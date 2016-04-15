@@ -6,6 +6,7 @@ import assembler_main.binary_instructions.instruction_types.JInstruction;
 import assembler_main.binary_instructions.instruction_types.RInstruction;
 import assembler_main.binary_instructions.toolset.Tools;
 
+import javax.tools.Tool;
 import java.io.FileNotFoundException;
 import java.util.*;
 
@@ -52,7 +53,7 @@ public class Assembler {
     private static void writeBinaryFile(String path_out, List<SpecificInstruction> binary) {
         List<String> out = new ArrayList<String>();
         for (int i = 0; i < binary.size(); i++) {
-            out.add(binary.get(i).noSpaceString());
+            out.add(binary.get(i).toString());
         }
         Tools.writeToFile(out, path_out);
     }
@@ -214,8 +215,8 @@ public class Assembler {
                     } else if (op.equals("bne") ||
                             op.equals("beq")
                             ) {
-                        rt = Tools.formatToBinary(Tools.remove$(parsed.get(0)), 5);
-                        rs = Tools.formatToBinary(Tools.remove$(parsed.get(1)), 5);
+                        rt = Tools.formatToBinary(Tools.remove$(parsed.get(1)), 5);
+                        rs = Tools.formatToBinary(Tools.remove$(parsed.get(0)), 5);
                         immediate = parsed.get(2);
                         immediate = Tools.formatToBinary(labels.get(immediate), 16);
                         if (parsed.size() > 3)
@@ -265,7 +266,8 @@ public class Assembler {
                     (instruction.getInstruction()).setRT(rt);
                     ((IInstruction) instruction.getInstruction()).setImmediate(immediate);
                 } else if (instruction.getInstruction() instanceof JInstruction) {
-                    address = original_no_labels.get(line_index).substring(2, original_no_labels.get(line_index).length());
+                    int index = (original_no_labels.get(line_index).contains("jal")) ? 3 : 2;
+                    address = original_no_labels.get(line_index).substring(index, original_no_labels.get(line_index).length());
                     address = address.replaceAll("\\s+", "");
                     address = Tools.formatToBinary(labels.get(address), 26);
                     ((JInstruction) instruction.getInstruction()).setAddress(address);

@@ -55,7 +55,7 @@ public class GenericInstruction {
         }
     }
 
-    public String toString() {
+    public String toStringSeparated() {
         String str = String.valueOf(instruction);
         return str.substring(0,6) + " " + str.substring(6,11) +
                 " " + str.substring(11,16) +
@@ -65,7 +65,7 @@ public class GenericInstruction {
                 " " + str.substring(28,32);
     }
 
-    public String noSpaceString(){
+    public String toString(){
         return String.valueOf(instruction);
     }
 }
