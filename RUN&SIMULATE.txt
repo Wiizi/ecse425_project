@@ -9,12 +9,14 @@ Main components:
 	IF/ID
 	-PC.vhd
 	-Memory.vhd (Instruction instantiation)
+	-Twobit_Predictor.vhd
 	-IF_ID.vhd (pipeline stage)
 	
 	ID/EX
 	-Registers.vhd
 	-Control_Unit.vhd
 	-HazardDetectionUnit.vhd
+	-EarlyBranching.vhd
 	-ID_EX.vhd (pipeline stage)
 	
 	EX/MEM
@@ -43,12 +45,14 @@ Our MIPS pipelined processor is able to perform the following actions:
 	-Writing and reading from Registers
 	-Calculating branch and jump address
 	-Performing all ALU operations
-	
-This processor implementation is not FULLY capable of performing the following actions (these components are integrated in cpu.vhd but not all functionality is correct due to overall complexity of the design):
 	-Hazard Detection (separate module)
 	-Forwarding (separate module)
+	-Early Branching (separate module)
+	-Access Data memory (inside cpu.vhd)
+	
+This processor implementation is not FULLY capable of performing the following actions (these components are integrated in cpu.vhd but not all functionality is correct due to overall complexity of the design):
+	
 	-Branch Prediction (inside cpu.vhd)
-	-Access Data memory (inside cpu.vhd) -> the memory module works, but the control signals in cpu.vhd do not
 	
 In order to simulate cpu.vhd, run these commands on the transcript in ModelSim:
 	
