@@ -1,11 +1,11 @@
 MIPS pipelined processor
 
-**Source folder contains the *.vhd files
-**Bin folder contains the assembler and an explanatory README file.
+** CPUS/cpu/src folder contains all processor related *.vhd files
+** CPUS/cpu/bin folder contains the assembler and an explanatory README file.
 
-**Before simulating the processor, make sure to copy the assembler output to a file name "Init.dat", which must be in the source folder.
+** Before simulating the processor, make sure to copy the assembler output to a file name "Init.dat", which must be in the source folder.
 
-*** PLEASE TEST WITH (clk period) = 10 * (clk_mem period)
+** PLEASE TEST WITH (clk period) = 10 * (clk_mem period)
 
 cpu.vhd is the file where all the components are connected in order to make the MIPS processor.
 
