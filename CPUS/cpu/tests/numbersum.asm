@@ -7,9 +7,8 @@ addi $1, $0, 25 # n
 addi $2, $0, 0 # k 
 addi $3, $0, 1 # i
 
-loop: 	addi $0, $0, 0
-		beq $1, $3, END
-		addi $2, $2, $3
+loop: 	beq $1, $3, END
+		add $2, $2, $3
 		addi $3, $3, 1
 		j loop
 

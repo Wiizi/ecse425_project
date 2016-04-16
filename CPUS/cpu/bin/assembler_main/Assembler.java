@@ -28,6 +28,7 @@ public class Assembler {
         // assemble
         List<SpecificInstruction> binary = buildBinaryInstructions(path_in);
         // write to file
+        binary.forEach(System.out::println);
         writeBinaryFile(path_out, binary);
     }
 
@@ -131,6 +132,8 @@ public class Assembler {
                 int index = original_op.indexOf(op.charAt(0));
                 String sub = original_op.substring(index, original_op.length());
                 int space_index = sub.indexOf(' ');
+                if (space_index == -1)
+                    space_index = sub.indexOf('\t');
                 space_index = (space_index > 0) ? space_index : op.length();
                 op = op.substring(0, space_index);
             }

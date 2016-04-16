@@ -18,8 +18,8 @@ ENTITY w_cpu IS
       Write_Delay          : INTEGER   := 1
    );
    PORT (
-      clk                  : IN    STD_LOGIC;
-      clk_mem              : IN    STD_LOGIC;
+      clk                  : IN    STD_LOGIC; -- suggested: 20ns
+      clk_mem              : IN    STD_LOGIC; -- must be 10 times faster than the main clock; suggested: 2ns
 
       reset                : IN    STD_LOGIC := '0';
       
@@ -351,6 +351,7 @@ END COMPONENT;
 
 COMPONENT EarlyBranching IS
   PORT(
+    flush         : in std_logic;
     Branch      : in std_logic;
     EX_MEM_RegWrite : in std_logic;
     MEM_WB_RegWrite : in std_logic;
@@ -419,13 +420,14 @@ signal Branch_addr, Branch_addr_delayed, after_Branch : std_logic_vector(31 down
 signal Jump_addr, Jump_addr_delayed, Jump_addr_in, pc_addr_in, after_Jump, jal_addr : std_logic_vector(31 downto 0) := (others => '0');
 signal Equal : boolean;
 signal JR_addr, J_addr : std_logic_vector(31 downto 0);
+signal flush : std_logic;
 
 --2-bit Counter Branch Predictor
 signal last_prediction, last_prediction_in, pred_validate : integer range 0 to 3 := 0;
 signal actual_taken, branch_outcome, branch_signal_in, pc_branch_in: std_logic;
 signal predict_addr_upper : std_logic_vector(15 downto 0);
 signal predict_addr, predict_target, predict_target_correct, predict_untaken_addr : std_logic_vector(31 downto 0);
-signal branch_op : std_logic;
+signal branch_op, branch_select : std_logic;
 
 --Flush signal control
 signal flush_state : integer range 0 to 6 := 0;
@@ -447,6 +449,7 @@ signal hazard_state : integer range 0 to 7;
 --Signals for Forwarding
 signal Forward0_EX, Forward1_EX : std_logic_vector(1 downto 0);
 signal Forward0_Branch, Forward1_Branch : std_logic_vector(1 downto 0);
+signal Forward0_jump, Forward1_jump : std_logic_vector(2 downto 0);
 signal Branch_data0, Branch_data1: std_logic_vector(31 downto 0);
 signal Forwarding0_selector, Forwarding1_selector : std_logic_vector(2 downto 0) := "001";
 signal Forwarding_enable : std_logic := '1';
@@ -498,25 +501,20 @@ signal MEM_WB_data, Result_W, Result_W_in: std_logic_vector(31 downto 0);
 
 BEGIN
 
--- PC
+-- Program Counter
 Program_counter: PC
   PORT MAP( 
-          clk         => clk,
-          addr_in     => pc_addr_in, --should be jump_mux_out
-          PC_write    => '1',-- from hazard detection
-          addr_out    => PC_addr_out
-      );
-
-
-with branch_op select pc_addr_in <=
-  predict_target_correct when '1',
-  after_Jump when others;
+    clk         => clk,
+    addr_in     => after_Jump, --should be jump_mux_out
+    PC_write    => '1',-- from hazard detection
+    addr_out    => PC_addr_out
+  );
 
 -- increments the pc by 4 on every clock cycle unless branch or jump signals are high
 pc_increment : process (clk)
 begin
   if (falling_edge(clk)) then
-    if (CPU_stall /= '1' or ID_EX_Jump = '1') then
+    if (CPU_stall /= '1' or Branch_taken = '1' or ID_EX_Jump = '1') then
       pc_in <= to_integer(unsigned(PC_addr_out)) + 4;
     else
       pc_in <= to_integer(unsigned(PC_addr_out));
@@ -562,7 +560,7 @@ PORT MAP
     wordbyte      => '1',
     re            => inst_re_control,
     we            => '0', -- instMem never writes
-    dump          => mem_dump,
+    dump          => '0', -- instmem never needs to dump contents
     dataIn        => (others => '0'),
     dataOut       => Imem_inst_in,
     busy          => InstMem_busy
@@ -615,6 +613,7 @@ with PC_Branch select after_Branch <=
 
 BRANCH_ID : EarlyBranching
   PORT MAP(
+    flush           => flush,
     Branch          => Branch_Signal,
     EX_MEM_RegWrite => ID_EX_RegWrite,
     MEM_WB_RegWrite => EX_MEM_RegWrite,
@@ -627,14 +626,16 @@ BRANCH_ID : EarlyBranching
     Forward1_Branch => Forward1_Branch
     );
 
-with Forward0_Branch select Branch_data0 <=
-  EX_ALU_result when "01",
-  Result_W when "10",
+Forward0_jump <= Forward0_Branch & Jump;
+with Forward0_jump select Branch_data0 <=
+  EX_ALU_result when "010",
+  Result_W when "100",
   data0     when others;
 
-with Forward1_Branch select Branch_data1 <=
-  EX_ALU_result when "01",
-  Result_W when "10",
+Forward1_jump <= Forward1_Branch & Jump;
+with Forward1_jump select Branch_data1 <=
+  EX_ALU_result when "010",
+  Result_W when "100",
   data1     when others;
 
 -- early branch prediction: zero
@@ -691,6 +692,21 @@ with (branch_op = '1' and branch_outcome = '1') select predict_target <=
 with PC_Branch select predict_target_correct <=
   after_Branch when '1',
   predict_target when others;
+
+branch_select <= branch_op or Branch_Signal;
+
+process (clk)
+begin
+  if (falling_edge(clk)) then
+    case branch_select is
+      when '1' =>
+        pc_addr_in <= predict_target_correct;
+      when '0' =>
+        pc_addr_in <= after_Jump;
+      when others => null;
+    end case;
+  end if;
+end process;
 
 -------------------------------------------------
 --------------------JUMP LOGIC-------------------
@@ -898,6 +914,12 @@ with flush_state select lohi_write_control <=
   ALU_LOHI_Write_delayed when 4,
   ALU_LOHI_Write_delayed when 6,
   '0' when others;
+
+with flush_state select flush <=
+  '0' when 0,
+  '0' when 4,
+  '0' when 6,
+  '1' when others;
 
 -- 7 state final state machine for pipeline flush (need to flush for up to 5 clock cycles)
 flush_fsm : process (clk)

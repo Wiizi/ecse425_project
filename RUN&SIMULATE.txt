@@ -5,35 +5,9 @@ MIPS pipelined processor
 
 **Before simulating the processor, make sure to copy the assembler output to a file name "Init.dat", which must be in the source folder.
 
-Main components:
-	IF/ID
-	-PC.vhd
-	-Memory.vhd (Instruction instantiation)
-	-Twobit_Predictor.vhd
-	-IF_ID.vhd (pipeline stage)
-	
-	ID/EX
-	-Registers.vhd
-	-Control_Unit.vhd
-	-HazardDetectionUnit.vhd
-	-EarlyBranching.vhd
-	-ID_EX.vhd (pipeline stage)
-	
-	EX/MEM
-	-ALU.vhd
-	-Forwarding.vhd
-	-EX_MEM.vhd (pipeline stage)
-	
-	MEM/WB
-	-Memory.vhd (Data instantiation)
-	-MEM_WB.vhd (pipeline stage)
-	
-All relevant components were tested INDIVIDUALLY and passed all the tests. TestScript_readme.txt explains the tests and how to run them.
+*** PLEASE TEST WITH (clk period) = 10 * (clk_mem period)
 
-cpu.vhd is the file where all the components are connected in order to make the MIPS processor. Other parts were added directly to the module such as: 
-	-multiplexers 
-	-sign extension logic 
-	-branch and jump address calculations
+cpu.vhd is the file where all the components are connected in order to make the MIPS processor.
 
 COMBINED ENTITY PIPELINED CPU:
 **What is working so far**
@@ -43,17 +17,17 @@ Our MIPS pipelined processor is able to perform the following actions:
 	-Multiplexer selection for register sources and destinations
 	-Access to the instruction memory
 	-Writing and reading from Registers
-	-Calculating branch and jump address
+	-Early ID branching
 	-Performing all ALU operations
-	-Hazard Detection (separate module)
-	-Forwarding (separate module)
-	-Early Branching (separate module)
-	-Access Data memory (inside cpu.vhd)
+	-Accessing and writing to data memory
 	
 This processor implementation is not FULLY capable of performing the following actions (these components are integrated in cpu.vhd but not all functionality is correct due to overall complexity of the design):
-	
 	-Branch Prediction (inside cpu.vhd)
-	
+
+NOTE: We have implemented Branch Prediction modules and it works correcly individually. Literally most of the logic for branch prediction is also completed. However, we were unable to iron out all the bugs in the implementation. If you wish to verify the final state machine of the predictor, you can view all the signals in the simulation window under Predictor signals section.
+
+There are some corner cases that result in failure of the processor to branch correctly. Approximately 10% of branch instructions fail (from observation).
+
 In order to simulate cpu.vhd, run these commands on the transcript in ModelSim:
 	
 	1) source cpu_compiler.tcl
@@ -62,11 +36,13 @@ In order to simulate cpu.vhd, run these commands on the transcript in ModelSim:
 The simulation will attempt to execute the instructions loaded from Init.dat.
 NOTE: Both Init.dat and InitData.dat must be present in the runtime directory for the corresponding memory components to be initialized.
 
-The following signals will be disaplayed on the simulation screen when the command is run:
+The following signals will be displayed on the simulation screen when the command is run:
 Clocks
-Memory Signal
-Registers Unit Inputs and Ouputs
-Register values (0 through 31)
+Instruction and Data Memory Signal
+Registers Inputs and Ouputs
+Register values (0 through 31 + HI + LO) YOU WILL FIND THESE MOST USEFUL 
 Control Unit Signals
 ALU inputs and outputs
 Multiplexer selector signals
+Jump and Branch logic signals
+Branch and Branch Preediction signals

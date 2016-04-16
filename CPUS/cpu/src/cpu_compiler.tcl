@@ -16,6 +16,7 @@ proc AddWaves {} {
 
   add wave -group "INSTMEM"   -position end -radix unsigned sim:/cpu/InstMem_address\
                               -radix binary sim:/cpu/InstMem_re\
+                              -radix binary sim:/cpu/inst_re_control\
                               -radix unsigned sim:/cpu/pc_in\
                               -radix unsigned sim:/cpu/after_Jump\
                               -radix unsigned sim:/cpu/InstMem_busy\
@@ -173,6 +174,20 @@ proc AddWaves {} {
                               -radix unsigned sim:/cpu/JR_addr\
                               -radix unsigned sim:/cpu/J_addr
 
+  add wave -group "Predictor" -position end -radix binary sim:/cpu/PC_Branch\
+                              -radix binary sim:/cpu/Branch_Signal\
+                              -radix binary sim:/cpu/branch_outcome\
+                              -radix unsigned sim:/cpu/last_prediction\
+                              -radix unsigned sim:/cpu/pred_validate
+
+  add wave -group "Pred_addr" -position end -radix binary sim:/cpu/branch_op\
+                              -radix unsigned sim:/cpu/predict_addr\
+                              -radix unsigned sim:/cpu/InstMem_counterVector\
+                              -radix unsigned sim:/cpu/after_Branch\
+                              -radix unsigned sim:/cpu/predict_untaken_addr\
+                              -radix unsigned sim:/cpu/predict_target\
+                              -radix unsigned sim:/cpu/predict_target_correct
+
   ;#Set some formating options to make the Waves window more legible
   configure wave -namecolwidth 250
   WaveRestoreZoom {0 ns} {1100 ns}
@@ -228,5 +243,6 @@ proc CompileOnly {} {
   vcom Forwarding.vhd
   vcom MEM_WB.vhd
   vcom Earlybranching.vhd
+  vcom TwoBit_Predictor.vhd
   vcom cpu.vhd
 }

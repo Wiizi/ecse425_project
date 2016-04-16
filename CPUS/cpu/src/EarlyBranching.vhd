@@ -10,6 +10,7 @@ USE ieee.numeric_std.all;
 
 entity EarlyBranching is
 	port(
+		flush 			: in std_logic;
 		Branch 			: in std_logic;
 		EX_MEM_RegWrite : in std_logic;
 		MEM_WB_RegWrite	: in std_logic;
@@ -27,11 +28,8 @@ architecture Behavioural of EarlyBranching is
 
 begin
 
-	process(Branch, EX_MEM_RegWrite, MEM_WB_RegWrite, ID_Rs, ID_Rt, MEM_Rd, WB_Rd)
+	process (flush, Branch, EX_MEM_RegWrite, MEM_WB_RegWrite, ID_Rs, ID_Rt, MEM_Rd, WB_Rd)
 	begin
-
-	Forward0_Branch <= "00";
-	Forward1_Branch <= "00";
 
 	if (Branch = '1') then
 		if (EX_MEM_RegWrite = '1' and (MEM_Rd /= "00000") and (MEM_Rd = ID_Rs)) then
@@ -49,6 +47,11 @@ begin
 		if (MEM_WB_RegWrite = '1' and (WB_Rd /= "00000") and (not(EX_MEM_RegWrite = '1' and (MEM_Rd /= "00000") and (MEM_Rd = ID_Rt))) and (WB_Rd = ID_Rt)) then
 			Forward1_Branch <= "10";
 		end if;
+	end if;
+
+	if (flush = '1') then
+		Forward0_Branch <= "00";
+		Forward1_Branch <= "00";
 	end if;
 
 	end process;
